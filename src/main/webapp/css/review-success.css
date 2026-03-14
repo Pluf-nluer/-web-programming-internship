@@ -1,0 +1,107 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f7fa; 
+}
+
+
+.success-page-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+
+.success-card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    padding: 40px 30px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    animation: slideUp 0.5s ease-out;
+}
+
+
+.icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: #e8f5e9; 
+    color: #2ecc71;       
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 25px;
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.2);
+}
+
+
+.success-title {
+    color: #2c3e50;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+
+.success-message p {
+    font-size: 16px;
+    color: #34495e;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.success-message .sub-text {
+    font-size: 14px;
+    color: #7f8c8d; 
+}
+
+
+.action-buttons {
+    margin-top: 30px;
+}
+
+.btn-continue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #3498db; 
+    color: white;
+    text-decoration: none;
+    padding: 14px 30px;
+    border-radius: 50px; 
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.btn-continue:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,27 @@
+
+.categories-pg{
+    padding: 5px 0;
+}
+
+.policy-guide {
+    margin: 15px 150px;
+    padding: 0;
+    font-family: "Roboto", Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+.policy-guide-row{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.policy-guide-content h3{
+    margin-top: 15px;
+}
+
+.policy-guide-content p{
+    margin: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+}

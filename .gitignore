@@ -1,0 +1,15 @@
+# Bỏ qua file cấu hình database chứa mật khẩu
+**/db.properties
+
+# Bỏ qua các file hệ thống của IntelliJ (không nên đẩy lên Git)
+.idea/
+*.iml
+*.iws
+
+# Bỏ qua thư mục build (nếu dùng Maven/Gradle)
+target/
+/backend/target/
+build/
+out/
+
+**/DBConection

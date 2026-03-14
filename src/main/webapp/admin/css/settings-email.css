@@ -1,0 +1,216 @@
+﻿
+
+
+
+
+.email-template-card {
+    background: white;
+    border: 2px solid var(--admin-border-subtle);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.email-template-card:hover {
+    border-color: var(--admin-accent);
+    box-shadow: 0 4px 15px var(--admin-accent-soft);
+}
+
+.email-template-card:last-child {
+    margin-bottom: 0;
+}
+
+
+.template-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background: var(--admin-accent-soft);
+    border-bottom: 2px solid var(--admin-border-subtle);
+}
+
+.template-info {
+    flex: 1;
+}
+
+.template-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--admin-text-main);
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.template-info h3 i {
+    color: var(--admin-accent);
+    font-size: 18px;
+}
+
+.template-info p {
+    font-size: 13px;
+    color: var(--admin-text-muted);
+    margin: 0;
+}
+
+
+.template-content {
+    padding: 20px 25px;
+}
+
+.template-content .form-group {
+    margin-bottom: 20px;
+}
+
+.template-content .form-group:last-child {
+    margin-bottom: 0;
+}
+
+
+select {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    border: 2px solid var(--admin-border-subtle);
+    border-radius: 10px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+}
+
+#smtp-port,
+#mailchimp-api-key,
+#smtp-password,
+#sendgrid-api-key {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--admin-border-subtle);
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--admin-accent);
+    background: white;
+    box-shadow: 0 0 0 4px var(--admin-accent-soft);
+}
+
+select:hover {
+    border-color: var(--admin-accent);
+}
+
+
+.btn-test-email {
+    padding: 12px 24px;
+    background: var(--admin-accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--admin-shadow-sm);
+}
+
+.btn-test-email:hover {
+
+    box-shadow: var(--admin-shadow-md);
+}
+
+.btn-test-email i {
+    font-size: 14px;
+}
+
+
+.template-content .form-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--admin-text-soft);
+}
+
+
+.template-content textarea {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+.email-template-card.active {
+    border-color: var(--admin-success);
+}
+
+.email-template-card.active .template-header {
+    background: var(--admin-success-soft);
+}
+
+
+.template-info i.fa-brands {
+    font-size: 20px;
+}
+
+
+
+
+@media (max-width: 768px) {
+    .template-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .toggle-switch {
+        align-self: flex-end;
+    }
+
+    .template-content {
+        padding: 15px 20px;
+    }
+
+    .email-template-card {
+        margin-bottom: 15px;
+    }
+
+    .btn-test-email {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+
+
+
+
+.email-preview-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--admin-info-soft);
+    color: var(--admin-info);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+
+.form-hint code {
+    background: var(--admin-accent-soft);
+    color: var(--admin-accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+}

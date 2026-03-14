@@ -1,0 +1,222 @@
+ .container {
+     display: flex;
+     height: fit-content;
+ }
+
+ 
+ .sidebar {
+     width: 380px;
+     background: #f5f1e6;
+     overflow-y: auto;
+     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+ }
+
+ .search-section {
+     position: sticky;
+     top: 0;
+     padding: 20px;
+     background: #f5f1e6;
+     border-bottom: 1px solid #f5f1e6;
+     z-index: 100;
+ }
+
+ .search-box {
+     display: flex;
+     gap: 15px;
+     align-items: stretch;
+ }
+
+ .search-input {
+     flex: 1;
+     background: #f5f1e6;
+     padding: 14px 20px;
+     border: 2px solid #c0392b;
+     border-radius: 8px;
+     font-size: 15px;
+     outline: none;
+     transition: border-color 0.3s;
+ }
+
+ .search-input:focus {
+     border-color: #c0392b;
+ }
+
+ .search-input::placeholder {
+     color: #999;
+ }
+
+ .filter-dropdown {
+     position: relative;
+     min-width: 200px;
+     padding: 14px 20px;
+     border: none;
+     border-radius: 8px;
+     font-size: 15px;
+     background: #c0392b;
+     color: #f5f1e6;
+     cursor: pointer;
+     font-weight: 500;
+     appearance: none;
+     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+     background-repeat: no-repeat;
+     background-position: right 15px center;
+     padding-right: 40px;
+ }
+
+ .filter-dropdown:hover {
+     background: #c0392b;
+ }
+
+ .filter-dropdown option {
+     background: #f5f1e6;
+     color: #333;
+ }
+
+ .district-dropdown {
+     min-width: 220px;
+     padding: 14px 20px;
+     border: 2px solid #ddd;
+     border-radius: 8px;
+     font-size: 15px;
+     background: #f5f1e6;
+     border-color: #c0392b;
+     cursor: pointer;
+     appearance: none;
+     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+     background-repeat: no-repeat;
+     background-position: right 15px center;
+     padding-right: 40px;
+ }
+
+ .district-dropdown:hover {
+     border-color: #c0392b;
+ }
+
+ 
+ .store-list {
+     padding: 15px;
+     overflow-y: auto;
+     max-height: 100vh;
+ }
+
+ 
+ .store-list::-webkit-scrollbar {
+     width: 6px;
+ }
+
+ .store-list::-webkit-scrollbar-track {
+     background: #f0f0f0;
+     border-radius: 10px;
+ }
+
+ .store-list::-webkit-scrollbar-thumb {
+     background: #c0392b;
+     border-radius: 10px;
+     transition: background 300ms ease;
+ }
+
+ .store-list::-webkit-scrollbar-thumb:hover {
+     background: #c0392b;
+ }
+
+ 
+ .store-list {
+     scrollbar-width: thin;
+     scrollbar-color: #c0392b #f5f1e6;
+ }
+
+ .store-card {
+     background: #f5f1e6;
+     border: 2px solid #c0392b;
+     border-radius: 10px;
+     padding: 18px;
+     margin-bottom: 15px;
+     cursor: pointer;
+     transition: all 0.3s;
+ }
+
+ .store-card:hover {
+     box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+     transform: translateY(-2px);
+ }
+
+ .store-card.active {
+     background: #c0392b;
+     color: #f5f1e6;
+ }
+
+ .store-card.active .store-header,
+ .store-card.active .store-address,
+ .store-card.active .store-hotline {
+     color: white;
+ }
+
+ .store-header {
+     color: #c0392b;
+     font-weight: bold;
+     font-size: 16px;
+     margin-bottom: 10px;
+ }
+
+ .store-card.active .store-header {
+     color: white;
+ }
+
+ .store-address {
+     color: #333;
+     font-size: 14px;
+     line-height: 1.6;
+     margin-bottom: 10px;
+ }
+
+ .store-hotline {
+     color: #666;
+     font-size: 14px;
+     font-weight: 500;
+ }
+
+ .store-hotline span {
+     color: #c0392b;
+     font-weight: bold;
+ }
+
+ .store-card.active .store-hotline span {
+     color: white;
+ }
+
+ 
+ .map-section {
+     flex: 1;
+     position: relative;
+     background: #e5e3df;
+     min-height: 100vh;
+ }
+
+ #map {
+     width: 100%;
+     height: 100%;
+     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect fill="%23e5e3df" width="800" height="600"/><text x="400" y="300" font-size="20" fill="%23999" text-anchor="middle">Bản đồ sẽ hiển thị ở đây</text></svg>') center/cover;
+ }
+
+ #map iframe {
+     width: 100%;
+     height: 100%;
+     border: none;
+ }
+
+
+ 
+ @media (max-width: 768px) {
+     .container {
+         flex-direction: column;
+     }
+
+     .sidebar {
+         width: 100%;
+         height: 50vh;
+     }
+
+     .map-section {
+         height: 50vh;
+     }
+ }
