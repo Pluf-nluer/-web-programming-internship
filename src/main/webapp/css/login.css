@@ -283,6 +283,9 @@ body {
     font-size: 14px;
 }
 
+.form-options-single {
+    justify-content: flex-end;
+}
 .remember-me {
     display: flex;
     align-items: center;

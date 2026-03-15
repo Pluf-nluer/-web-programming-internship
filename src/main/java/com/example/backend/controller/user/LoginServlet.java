@@ -53,6 +53,11 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/index");
                 return;
             }
+            Object successMessage = session.getAttribute("successMessage");
+            if (successMessage != null) {
+                request.setAttribute("successMessage", successMessage);
+                session.removeAttribute("successMessage");
+            }
         }
 
         
@@ -73,10 +78,6 @@ public class LoginServlet extends HttpServlet {
         
         String emailOrPhone = request.getParameter("emailOrPhone");
         String password = request.getParameter("password");
-        String rememberMe = request.getParameter("rememberMe");
-
-        
-        
         if (emailOrPhone == null || emailOrPhone.trim().isEmpty() ||
                 password == null || password.trim().isEmpty()) {
 

@@ -70,11 +70,7 @@
                         </div>
                     </div>
 
-                    <div class="form-options">
-                        <label class="remember-me">
-                            <input type="checkbox" id="rememberMe" name="rememberMe">
-                            <span>Ghi nhớ đăng nhập</span>
-                        </label>
+                    <div class="form-options form-options-single">
                         <a href="${pageContext.request.contextPath}/forgot-password" class="forgot-password">Quên mật khẩu?</a>
                     </div>
 
