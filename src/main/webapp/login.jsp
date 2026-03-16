@@ -29,6 +29,10 @@
         <div class="login-form-wrapper">
             <div class="login-form-container">
                 <div class="login-header">
+                    <a href="${pageContext.request.contextPath}/" class="auth-logo-link" aria-label="Về trang chủ">
+                        <img src="https://suncraft.com.vn/wp-content/uploads/2025/09/suncraft-new-logo.svg"
+                             alt="Logo Suncraft" class="auth-logo">
+                    </a>
                     <h1>Đăng Nhập</h1>
                     <p>Chào mừng bạn quay trở lại</p>
                 </div>
