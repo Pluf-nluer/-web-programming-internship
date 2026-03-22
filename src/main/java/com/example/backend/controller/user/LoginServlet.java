@@ -12,35 +12,16 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-
-
-
-
-
-
-
-
-
-
-
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-
-    
     private UserDAO userDAO;
-
-    
     @Override
     public void init() throws ServletException {
         userDAO = new UserDAO();
     }
-
-    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        
         HttpSession session = request.getSession(false);
         if (session != null) {
             Object sessionUser = session.getAttribute("user");
@@ -53,44 +34,31 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/index");
                 return;
             }
-            Object successMessage = session.getAttribute("successMessage");
-            if (successMessage != null) {
-                request.setAttribute("successMessage", successMessage);
-                session.removeAttribute("successMessage");
-            }
         }
-
-        
         request.getRequestDispatcher("/login.jsp").forward(request, response);
     }
-
-    
 
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-
-        
         String emailOrPhone = request.getParameter("emailOrPhone");
         String password = request.getParameter("password");
+        String rememberMe = request.getParameter("rememberMe");
+
         if (emailOrPhone == null || emailOrPhone.trim().isEmpty() ||
                 password == null || password.trim().isEmpty()) {
 
-            
             request.setAttribute("errorMessage", "Vui lòng nhập đầy đủ thông tin!");
             request.getRequestDispatcher("/login.jsp").forward(request, response);
             return;
         }
 
-        
-        
+
         String hashedPassword = PasswordUtil.encrypt(password);
-        
+
         User user = userDAO.checkLogin(emailOrPhone, hashedPassword);
 
         if (user != null && !user.isActive()) {
@@ -101,22 +69,15 @@ public class LoginServlet extends HttpServlet {
         }
 
         if (user != null) {
-            
-
-            
             HttpSession session = request.getSession(true);
 
-            
-            
             session.setAttribute("user", user);
             session.setAttribute("userId", user.getId());
             session.setAttribute("userName", user.getFullName());
             session.setAttribute("userRole", user.getRole());
 
-            
             session.setMaxInactiveInterval(30 * 60);
 
-            
             System.out.println("✓ Đăng nhập thành công: " + user.getEmail());
 
             if (user.isAdmin()) {
@@ -131,21 +92,13 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect(redirectUrl);
                 return;
             }
-            
+
             response.sendRedirect(request.getContextPath() + "/index");
 
         } else {
-            
-
             System.out.println("✗ Đăng nhập thất bại: " + emailOrPhone);
-
-            
             request.setAttribute("errorMessage", "Email/SĐT hoặc mật khẩu không đúng!");
-
-            
             request.setAttribute("emailOrPhone", emailOrPhone);
-
-            
             request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
     }

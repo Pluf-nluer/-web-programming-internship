@@ -4,7 +4,7 @@
 <header id="header">
   <div class="container">
     <a href="${pageContext.request.contextPath}/" class="logo">
-      <img src="https://suncraft.com.vn/suncraft/Suncraft_website_Inf/suncraft_logo/e6e59529-b1df-4676-a5b2-f3757e67957e.png"
+      <img src="https://thesuncraft.com/wp-content/webp-express/webp-images/uploads/2024/10/logo-thesuncraft.png.webp"
            alt="Logo Suncraft">
     </a>
     <div class="menu">
