@@ -39,7 +39,7 @@ public class UserProfileServlet extends HttpServlet {
         if (currentUser == null) {
             
             
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -53,7 +53,7 @@ public class UserProfileServlet extends HttpServlet {
         } else {
             
             session.invalidate();
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -72,7 +72,7 @@ public class UserProfileServlet extends HttpServlet {
         User currentUser = (session != null) ? (User) session.getAttribute("user") : null;
 
         if (currentUser == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 

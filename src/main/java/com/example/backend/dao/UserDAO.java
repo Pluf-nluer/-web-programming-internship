@@ -594,8 +594,13 @@ public class UserDAO {
             }
         }
 
-        
-
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                System.err.println("Lỗi khi đóng Connection: " + e.getMessage());
+            }
+        }
     }
 
     private User extractUserFromResultSet(ResultSet rs) throws SQLException {

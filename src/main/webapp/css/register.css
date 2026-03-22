@@ -99,6 +99,26 @@ body {
     margin-bottom: 35px;
 }
 
+.auth-logo-link {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.auth-logo {
+    width: 90px !important;
+    max-width: 100%;
+    max-height: 54px;
+    height: auto !important;
+    object-fit: contain;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.auth-logo-link:hover .auth-logo {
+    opacity: 0.92;
+}
+
 .register-header h1 {
     font-size: 30px;
     color: #4e342e;
@@ -549,6 +569,11 @@ body {
 @media (max-width: 480px) {
     .register-main {
         padding: 20px 10px;
+    }
+
+    .auth-logo {
+        width: 72px !important;
+        max-height: 44px;
     }
 
     .register-decoration {

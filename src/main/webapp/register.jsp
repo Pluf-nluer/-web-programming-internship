@@ -45,6 +45,10 @@
         <div class="register-form-wrapper">
             <div class="register-form-container">
                 <div class="register-header">
+                    <a href="${pageContext.request.contextPath}/" class="auth-logo-link" aria-label="Về trang chủ">
+                        <img src="https://suncraft.com.vn/wp-content/uploads/2025/09/suncraft-new-logo.svg"
+                             alt="Logo Suncraft" class="auth-logo">
+                    </a>
                     <h1>Đăng Ký Tài Khoản</h1>
                     <p>Tạo tài khoản để trải nghiệm mua sắm tuyệt vời</p>
                 </div>

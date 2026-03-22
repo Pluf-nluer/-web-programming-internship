@@ -58,7 +58,7 @@
                 </form>
 
                 <div class="register-link">
-                    <p>Đã nhớ mật khẩu? <a href="${pageContext.request.contextPath}/login.jsp">Đăng nhập ngay</a></p>
+                    <p>Đã nhớ mật khẩu? <a href="${pageContext.request.contextPath}/login">Đăng nhập ngay</a></p>
                 </div>
             </div>
         </div>

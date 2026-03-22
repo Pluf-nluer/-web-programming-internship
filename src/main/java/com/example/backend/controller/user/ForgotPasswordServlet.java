@@ -35,8 +35,8 @@ public class ForgotPasswordServlet extends HttpServlet {
 
         if (success) {
             message = "Mật khẩu mới đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư đến (và cả thư rác/spam) để nhận mật khẩu mới.";
-            request.setAttribute("successMessage", message);
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            request.getSession().setAttribute("successMessage", message);
+            response.sendRedirect(request.getContextPath() + "/login");
         } else {
             message = "Email không tồn tại trong hệ thống hoặc có lỗi xảy ra. Vui lòng kiểm tra lại.";
             request.setAttribute("errorMessage", message);
