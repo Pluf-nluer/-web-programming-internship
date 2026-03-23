@@ -70,12 +70,12 @@ body{
 }
 
 .cart-item-name:hover {
-    color: #c97a3a;
+    color: #c0392b;
 }
 
 .cart-item-delete {
     font-size: 13px;
-    color: #c97a3a;
+    color: #c0392b;
     background: none;
     border: none;
     padding: 0;
@@ -88,9 +88,9 @@ body{
     color: #d9534f;
 }
 
-.price span {
-    font-size: 14px;
-    font-weight: 500;
+.price span{
+    font-size: 15px;
+    font-weight: 600;
     color: #c0392b;
 }
 
@@ -101,31 +101,42 @@ body{
     align-items: center;
 }
 
-
-.quantity button,
-.quantity input {
-    background: #fff;
-    border: none;
-    font-size: 16px;
-    text-align: center;
-    padding: 8px;
+.quantity{
+    display:flex;
+    align-item:center;
+    justify-content:center;
+    border:1px solid #ccc;
+    width: fit-content;
+    overflow: hidden;
 }
 
+
 .quantity button {
-    width: 30%;
+    background: white;
+    border: none;
     cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+    transition: background 0.2s;
 }
 
 .quantity button:hover {
-    color: #333333;
-}
-.quantity input {
-    width: 40%;
+    color:black;
 }
 
-.price-total span {
+.quantity input {
+    width: 40px;
+    border:none;
+    text-align:center;
+    font-size:15px;
+    outline: none;
+    padding: 5px 0;
+
+}
+
+.price-total{
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     color: #c0392b;
 }
 
@@ -143,16 +154,16 @@ body{
 
 .total-price {
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 15px;
     display: flex;
-    justify-content: space-between;
+    color:#c0392b;
 }
 
 .total-price span:first-child {
     color: #333333;
     font-weight: 600;
-    margin-right: 15px;
+    margin-right: 10px;
 }
 
 .total-price span:last-child {
@@ -179,4 +190,43 @@ body{
 
 .total-btn button:hover {
     background: #c97a3a;
+}
+
+.empty-cart{
+    text-align:center;
+    padding: 60px 20px;
+    background: #fdfdfd;
+    border: 2px solid #eeeeee;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+.empty-cart i{
+    font-size: 60px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+.empty-cart h3 {
+    font-size: 22px;
+    color: #333333;
+    margin-bottom: 10px;
+}
+
+.empty-cart p {
+    color: #666666;
+    margin-bottom: 25px;
+    font-size: 15px;
+}
+
+.empty-cart .btn-return {
+    display: inline-block;
+    padding: 15px 30px;
+    background-color: #c0392b;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 600;
+}
+
+.empty-cart .btn-return:hover {
+    background-color: #a93226;
 }
