@@ -202,5 +202,17 @@
         </div>
     </div>
 </div>
+<script>
+    window.addEventListener("beforeunload", function() {
+        sessionStorage.setItem("position", window.scrollY);
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+        let scrollPos = sessionStorage.getItem("position");
+        if (scrollPos) {
+            window.scrollTo(0, scrollPos);
+            sessionStorage.removeItem("position");
+        }
+    });
+</script>
 </body>
 </html>
