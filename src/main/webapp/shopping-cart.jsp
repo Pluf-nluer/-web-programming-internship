@@ -89,6 +89,9 @@
                 </div>
 
                 <div class="cart-footer">
+                    <a href = "${pageContext.request.contextPath}/products" class = "btn-continue">
+                        <i class = "fa-solid fa-arrow-left"></i>Quay lại
+                    </a>
                     <div class="total-summary">
                         <div class="total-price">
                             <span>Tổng tiền: </span>
