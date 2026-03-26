@@ -131,7 +131,7 @@
             </div>
 
             <div class="order-product">
-                <div class="order-summary" style="max-height: 400px; overflow-y: auto;">
+                <div class="order-summary">
 
                     <c:forEach var="item" items="${sessionScope.cart.items}">
                         <div class="cart-row">
@@ -140,18 +140,19 @@
                                     <a href="#" class="cart-item">
                                         <img src="${item.product.imageUrl}" alt="${item.product.name}">
                                     </a>
-                                    <span class="quantity" style="position: absolute; top: -5px; right: -5px; background: #2a9dcc; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px;">${item.quantity}</span>
+                                    <span class="quantity">${item.quantity}</span>
                                 </div>
                                 <div class="cart-info">
                                     <a href="#" class="cart-item-name">${item.product.name}</a>
                                 </div>
                             </div>
 
-
+                            <div class = "cart-item-price">
+                                <fmt:formatNumber value = "${item.product.price * item.quantity}" type = "currency" currencySymbol = "₫" maxFractionDigits = "0"/>
+                            </div>
 
                         </div>
                     </c:forEach>
-
                 </div>
 
                 <div class="order-total">
@@ -170,7 +171,7 @@
                 <div class="order-price">
                     <div class="order-price-top">
                         <span>Tổng cộng</span>
-                        <span class="price" style="color: #d0021b; font-size: 20px; font-weight: bold;">
+                        <span class="price">
                             <fmt:formatNumber value="${sessionScope.cart.totalMoney + 30000}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                         </span>
                     </div>
@@ -179,7 +180,7 @@
                             <span><i class="fa-solid fa-chevron-left"></i> Quay về giỏ hàng</span>
                         </a>
 
-                        <button type="submit" form="checkoutForm" class="btn-order" style="border: none; cursor: pointer;">
+                        <button type="submit" form="checkoutForm" class="btn-order">
                             Đặt hàng</button>
                     </div>
                 </div>

@@ -235,9 +235,14 @@ header .logo img {
 }
 
 .cart-item-name {
-    font-size: 15px;
+    display:-webkit-box;
+    font-size: 14px;
+    font-weight: 500;
     color: #333;
     text-decoration: none;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow: hidden;
 }
 .price-total span {
     font-size: 16px;
@@ -316,4 +321,12 @@ a.back-to-cart {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.cart-item-price {
+    margin-left:10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #c0392b;
+    white-space: nowrap;
 }
