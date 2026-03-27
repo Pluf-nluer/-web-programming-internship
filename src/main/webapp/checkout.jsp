@@ -111,12 +111,45 @@
                     <h3>Thanh toán</h3>
                     <div class="payment-options">
                         <label for="payment-cod" class="payment-option">
-                            <input type="radio" id="payment-cod" name="paymentMethod" value="COD" checked>
+                            <input type="radio" id="payment-cod" name="paymentMethod" value="COD">
                             <span>Thanh toán khi giao hàng (COD)</span>
                             <i class="fa fa-money-bill-alt"></i>
                         </label>
-                        <div class="payment-info">
-                            <span>Bạn chỉ phải thanh toán khi nhận được hàng</span>
+                        <div class="payment-info" id = "info-cod">
+                            <span>Bạn chỉ thanh toán khi nhận hàng</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-options">
+                        <label for="payment-momo" class="payment-option">
+                            <input type="radio" id="payment-momo" name="paymentMethod" value="Momo">
+                            <span>Thanh toán qua ví Momo</span>
+                            <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo" class="momo-logo">
+                        </label>
+                        <div class="payment-info" id="info-momo">
+                            <span>Chuyển hướng đến ứng dụng Momo</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-options">
+                        <label for="payment-bank" class="payment-option">
+                            <input type="radio" id="payment-bank" name="paymentMethod" value="Bank" checked>
+                            <span>Thanh toán qua ngân hàng</span>
+                            <i class="fa-solid fa-building-columns"></i>
+                        </label>
+                        <div class="payment-info" id="info-bank">
+                            <span>Chuyển tiền trước khi nhận hàng</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-options">
+                        <label for="payment-vnpay" class="payment-option">
+                            <input type="radio" id="payment-vnpay" name="paymentMethod" value="VnPay">
+                            <span>Thanh toán qua VNPay</span>
+                            <img src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-1.png" alt="VNPAY" class="vnpay-logo">
+                        </label>
+                        <div class="payment-info" id="info-vnpay">
+                            <span>Chuyển tiền trước khi nhận hàng</span>
                         </div>
                     </div>
                 </div>
