@@ -111,12 +111,45 @@
                     <h3>Thanh toán</h3>
                     <div class="payment-options">
                         <label for="payment-cod" class="payment-option">
-                            <input type="radio" id="payment-cod" name="paymentMethod" value="COD" checked>
+                            <input type="radio" id="payment-cod" name="paymentMethod" value="COD">
                             <span>Thanh toán khi giao hàng (COD)</span>
                             <i class="fa fa-money-bill-alt"></i>
                         </label>
-                        <div class="payment-info">
-                            <span>Bạn chỉ phải thanh toán khi nhận được hàng</span>
+                        <div class="payment-info" id = "info-cod">
+                            <span>Bạn chỉ thanh toán khi nhận hàng</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-options">
+                        <label for="payment-momo" class="payment-option">
+                            <input type="radio" id="payment-momo" name="paymentMethod" value="Momo">
+                            <span>Thanh toán qua ví Momo</span>
+                            <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo" class="momo-logo">
+                        </label>
+                        <div class="payment-info" id="info-momo">
+                            <span>Chuyển hướng đến ứng dụng Momo</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-options">
+                        <label for="payment-bank" class="payment-option">
+                            <input type="radio" id="payment-bank" name="paymentMethod" value="Bank" checked>
+                            <span>Thanh toán qua ngân hàng</span>
+                            <i class="fa-solid fa-building-columns"></i>
+                        </label>
+                        <div class="payment-info" id="info-bank">
+                            <span>Chuyển tiền trước khi nhận hàng</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-options">
+                        <label for="payment-vnpay" class="payment-option">
+                            <input type="radio" id="payment-vnpay" name="paymentMethod" value="VnPay">
+                            <span>Thanh toán qua VNPay</span>
+                            <img src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-1.png" alt="VNPAY" class="vnpay-logo">
+                        </label>
+                        <div class="payment-info" id="info-vnpay">
+                            <span>Chuyển tiền trước khi nhận hàng</span>
                         </div>
                     </div>
                 </div>
@@ -131,7 +164,7 @@
             </div>
 
             <div class="order-product">
-                <div class="order-summary" style="max-height: 400px; overflow-y: auto;">
+                <div class="order-summary">
 
                     <c:forEach var="item" items="${sessionScope.cart.items}">
                         <div class="cart-row">
@@ -140,18 +173,19 @@
                                     <a href="#" class="cart-item">
                                         <img src="${item.product.imageUrl}" alt="${item.product.name}">
                                     </a>
-                                    <span class="quantity" style="position: absolute; top: -5px; right: -5px; background: #2a9dcc; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px;">${item.quantity}</span>
+                                    <span class="quantity">${item.quantity}</span>
                                 </div>
                                 <div class="cart-info">
                                     <a href="#" class="cart-item-name">${item.product.name}</a>
                                 </div>
                             </div>
 
-
+                            <div class = "cart-item-price">
+                                <fmt:formatNumber value = "${item.product.price * item.quantity}" type = "currency" currencySymbol = "₫" maxFractionDigits = "0"/>
+                            </div>
 
                         </div>
                     </c:forEach>
-
                 </div>
 
                 <div class="order-total">
@@ -170,7 +204,7 @@
                 <div class="order-price">
                     <div class="order-price-top">
                         <span>Tổng cộng</span>
-                        <span class="price" style="color: #d0021b; font-size: 20px; font-weight: bold;">
+                        <span class="price">
                             <fmt:formatNumber value="${sessionScope.cart.totalMoney + 30000}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                         </span>
                     </div>
@@ -179,7 +213,7 @@
                             <span><i class="fa-solid fa-chevron-left"></i> Quay về giỏ hàng</span>
                         </a>
 
-                        <button type="submit" form="checkoutForm" class="btn-order" style="border: none; cursor: pointer;">
+                        <button type="submit" form="checkoutForm" class="btn-order">
                             Đặt hàng</button>
                     </div>
                 </div>

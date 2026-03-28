@@ -24,11 +24,11 @@
     <div class="container">
 
         <c:if test="${sessionScope.cart == null || sessionScope.cart.totalQuantity == 0}">
-            <div style="text-align: center; padding: 50px; background: #fff; border-radius: 8px;">
-                <i class="fa-solid fa-cart-arrow-down" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+            <div class="empty-cart">
+                <i class="fa-solid fa-cart-arrow-down" ></i>
                 <h3>Giỏ hàng của bạn đang trống!</h3>
                 <p>Hãy thêm sản phẩm để tiến hành thanh toán.</p>
-                <a href="${pageContext.request.contextPath}/products" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #e67e22; color: white; text-decoration: none; border-radius: 5px;">Quay lại mua sắm</a>
+                <a href="${pageContext.request.contextPath}/products" class="btn-return">Quay lại mua sắm</a>
             </div>
         </c:if>
 
@@ -45,40 +45,40 @@
 
                     <c:forEach var="item" items="${sessionScope.cart.items}">
 
-                        <div class="cart-row" style="display: flex; align-items: center; border-bottom: 1px solid #eee; padding: 15px 0;">
+                        <div class="cart-row">
 
-                            <div class="cart-items" style="flex: 2; display: flex; align-items: center; gap: 15px;">
+                            <div class="cart-items">
                                 <a href="productdetail?id=${item.product.id}" class="cart-item">
-                                    <img src="${item.product.imageUrl}" alt="image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                                    <img src="${item.product.imageUrl}" alt="image">
                                 </a>
                                 <div class="cart-info">
-                                    <strong class="cart-item-name" style="font-size: 1.1em;">${item.product.name}</strong>
+                                    <strong class="cart-item-name">${item.product.name}</strong>
 
                                     <br>
-                                    <a href="cart?action=remove&productId=${item.product.id}" class="cart-item-delete" style="color: #ff4d4f; font-size: 0.9em; text-decoration: none; margin-top: 5px; display: inline-block;" onclick="return confirm('Bạn muốn xóa sản phẩm này?');">
+                                    <a href="cart?action=remove&productId=${item.product.id}" class="cart-item-delete" onclick="return confirm('Bạn muốn xóa sản phẩm này?');">
                                         <i class="fa-solid fa-trash"></i> Xóa
                                     </a>
                                 </div>
                             </div>
 
-                            <div class="price" style="flex: 1; text-align: center;">
-                                <span style="font-weight: 500;">
+                            <div class="price">
+                                <span>
                                     <fmt:formatNumber value="${item.product.price}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                                 </span>
                             </div>
 
-                            <div class="cart-items-quantity" style="flex: 1; text-align: center;">
-                                <form action="cart" method="GET" class="quantity" style="display: flex; justify-content: center; align-items: center; width: fit-content; border: 1px solid #333333;">
+                            <div class="cart-items-quantity">
+                                <form action="cart" method="GET" class="quantity">
                                     <input type="hidden" name="action" value="update">
                                     <input type="hidden" name="productId" value="${item.product.id}">
 
-                                    <button type="submit" name="quantity" value="${item.quantity - 1}" ${item.quantity <= 1 ? 'disabled' : ''} style="cursor: pointer; width: 30px; height: 30px; border: 1px solid #ddd; background: white;">-</button>
-                                    <input type="text" value="${item.quantity}" readonly style="width: 40px; height: 30px; text-align: center; border: 1px solid #ddd; border-left: none; border-right: none; outline: none;">
-                                    <button type="submit" name="quantity" value="${item.quantity + 1}" style="cursor: pointer; width: 30px; height: 30px; border: 1px solid #ddd; background: white;">+</button>
+                                    <button type="submit" name="quantity" value="${item.quantity - 1}" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
+                                    <input type="text" value="${item.quantity}" readonly>
+                                    <button type="submit" name="quantity" value="${item.quantity + 1}">+</button>
                                 </form>
                             </div>
 
-                            <div class="price-total" style="flex: 1; text-align: right; font-weight: bold; color: #d0021b; font-size: 1.1em;">
+                            <div class="price-total">
                                 <fmt:formatNumber value="${item.product.price * item.quantity}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                             </div>
 
@@ -89,10 +89,13 @@
                 </div>
 
                 <div class="cart-footer">
+                    <a href = "${pageContext.request.contextPath}/products" class = "btn-continue">
+                        <i class = "fa-solid fa-arrow-left"></i>Quay lại
+                    </a>
                     <div class="total-summary">
                         <div class="total-price">
                             <span>Tổng tiền: </span>
-                            <span style="font-weight: bold; color: #d0021b; font-size: 20px;">
+                            <span>
                                 <fmt:formatNumber value="${sessionScope.cart.totalMoney}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                             </span>
                         </div>
@@ -202,5 +205,17 @@
         </div>
     </div>
 </div>
+<script>
+    window.addEventListener("beforeunload", function() {
+        sessionStorage.setItem("position", window.scrollY);
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+        let scrollPos = sessionStorage.getItem("position");
+        if (scrollPos) {
+            window.scrollTo(0, scrollPos);
+            sessionStorage.removeItem("position");
+        }
+    });
+</script>
 </body>
 </html>

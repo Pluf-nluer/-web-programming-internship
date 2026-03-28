@@ -119,11 +119,13 @@ header .logo img {
     border: 1px solid #ccc;
 }
 .payment-options {
+    display: block;
     font-size: 14px;
     font-weight: 400;
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 2px solid #ccc;
+    margin-bottom: 15px;
 }
 
 .payment-option {
@@ -154,11 +156,29 @@ header .logo img {
 }
 
 .payment-info {
+    display: none;
     font-size: 14px;
     color: #777;
     margin-top: 10px;
     font-weight: 400;
     padding-left: 40px;
+}
+
+.payment-info .active{
+    display: block;
+}
+
+.momo-logo, .vnpay-logo{
+    width: auto;
+    object-fit: contain;
+}
+
+.momo-logo{
+    height:24px;
+}
+
+.vnpay-logo{
+    height:16px;
 }
 
 .checkout-sidebar {
@@ -235,9 +255,14 @@ header .logo img {
 }
 
 .cart-item-name {
-    font-size: 15px;
+    display:-webkit-box;
+    font-size: 14px;
+    font-weight: 500;
     color: #333;
     text-decoration: none;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow: hidden;
 }
 .price-total span {
     font-size: 16px;
@@ -316,4 +341,12 @@ a.back-to-cart {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.cart-item-price {
+    margin-left:10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #c0392b;
+    white-space: nowrap;
 }
