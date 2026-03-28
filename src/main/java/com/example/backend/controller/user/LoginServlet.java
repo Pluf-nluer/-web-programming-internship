@@ -78,8 +78,6 @@ public class LoginServlet extends HttpServlet {
 
             session.setMaxInactiveInterval(30 * 60);
 
-            System.out.println("✓ Đăng nhập thành công: " + user.getEmail());
-
             if (user.isAdmin()) {
                 session.removeAttribute("postLoginRedirect");
                 response.sendRedirect(request.getContextPath() + "/admin/dashboard");
@@ -93,10 +91,9 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
-            response.sendRedirect(request.getContextPath() + "/index");
+            response.sendRedirect(request.getContextPath() + "/");
 
         } else {
-            System.out.println("✗ Đăng nhập thất bại: " + emailOrPhone);
             request.setAttribute("errorMessage", "Email/SĐT hoặc mật khẩu không đúng!");
             request.setAttribute("emailOrPhone", emailOrPhone);
             request.getRequestDispatcher("/login.jsp").forward(request, response);
