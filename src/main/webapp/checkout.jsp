@@ -132,17 +132,6 @@
                     </div>
 
                     <div class="payment-options">
-                        <label for="payment-bank" class="payment-option">
-                            <input type="radio" id="payment-bank" name="paymentMethod" value="Bank" checked>
-                            <span>Thanh toán qua ngân hàng</span>
-                            <i class="fa-solid fa-building-columns"></i>
-                        </label>
-                        <div class="payment-info" id="info-bank">
-                            <span>Chuyển tiền trước khi nhận hàng</span>
-                        </div>
-                    </div>
-
-                    <div class="payment-options">
                         <label for="payment-vnpay" class="payment-option">
                             <input type="radio" id="payment-vnpay" name="paymentMethod" value="VnPay">
                             <span>Thanh toán qua VNPay</span>
