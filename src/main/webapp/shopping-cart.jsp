@@ -47,7 +47,7 @@
                     <c:forEach var="item" items="${sessionScope.cart.items}">
 
                         <div class="cart-row">
-
+                            <input type = "checkbox" value = "${item.product.id}" class = "item-checkbox single-check" data-price = "${item.product.price}" data-qty = "${item.quantity}">
                             <div class="cart-items">
                                 <a href="productdetail?id=${item.product.id}" class="cart-item">
                                     <img src="${item.product.imageUrl}" alt="image">
@@ -95,12 +95,10 @@
                     </a>
                     <div class="total-summary">
                         <div class="total-price">
-                            <span>Tổng tiền: </span>
-                            <span>
-                                <fmt:formatNumber value="${sessionScope.cart.totalMoney}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                            </span>
+                            <span>Tổng thanh toán (<span id = "totalSelectedCount">0</span> SP): </span>
+                            <span id = "dynamicTotalMoney">0₫</span>
                         </div>
-                        <a href="${pageContext.request.contextPath}/checkout" class="btn-checkout">Thanh toán</a>
+                        <a href="#" class="btn-checkout disabled" id = "btnCheckout">Thanh toán</a>
                     </div>
                 </div>
             </div>
@@ -144,6 +142,9 @@
         const searchInput = document.getElementById("ajaxSearchInput");
         const resultArea = document.getElementById("searchResultArea");
         const searchTitle = document.getElementById("searchTitle");
+        const checkAll = document.getElementById("selectedAll");
+        const itemChecks = document.getElementById("single-check")
+
         if (scrollPos) {
             window.scrollTo(0, scrollPos);
             sessionStorage.removeItem("position");
@@ -164,6 +165,40 @@
                 resultArea.innerHTML = "";
             }
         });
+        function calculateTotal(){
+            let totalMoney = 0;
+            let totalItems = 0;
+
+            itemChecks.forEach(check =>{
+                if(check.checked){
+                    let price = parseFloat(check.getAttribute("data-price"));
+                    let qty = parseInt(check.getAttribute("data-qty"));
+                    totalMoney += (price*qty);
+                    totalItems += 1;
+                }
+            });
+        }
+        // chọn tất cả sản phẩm
+        if(checkAll){
+            checkAll.addEventListener('change', function(){
+                itemChecks.forEach(check => check.checked = this.checked);
+                calculateTotal();
+            });
+        }
+        // chọn một vài sản phẩm
+        itemChecks.forEach(check => {
+            check.addEventListener('change', function(){
+                if(!this.checked){
+                    checkAll.checked = false;
+                }
+                let allChecked = Array.from(itemChecks).every(c => c.checked);
+                if(allChecked){
+                    checkAll.checked = true;
+                }
+                calculateTotal();
+            });
+        });
+
     });
 </script>
 </body>
