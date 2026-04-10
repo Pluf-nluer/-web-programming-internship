@@ -95,7 +95,7 @@
                     </a>
                     <div class="total-summary">
                         <div class="total-price">
-                            <span>Tổng thanh toán (<span id = "totalSelectedCount">0</span> SP): </span>
+                            <span>Tổng tiền (<span id="totalSelectedCount">0</span>sản phẩm):</span>
                             <span id = "dynamicTotalMoney">0₫</span>
                         </div>
                         <a href="#" class="btn-checkout disabled" id = "btnCheckout">Thanh toán</a>
@@ -143,8 +143,10 @@
         const resultArea = document.getElementById("searchResultArea");
         const searchTitle = document.getElementById("searchTitle");
         const checkAll = document.getElementById("selectedAll");
-        const itemChecks = document.getElementById("single-check")
-
+        const itemChecks = document.querySelectorAll(".single-check")
+        const totalMoneyDisplay = document.getElementById('dynamicTotalMoney');
+        const totalCountDisplay = document.getElementById('totalSelectedCount');
+        const btnCheckout = document.getElementById('btnCheckout');
         if (scrollPos) {
             window.scrollTo(0, scrollPos);
             sessionStorage.removeItem("position");
@@ -174,9 +176,23 @@
                     let price = parseFloat(check.getAttribute("data-price"));
                     let qty = parseInt(check.getAttribute("data-qty"));
                     totalMoney += (price*qty);
-                    totalItems += 1;
+                    totalItems += qty;
                 }
             });
+            if(totalMoneyDisplay){
+                totalMoneyDisplay.innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalMoney);
+            }
+            if(totalCountDisplay){
+                totalCountDisplay.innerText = totalItems;
+            }
+            if(btnCheckout){
+                if(totalItems>0){
+                    btnCheckout.classList.remove('disabled');
+                }else{
+                    btnCheckout.classList.add('disabled');
+                }
+
+            }
         }
         // chọn tất cả sản phẩm
         if(checkAll){
@@ -198,7 +214,25 @@
                 calculateTotal();
             });
         });
-
+        // thanh toan
+        if(btnCheckout){
+            btnCheckout.addEventListener('click', function(e){
+                e.preventDefault();
+                if(this.classList.contains('disabled')){
+                    return;
+                }
+                let selectedId = [];
+                itemChecks.forEach(check => {
+                    if(check.checked){
+                        selectedId.push("selectedId="+check.value);
+                    }
+                });
+                if(selectedId.length > 0){
+                    let query = selectedId.join("&");
+                    window.location.href = "${pageContext.request.contextPath}/checkout?"+query;
+                }
+            });
+        }
     });
 </script>
 </body>
