@@ -34,7 +34,7 @@
           <div class="stat-card total">
             <div class="stat-icon"><i class="fa-solid fa-star"></i></div>
             <div class="stat-info">
-              <h3>${totalReviews != null ? totalReviews : "487"}</h3>
+              <h3>${totalReviews != null ? totalReviews : "0"}</h3>
               <p>Tổng đánh giá</p>
             </div>
           </div>
@@ -98,15 +98,15 @@
       </div>
 
       <div class="reviews-list-section">
-        
+
         <c:forEach var="review" items="${reviewList}">
-          <div class="review-item ${review.status}">
+          <div class="review-item ${review.status != null ? review.status : 'pending'}">
             <div class="review-header">
               <div class="review-customer">
                 <div class="customer-avatar"><i class="fa-solid fa-user"></i></div>
                 <div class="customer-info">
-                  <h4>${review.customerName}</h4>
-                  <p>${review.customerEmail}</p>
+                  <h4>${review.userName != null ? review.userName : "Khách hàng ẩn danh"}</h4>
+                  <p>${review.userId}</p>
                 </div>
               </div>
               <div class="review-meta">
@@ -114,27 +114,30 @@
                   <c:forEach begin="1" end="${review.rating}"><i class="fa-solid fa-star"></i></c:forEach>
                   <span class="rating-number">${review.rating}.0</span>
                 </div>
-                <span class="review-date">${review.createdAt}</span>
-                <span class="status-badge status-${review.status}">
-                    ${review.status == 'pending' ? 'Chờ duyệt' : (review.status == 'approved' ? 'Đã duyệt' : 'Từ chối')}
+                <span class="review-date">
+                    <fmt:formatDate value="${review.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
+                </span>
+                <span class="status-badge status-pending">
+                    ${review.status == 'approved' ? 'Đã duyệt' : 'Chờ duyệt'}
                 </span>
               </div>
             </div>
-
-            <div class="review-product">
-              <div class="product-image"><img src="${review.productImage}" alt="${review.productName}"></div>
+           <div class="review-product">
+              <div class="product-image">
+                <img src="${pageContext.request.contextPath}/assets/img/default-product.png" alt="Product">
+              </div>
               <div class="product-info">
-                <h5>${review.productName}</h5>
-                <p>Mã: ${review.productCode}</p>
+                <h5>Sản phẩm ID: ${review.productId}</h5>
+                <p>Mã sản phẩm chưa cập nhật</p>
               </div>
             </div>
 
             <div class="review-content">
-              <p>${review.content}</p>
+              <p>${review.comment}</p>
             </div>
 
             <div class="review-actions">
-              <c:if test="${review.status == 'pending'}">
+              <c:if test="${review.status == 'pending' || review.status == null}">
                 <button class="btn-action btn-approve" onclick="updateStatus(${review.id}, 'approved')">
                   <i class="fa-solid fa-check"></i> Duyệt
                 </button>
@@ -146,7 +149,6 @@
           </div>
         </c:forEach>
 
-        
         <c:if test="${empty reviewList}">
           <p style="text-align: center; padding: 20px;">Không có đánh giá nào phù hợp.</p>
         </c:if>
@@ -164,13 +166,13 @@
 <script>
   function updateStatus(id, status) {
     if(confirm('Bạn có chắc muốn cập nhật trạng thái này?')) {
-      window.location.href = '${pageContext.request.contextPath}/admin/reviews/update?id=' + id + '&status=' + status;
+      window.location.href = '${pageContext.request.contextPath}/admin/review?action=updateStatus&id=' + id + '&status=' + status;
     }
   }
 
   function confirmDelete(id) {
     if(confirm('Hành động này không thể hoàn tác. Xóa đánh giá này?')) {
-      window.location.href = '${pageContext.request.contextPath}/admin/reviews/delete?id=' + id;
+      window.location.href = '${pageContext.request.contextPath}/admin/review?action=delete&id=' + id;
     }
   }
 </script>
