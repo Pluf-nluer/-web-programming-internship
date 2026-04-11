@@ -159,6 +159,10 @@
 </main>
 
 <script>
+    const blockedEmailDomains = [
+        'example.com', 'example.org', 'example.net',
+        'test.com', 'test.org', 'test.net'
+    ];
     const validPhonePrefixes = [
         '032', '033', '034', '035', '036', '037', '038', '039',
         '052', '055', '056', '058', '059',
@@ -168,7 +172,34 @@
         '096', '097', '098', '099'
     ];
     const registerForm = document.getElementById('registerForm');
+    const emailInput = document.getElementById('email');
     const phoneInput = document.getElementById('phone');
+
+    function validateEmailField() {
+        const email = emailInput.value.trim().toLowerCase();
+
+        if (!email) {
+            emailInput.setCustomValidity('');
+            return true;
+        }
+
+        if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(email)) {
+            emailInput.setCustomValidity('Vui lòng nhập email đúng định dạng.');
+            return false;
+        }
+
+        const parts = email.split('@');
+        const localPart = parts[0];
+        const domain = parts[1];
+
+        if (localPart.startsWith('.') || localPart.endsWith('.') || localPart.includes('..') || /^[0-9]+$/.test(localPart) || blockedEmailDomains.includes(domain) || domain.includes('..')) {
+            emailInput.setCustomValidity('Vui lòng nhập email thật và không dùng email mẫu.');
+            return false;
+        }
+
+        emailInput.setCustomValidity('');
+        return true;
+    }
 
     function validatePhoneField() {
         const phone = phoneInput.value.trim();
@@ -186,6 +217,10 @@
         phoneInput.setCustomValidity('');
         return true;
     }
+
+    emailInput.addEventListener('input', function() {
+        validateEmailField();
+    });
 
     phoneInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
@@ -214,6 +249,12 @@
     registerForm.addEventListener('submit', function(e) {
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!validateEmailField()) {
+            e.preventDefault();
+            emailInput.reportValidity();
+            return;
+        }
 
         if (!validatePhoneField()) {
             e.preventDefault();
