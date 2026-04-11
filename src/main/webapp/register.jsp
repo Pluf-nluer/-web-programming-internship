@@ -92,7 +92,7 @@
                             Số điện thoại
                         </label>
                         <input type="tel" id="phone" name="phone" value="${phone}"
-                               placeholder="Nhập số điện thoại" pattern="[0-9]{10,11}" required>
+                               placeholder="Nhập số điện thoại" inputmode="numeric" maxlength="10" pattern="0[0-9]{9}" required>
                     </div>
 
                     <div class="form-group">
@@ -159,7 +159,39 @@
 </main>
 
 <script>
-    
+    const validPhonePrefixes = [
+        '032', '033', '034', '035', '036', '037', '038', '039',
+        '052', '055', '056', '058', '059',
+        '070', '076', '077', '078', '079',
+        '081', '082', '083', '084', '085', '086', '087', '088', '089',
+        '090', '091', '092', '093', '094',
+        '096', '097', '098', '099'
+    ];
+    const registerForm = document.getElementById('registerForm');
+    const phoneInput = document.getElementById('phone');
+
+    function validatePhoneField() {
+        const phone = phoneInput.value.trim();
+
+        if (!phone) {
+            phoneInput.setCustomValidity('');
+            return true;
+        }
+
+        if (phone.length !== 10 || !phone.startsWith('0') || !validPhonePrefixes.includes(phone.substring(0, 3))) {
+            phoneInput.setCustomValidity('Vui lòng nhập số di động Việt Nam hợp lệ.');
+            return false;
+        }
+
+        phoneInput.setCustomValidity('');
+        return true;
+    }
+
+    phoneInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+        validatePhoneField();
+    });
+
     document.querySelectorAll('.toggle-password').forEach(button => {
         button.addEventListener('click', function() {
             const targetId = this.getAttribute('data-target');
@@ -179,9 +211,15 @@
     });
 
     
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
+    registerForm.addEventListener('submit', function(e) {
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!validatePhoneField()) {
+            e.preventDefault();
+            phoneInput.reportValidity();
+            return;
+        }
 
         if (password !== confirmPassword) {
             e.preventDefault();
