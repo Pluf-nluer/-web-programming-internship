@@ -21,7 +21,7 @@ body{
 
 .cart-header {
     display: grid;
-    grid-template-columns: 2.5fr 1fr 1fr 1fr;
+    grid-template-columns:0.2fr 2.5fr 1fr 1fr 1fr;
     gap: 20px;
     padding-bottom: 10px;
     font-size: 16px;
@@ -37,7 +37,7 @@ body{
 
 .cart-row {
     display: grid;
-    grid-template-columns: 2.5fr 1fr 1fr 1fr;
+    grid-template-columns:0.2fr 2.5fr 1fr 1fr 1fr;
     gap: 20px;
     align-items: center;
     padding: 20px 0;
@@ -250,4 +250,17 @@ body{
 
 .empty-cart .btn-return:hover {
     background-color: #a93226;
+}
+
+.item-checkbox{
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #c0392b;
+}
+
+.btn-checkout.disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }
