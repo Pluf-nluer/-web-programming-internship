@@ -11,10 +11,6 @@
         try {
             com.example.backend.service.CategoryService service = new com.example.backend.service.CategoryService();
             List<com.example.backend.model.Category> list = service.getAllCategories();
-
-            
-            System.out.println("DEBUG Category List Size: " + (list != null ? list.size() : "null"));
-
             request.setAttribute("categories", list);
         } catch (Exception e) {
             e.printStackTrace();
