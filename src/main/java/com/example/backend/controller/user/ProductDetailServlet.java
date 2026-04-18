@@ -46,7 +46,6 @@ public class ProductDetailServlet extends HttpServlet {
 
         ProductDAO productDAO = new ProductDAO();
         List<Review> reviews = productDAO.getReviewsByProductId(pid);
-        System.out.println("Số lượng review lấy được: " + (reviews != null ? reviews.size() : 0));
 
         List<Product> relatedProducts = productService.getRelatedProducts(product.getCategoryId(), pid);
 

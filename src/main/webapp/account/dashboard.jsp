@@ -123,7 +123,7 @@
                         <div class="empty-state">
                             <i class="fa-solid fa-box-open"></i>
                             <p>Bạn chưa có đơn hàng nào</p>
-                            <a href="${pageContext.request.contextPath}/products.jsp" class="btn-shop">Mua sắm ngay</a>
+                            <a href="${pageContext.request.contextPath}/products" class="btn-shop">Mua sắm ngay</a>
                         </div>
                     <% } else { %>
                         <% for (Order order : recentOrders) {

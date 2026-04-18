@@ -9,35 +9,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Cart implements Serializable {
-    Map<Integer,CartItem> items;
+    Map<Integer, CartItem> items;
     private User user;
 
     public Cart() {
         items = new HashMap<>();
     }
 
-    
+
     public void add(Product product, int quantity) {
-        if(quantity <= 0){
+        if (quantity <= 0) {
             quantity = 1;
         }
 
-        if(get(product.getId())!=null){
+        if (get(product.getId()) != null) {
             items.get(product.getId()).updateQuantity(quantity);
-        }
-
-        else{
-            items.put(product.getId(),new CartItem(product,quantity,product.getPrice()));
+        } else {
+            items.put(product.getId(), new CartItem(product, quantity, product.getPrice()));
         }
     }
 
-    
+
     public boolean update(int productId, int quantity) {
-        if(get(productId)==null){
+        if (get(productId) == null) {
             return false;
         }
 
-        if(quantity<=0){
+        if (quantity <= 0) {
             items.remove(productId);
             return true;
         }
@@ -47,43 +45,57 @@ public class Cart implements Serializable {
 
     }
 
-    
+
     public CartItem remove(int productId) {
-        if(get(productId)==null){
+        if (get(productId) == null) {
             return null;
         }
 
         return items.remove(productId);
     }
 
-    
-    public List<CartItem> removeAll(){
+
+    public List<CartItem> removeAll() {
         List<CartItem> list = new ArrayList<>(items.values());
         items.clear();
         return list;
     }
 
-    
+
     public double getTotalMoney() {
         AtomicReference<Double> total = new AtomicReference<>(0.0);
 
-        getItems().forEach(item->{
-            total.updateAndGet(v -> v+(item.getQuantity()*item.getPrice()));
+        getItems().forEach(item -> {
+            total.updateAndGet(v -> v + (item.getQuantity() * item.getPrice()));
         });
         return total.get();
     }
 
-    
+
     public int getTotalQuantity() {
         AtomicInteger total = new AtomicInteger(0);
 
-        getItems().forEach(item->{
+        getItems().forEach(item -> {
             total.addAndGet(item.getQuantity());
         });
         return total.get();
 
     }
 
+    public Cart getCheckoutCart(List<Integer> selectedId) {
+        Cart checkoutCart = new Cart();
+        if (selectedId != null) {
+            for (Integer id : selectedId) {
+                CartItem item = this.get(id);
+                if (item != null) {
+                    checkoutCart.items.put(id, item);
+
+                }
+            }
+        }
+        checkoutCart.setUser(this.user);
+        return checkoutCart;
+    }
     
     public List<CartItem> getItems() {
         return new ArrayList<>(items.values());

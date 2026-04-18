@@ -24,11 +24,11 @@
     <div class="container">
 
         <c:if test="${sessionScope.cart == null || sessionScope.cart.totalQuantity == 0}">
-            <div style="text-align: center; padding: 50px; background: #fff; border-radius: 8px;">
-                <i class="fa-solid fa-cart-arrow-down" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+            <div class="empty-cart">
+                <i class="fa-solid fa-cart-arrow-down" ></i>
                 <h3>Giỏ hàng của bạn đang trống!</h3>
                 <p>Hãy thêm sản phẩm để tiến hành thanh toán.</p>
-                <a href="${pageContext.request.contextPath}/products" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #e67e22; color: white; text-decoration: none; border-radius: 5px;">Quay lại mua sắm</a>
+                <a href="${pageContext.request.contextPath}/products" class="btn-return">Quay lại mua sắm</a>
             </div>
         </c:if>
 
@@ -36,6 +36,7 @@
             <div class="cart-layout">
                 <div class="cart-left">
                     <div class="cart-header">
+                        <input type = "checkbox" id = "selectedAll" class = "item-checkbox">
                         <span>Thông tin sản phẩm</span>
                         <span>Đơn giá</span>
                         <span>Số lượng</span>
@@ -45,40 +46,40 @@
 
                     <c:forEach var="item" items="${sessionScope.cart.items}">
 
-                        <div class="cart-row" style="display: flex; align-items: center; border-bottom: 1px solid #eee; padding: 15px 0;">
-
-                            <div class="cart-items" style="flex: 2; display: flex; align-items: center; gap: 15px;">
+                        <div class="cart-row">
+                            <input type = "checkbox" value = "${item.product.id}" class = "item-checkbox single-check" data-price = "${item.product.price}" data-qty = "${item.quantity}">
+                            <div class="cart-items">
                                 <a href="productdetail?id=${item.product.id}" class="cart-item">
-                                    <img src="${item.product.imageUrl}" alt="image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                                    <img src="${item.product.imageUrl}" alt="image">
                                 </a>
                                 <div class="cart-info">
-                                    <strong class="cart-item-name" style="font-size: 1.1em;">${item.product.name}</strong>
+                                    <strong class="cart-item-name">${item.product.name}</strong>
 
                                     <br>
-                                    <a href="cart?action=remove&productId=${item.product.id}" class="cart-item-delete" style="color: #ff4d4f; font-size: 0.9em; text-decoration: none; margin-top: 5px; display: inline-block;" onclick="return confirm('Bạn muốn xóa sản phẩm này?');">
+                                    <a href="cart?action=remove&productId=${item.product.id}" class="cart-item-delete" onclick="return confirm('Bạn muốn xóa sản phẩm này?');">
                                         <i class="fa-solid fa-trash"></i> Xóa
                                     </a>
                                 </div>
                             </div>
 
-                            <div class="price" style="flex: 1; text-align: center;">
-                                <span style="font-weight: 500;">
+                            <div class="price">
+                                <span>
                                     <fmt:formatNumber value="${item.product.price}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                                 </span>
                             </div>
 
-                            <div class="cart-items-quantity" style="flex: 1; text-align: center;">
-                                <form action="cart" method="GET" class="quantity" style="display: flex; justify-content: center; align-items: center; width: fit-content; border: 1px solid #333333;">
+                            <div class="cart-items-quantity">
+                                <form action="cart" method="GET" class="quantity">
                                     <input type="hidden" name="action" value="update">
                                     <input type="hidden" name="productId" value="${item.product.id}">
 
-                                    <button type="submit" name="quantity" value="${item.quantity - 1}" ${item.quantity <= 1 ? 'disabled' : ''} style="cursor: pointer; width: 30px; height: 30px; border: 1px solid #ddd; background: white;">-</button>
-                                    <input type="text" value="${item.quantity}" readonly style="width: 40px; height: 30px; text-align: center; border: 1px solid #ddd; border-left: none; border-right: none; outline: none;">
-                                    <button type="submit" name="quantity" value="${item.quantity + 1}" style="cursor: pointer; width: 30px; height: 30px; border: 1px solid #ddd; background: white;">+</button>
+                                    <button type="submit" name="quantity" value="${item.quantity - 1}" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
+                                    <input type="text" value="${item.quantity}" readonly>
+                                    <button type="submit" name="quantity" value="${item.quantity + 1}">+</button>
                                 </form>
                             </div>
 
-                            <div class="price-total" style="flex: 1; text-align: right; font-weight: bold; color: #d0021b; font-size: 1.1em;">
+                            <div class="price-total">
                                 <fmt:formatNumber value="${item.product.price * item.quantity}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                             </div>
 
@@ -89,14 +90,15 @@
                 </div>
 
                 <div class="cart-footer">
+                    <a href = "${pageContext.request.contextPath}/products" class = "btn-continue">
+                        <i class = "fa-solid fa-arrow-left"></i>Quay lại
+                    </a>
                     <div class="total-summary">
                         <div class="total-price">
-                            <span>Tổng tiền: </span>
-                            <span style="font-weight: bold; color: #d0021b; font-size: 20px;">
-                                <fmt:formatNumber value="${sessionScope.cart.totalMoney}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
-                            </span>
+                            <span>Tổng tiền (<span id="totalSelectedCount">0</span>sản phẩm):</span>
+                            <span id = "dynamicTotalMoney">0₫</span>
                         </div>
-                        <a href="${pageContext.request.contextPath}/checkout" class="btn-checkout">Thanh toán</a>
+                        <a href="#" class="btn-checkout disabled" id = "btnCheckout">Thanh toán</a>
                     </div>
                 </div>
             </div>
@@ -104,70 +106,8 @@
 
     </div>
 </section>
-<footer id="footer">
-    <div class="container">
-        <div class="content">
-            <div class="info">
-                <div class="info_details">
-                    <h2>Thông tin</h2>
-                    <div>
-                        <i class="fa-solid fa-location-dot"></i>
-                        <p>Trường Đại học Nông Lâm Tp.Hcm</p>
-                    </div>
-                    <div>
-                        <i class="fa-solid fa-phone"></i>
-                        <p>0337429995</p> </div>
-                    <div>
-                        <i class="fa-solid fa-envelope"></i>
-                        <p>23130240@st.hcmuaf.edu.vn</p> </div>
-                </div>
-
-                <div class="info_media">
-                    <h2>Mạng xã hội</h2>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon zalo" aria-label="Zalo">
-                            <strong>Za</strong>
-                        </a>
-                        <a href="#" class="social-icon fb" aria-label="Facebook">
-                            <i class="fa-brands fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="social-icon yt" aria-label="YouTube">
-                            <i class="fa-brands fa-youtube"></i>
-                        </a>
-                        <a href="#" class="social-icon gg" aria-label="Google">
-                            <i class="fa-brands fa-google"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="policy-guide-wrapper">
-                <div class="component policy">
-                    <h2>Chính sách</h2> <ul> <li><a href="policy/security.jsp" class="hover color">Chính sách bảo mật</a></li>
-                    <li><a href="policy/transport.jsp" class="hover color">Chính sách vận chuyển</a></li>
-                    <li><a href="policy/change.jsp" class="hover color">Chính sách đổi trả</a></li>
-                    <li><a href="policy/regulation-use.jsp" class="hover color">Quy định sử dụng</a></li>
-                </ul> </div>
-                <div class="component guide">
-                    <h2>Hướng dẫn</h2> <ul> <li><a href="guide/purchase.jsp" class="hover color">Hướng dẫn mua hàng</a></li>
-                    <li><a href="guide/payment.jsp" class="hover color">Hướng dẫn thanh toán</a></li>
-                    <li><a href="guide/delivery.jsp" class="hover color">Hướng dẫn giao nhận</a></li>
-                    <li><a href="guide/clause.jsp" class="hover color">Điều khoản sử dụng</a></li>
-                </ul> </div>
-            </div>
-
-            <div class="others">
-                <h2>Đăng ký nhận tin</h2>
-                <p>Đăng ký ngay! Để nhận nhiều ưu đãi</p>
-                <div class="input">
-                    <input type="text" name="Email" id="address" placeholder="Nhập địa chỉ email">
-                    <button>Đăng ký</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</footer>
-<script src="js/hero-section.js"></script>
+<%@include file = "compenents/footer.jsp"%>
+<script src="${pageContext.request.contextPath}/js/hero-section.js"></script>
 <input type="checkbox" id="search-toggle" class="hidden-checkbox">
 
 <label for="search-toggle" class="search-overlay"></label>
@@ -180,27 +120,120 @@
     </div>
 
     <div class="search-panel-content">
-        <div class="search-form">
-            <input type="text" placeholder="Nhập tên sản phẩm...">
+        <form action="${pageContext.request.contextPath}/products" method = "GET" class="search-form">
+            <input type="text" name = "search" id = "ajaxSearchInput" placeholder="Nhập tên sản phẩm..." autocomplete = "off">
+            <button type = submit>
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        </div>
+            </button>
+        </form>
 
-        <h3>Sản phẩm được tìm nhiều nhất</h3>
+        <h3 id = "searchTitle">Sản phẩm gợi ý</h3>
 
-        <div class="search-results-list">
-
-            <a href="${pageContext.request.contextPath}/search.jsp" class="search-result-item">
-                <div class="search-item-image">
-                    <img src="#" alt="Ca bia">
-                </div>
-                <div class="search-item-info">
-                    <p class="product-name">Ca bia 0.36 L - Jasmine - Trắng</p>
-                    <p class="product-price">75.900đ</p>
-                </div>
-            </a>
-
+        <div class="search-results-list" id = "searchResultArea">
         </div>
     </div>
 </div>
+<script>
+    window.addEventListener("beforeunload", function() {
+        sessionStorage.setItem("position", window.scrollY);
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+        let scrollPos = sessionStorage.getItem("position");
+        const searchInput = document.getElementById("ajaxSearchInput");
+        const resultArea = document.getElementById("searchResultArea");
+        const searchTitle = document.getElementById("searchTitle");
+        const checkAll = document.getElementById("selectedAll");
+        const itemChecks = document.querySelectorAll(".single-check")
+        const totalMoneyDisplay = document.getElementById('dynamicTotalMoney');
+        const totalCountDisplay = document.getElementById('totalSelectedCount');
+        const btnCheckout = document.getElementById('btnCheckout');
+        if (scrollPos) {
+            window.scrollTo(0, scrollPos);
+            sessionStorage.removeItem("position");
+        }
+        searchInput.addEventListener("input", function() {
+            const keyword = this.value.trim();
+
+            if (keyword.length >= 1) {
+                searchTitle.innerText = "Kết quả gợi ý cho: '" + keyword + "'";
+                fetch("${pageContext.request.contextPath}/search-ajax?keyword=" + encodeURIComponent(keyword))
+                    .then(response => response.text())
+                    .then(data => {
+                        resultArea.innerHTML = data;
+                    })
+                    .catch(err => console.error("Lỗi tìm kiếm AJAX:", err));
+            } else {
+                searchTitle.innerText = "Sản phẩm gợi ý";
+                resultArea.innerHTML = "";
+            }
+        });
+        function calculateTotal(){
+            let totalMoney = 0;
+            let totalItems = 0;
+
+            itemChecks.forEach(check =>{
+                if(check.checked){
+                    let price = parseFloat(check.getAttribute("data-price"));
+                    let qty = parseInt(check.getAttribute("data-qty"));
+                    totalMoney += (price*qty);
+                    totalItems += qty;
+                }
+            });
+            if(totalMoneyDisplay){
+                totalMoneyDisplay.innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalMoney);
+            }
+            if(totalCountDisplay){
+                totalCountDisplay.innerText = totalItems;
+            }
+            if(btnCheckout){
+                if(totalItems>0){
+                    btnCheckout.classList.remove('disabled');
+                }else{
+                    btnCheckout.classList.add('disabled');
+                }
+
+            }
+        }
+        // chọn tất cả sản phẩm
+        if(checkAll){
+            checkAll.addEventListener('change', function(){
+                itemChecks.forEach(check => check.checked = this.checked);
+                calculateTotal();
+            });
+        }
+        // chọn một vài sản phẩm
+        itemChecks.forEach(check => {
+            check.addEventListener('change', function(){
+                if(!this.checked){
+                    checkAll.checked = false;
+                }
+                let allChecked = Array.from(itemChecks).every(c => c.checked);
+                if(allChecked){
+                    checkAll.checked = true;
+                }
+                calculateTotal();
+            });
+        });
+        // thanh toan
+        if(btnCheckout){
+            btnCheckout.addEventListener('click', function(e){
+                e.preventDefault();
+                if(this.classList.contains('disabled')){
+                    return;
+                }
+                let selectedId = [];
+                itemChecks.forEach(check => {
+                    if(check.checked){
+                        selectedId.push("selectedId="+check.value);
+                    }
+                });
+                if(selectedId.length > 0){
+                    let query = selectedId.join("&");
+                    window.location.href = "${pageContext.request.contextPath}/checkout?"+query;
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>

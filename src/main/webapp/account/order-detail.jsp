@@ -120,7 +120,7 @@
                         </h1>
                         <p class="order-code">
                             <i class="fa-solid fa-hashtag"></i>
-                            <strong>#<%= order.getId() %></strong>
+                            <strong><%= order.getId() %></strong>
                         </p>
                     </div>
                     <span class="status-badge status-<%= statusClass %>"><%= statusText %></span>
