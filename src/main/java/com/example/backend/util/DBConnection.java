@@ -4,9 +4,9 @@ import java.sql.*;
 
 public class DBConnection {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/webshop_db";
+    private static final String URL = "jdbc:mysql://192.168.6.131:3306/web_shop";
     private static final String USER = "root";
-    private static final String PASS = "";
+    private static final String PASS = "12345";
 
     static {
         try {

@@ -1,15 +1,32 @@
-# Bỏ qua file cấu hình database chứa mật khẩu
+# ========================
+# Database config (secret)
+# ========================
 **/db.properties
+**/application.properties
+**/.env
 
-# Bỏ qua các file hệ thống của IntelliJ (không nên đẩy lên Git)
+# ========================
+# IntelliJ IDEA
+# ========================
 .idea/
 *.iml
 *.iws
 
-# Bỏ qua thư mục build (nếu dùng Maven/Gradle)
+# ========================
+# Build folders
+# ========================
 target/
-/backend/target/
 build/
 out/
+.gradle/
 
-**/DBConection
+# ========================
+# Logs
+# ========================
+*.log
+
+# ========================
+# OS files
+# ========================
+.DS_Store
+Thumbs.db
