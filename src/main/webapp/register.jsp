@@ -67,7 +67,7 @@
                 <div class="error-message" id="googleError"></div>
 
 
-                <form class="register-form" id="registerForm" action="${pageContext.request.contextPath}/register" method="post">
+                <form class="register-form" id="registerForm" action="${pageContext.request.contextPath}/register" method="post" novalidate>
                     <div class="form-group">
                         <label for="fullName">
                             <i class="fa-solid fa-user"></i>
@@ -75,6 +75,7 @@
                         </label>
                         <input type="text" id="fullName" name="fullName" value="${fullName}"
                                placeholder="Nhập họ và tên đầy đủ" required>
+                        <div class="field-feedback" id="fullNameError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-group">
@@ -84,6 +85,7 @@
                         </label>
                         <input type="email" id="email" name="email" value="${email}"
                                placeholder="example@email.com" required>
+                        <div class="field-feedback" id="emailError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-group">
@@ -93,6 +95,7 @@
                         </label>
                         <input type="tel" id="phone" name="phone" value="${phone}"
                                placeholder="Nhập số điện thoại" inputmode="numeric" maxlength="10" pattern="0[0-9]{9}" required>
+                        <div class="field-feedback" id="phoneError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-group">
@@ -113,6 +116,7 @@
                             </div>
                             <p id="passwordStrengthText">Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</p>
                         </div>
+                        <div class="field-feedback" id="passwordError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-group">
@@ -127,6 +131,7 @@
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
+                        <div class="field-feedback" id="confirmPasswordError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-options">
@@ -134,6 +139,7 @@
                             <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
                             <span>Tôi đồng ý với <a href="#" class="terms-link">điều khoản sử dụng</a> và <a href="#" class="terms-link">Chính sách bảo mật</a></span>
                         </label>
+                        <div class="field-feedback" id="agreeTermsError" aria-live="polite"></div>
                     </div>
 
                     <button type="submit" class="btn-register">
@@ -178,26 +184,96 @@
         '096', '097', '098', '099'
     ];
     const registerForm = document.getElementById('registerForm');
+    const fullNameInput = document.getElementById('fullName');
     const emailInput = document.getElementById('email');
     const phoneInput = document.getElementById('phone');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
+    const agreeTermsInput = document.getElementById('agreeTerms');
     const passwordStrength = document.getElementById('passwordStrength');
     const passwordStrengthFill = document.getElementById('passwordStrengthFill');
     const passwordStrengthText = document.getElementById('passwordStrengthText');
     const passwordRuleMessage = 'Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.';
-    let passwordStrengthTimer;
+    const fieldErrors = {
+        fullName: document.getElementById('fullNameError'),
+        email: document.getElementById('emailError'),
+        phone: document.getElementById('phoneError'),
+        password: document.getElementById('passwordError'),
+        confirmPassword: document.getElementById('confirmPasswordError'),
+        agreeTerms: document.getElementById('agreeTermsError')
+    };
 
-    function validateEmailField() {
+    function getFieldWrapper(input) {
+        return input.closest('.form-group') || input.closest('.form-options');
+    }
+
+    function markTouched(input) {
+        input.dataset.touched = 'true';
+    }
+
+    function shouldShowFieldError(input, forceShow) {
+        return forceShow || input.dataset.touched === 'true';
+    }
+
+    function clearFieldError(input) {
+        const wrapper = getFieldWrapper(input);
+        const errorElement = fieldErrors[input.id];
+
+        if (wrapper) {
+            wrapper.classList.remove('has-error');
+        }
+
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+        }
+    }
+
+    function showFieldError(input, message, forceShow) {
+        if (!shouldShowFieldError(input, forceShow)) {
+            clearFieldError(input);
+            return;
+        }
+
+        const wrapper = getFieldWrapper(input);
+        const errorElement = fieldErrors[input.id];
+
+        if (wrapper) {
+            wrapper.classList.add('has-error');
+        }
+
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+    }
+
+    function validateFullNameField(forceShow = false) {
+        const fullName = fullNameInput.value.trim();
+
+        if (!fullName) {
+            fullNameInput.setCustomValidity('Vui lòng nhập họ và tên.');
+            showFieldError(fullNameInput, 'Vui lòng nhập họ và tên.', forceShow);
+            return false;
+        }
+
+        fullNameInput.setCustomValidity('');
+        clearFieldError(fullNameInput);
+        return true;
+    }
+
+    function validateEmailField(forceShow = false) {
         const email = emailInput.value.trim().toLowerCase();
 
         if (!email) {
-            emailInput.setCustomValidity('');
-            return true;
+            emailInput.setCustomValidity('Vui lòng nhập email.');
+            showFieldError(emailInput, 'Vui lòng nhập email.', forceShow);
+            return false;
         }
 
         if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(email)) {
             emailInput.setCustomValidity('Vui lòng nhập email đúng định dạng.');
+            showFieldError(emailInput, 'Vui lòng nhập email đúng định dạng.', forceShow);
             return false;
         }
 
@@ -207,27 +283,32 @@
 
         if (localPart.startsWith('.') || localPart.endsWith('.') || localPart.includes('..') || /^[0-9]+$/.test(localPart) || blockedEmailDomains.includes(domain) || domain.includes('..')) {
             emailInput.setCustomValidity('Vui lòng nhập email thật và không dùng email mẫu.');
+            showFieldError(emailInput, 'Vui lòng nhập email thật và không dùng email mẫu.', forceShow);
             return false;
         }
 
         emailInput.setCustomValidity('');
+        clearFieldError(emailInput);
         return true;
     }
 
-    function validatePhoneField() {
+    function validatePhoneField(forceShow = false) {
         const phone = phoneInput.value.trim();
 
         if (!phone) {
-            phoneInput.setCustomValidity('');
-            return true;
+            phoneInput.setCustomValidity('Vui lòng nhập số điện thoại.');
+            showFieldError(phoneInput, 'Vui lòng nhập số điện thoại.', forceShow);
+            return false;
         }
 
         if (phone.length !== 10 || !phone.startsWith('0') || !validPhonePrefixes.includes(phone.substring(0, 3))) {
             phoneInput.setCustomValidity('Vui lòng nhập số di động Việt Nam hợp lệ.');
+            showFieldError(phoneInput, 'Vui lòng nhập số di động Việt Nam hợp lệ.', forceShow);
             return false;
         }
 
         phoneInput.setCustomValidity('');
+        clearFieldError(phoneInput);
         return true;
     }
 
@@ -285,44 +366,89 @@
         passwordStrengthText.textContent = 'Mức độ: Mạnh. Bạn có thể dùng mật khẩu này để đăng ký.';
     }
 
-    function validateConfirmPassword() {
+    function validateConfirmPassword(forceShow = false) {
         const confirmPassword = confirmPasswordInput.value;
 
         if (!confirmPassword) {
-            confirmPasswordInput.setCustomValidity('');
-            return true;
+            confirmPasswordInput.setCustomValidity('Vui lòng nhập lại mật khẩu.');
+            showFieldError(confirmPasswordInput, 'Vui lòng nhập lại mật khẩu.', forceShow);
+            return false;
         }
 
         if (passwordInput.value !== confirmPassword) {
             confirmPasswordInput.setCustomValidity('Mật khẩu xác nhận không khớp!');
+            showFieldError(confirmPasswordInput, 'Mật khẩu xác nhận không khớp!', forceShow);
             return false;
         }
 
         confirmPasswordInput.setCustomValidity('');
+        clearFieldError(confirmPasswordInput);
         return true;
     }
 
-    function updatePasswordStrength() {
+    function validateAgreeTermsField(forceShow = false) {
+        if (!agreeTermsInput.checked) {
+            agreeTermsInput.setCustomValidity('Bạn cần đồng ý với điều khoản sử dụng.');
+            showFieldError(agreeTermsInput, 'Bạn cần đồng ý với điều khoản sử dụng.', forceShow);
+            return false;
+        }
+
+        agreeTermsInput.setCustomValidity('');
+        clearFieldError(agreeTermsInput);
+        return true;
+    }
+
+    function updatePasswordStrength(forceShow = false) {
         const strength = getPasswordStrength(passwordInput.value);
         setPasswordStrengthState(strength);
 
-        if (passwordInput.value && strength !== 'Mạnh') {
+        if (!passwordInput.value) {
+            passwordInput.setCustomValidity('Vui lòng nhập mật khẩu.');
+            showFieldError(passwordInput, 'Vui lòng nhập mật khẩu.', forceShow);
+            validateConfirmPassword();
+            return strength;
+        }
+
+        if (strength !== 'Mạnh') {
             passwordInput.setCustomValidity(passwordRuleMessage);
+            showFieldError(passwordInput, passwordRuleMessage, forceShow);
         } else {
             passwordInput.setCustomValidity('');
+            clearFieldError(passwordInput);
         }
 
         validateConfirmPassword();
         return strength;
     }
 
-    function schedulePasswordStrengthUpdate() {
-        clearTimeout(passwordStrengthTimer);
-        passwordStrengthTimer = setTimeout(updatePasswordStrength, 400);
+    function validateRegisterForm(forceShow = false) {
+        const isFullNameValid = validateFullNameField(forceShow);
+        const isEmailValid = validateEmailField(forceShow);
+        const isPhoneValid = validatePhoneField(forceShow);
+        const passwordStrengthValue = updatePasswordStrength(forceShow);
+        const isPasswordValid = passwordInput.checkValidity() && passwordStrengthValue === 'Mạnh';
+        const isConfirmPasswordValid = validateConfirmPassword(forceShow);
+        const isAgreeTermsValid = validateAgreeTermsField(forceShow);
+
+        return isFullNameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid && isAgreeTermsValid;
     }
+
+    fullNameInput.addEventListener('input', function() {
+        validateFullNameField();
+    });
+
+    fullNameInput.addEventListener('blur', function() {
+        markTouched(this);
+        validateFullNameField(true);
+    });
 
     emailInput.addEventListener('input', function() {
         validateEmailField();
+    });
+
+    emailInput.addEventListener('blur', function() {
+        markTouched(this);
+        validateEmailField(true);
     });
 
     phoneInput.addEventListener('input', function() {
@@ -330,18 +456,37 @@
         validatePhoneField();
     });
 
+    phoneInput.addEventListener('blur', function() {
+        markTouched(this);
+        validatePhoneField(true);
+    });
+
     passwordInput.addEventListener('input', function() {
-        validateConfirmPassword();
-        schedulePasswordStrengthUpdate();
+        updatePasswordStrength();
     });
 
     passwordInput.addEventListener('blur', function() {
-        clearTimeout(passwordStrengthTimer);
-        updatePasswordStrength();
+        markTouched(this);
+        updatePasswordStrength(true);
     });
 
     confirmPasswordInput.addEventListener('input', function() {
         validateConfirmPassword();
+    });
+
+    confirmPasswordInput.addEventListener('blur', function() {
+        markTouched(this);
+        validateConfirmPassword(true);
+    });
+
+    agreeTermsInput.addEventListener('change', function() {
+        markTouched(this);
+        validateAgreeTermsField(true);
+    });
+
+    agreeTermsInput.addEventListener('blur', function() {
+        markTouched(this);
+        validateAgreeTermsField(true);
     });
 
     document.querySelectorAll('.toggle-password').forEach(button => {
@@ -364,30 +509,16 @@
 
     
     registerForm.addEventListener('submit', function(e) {
-        clearTimeout(passwordStrengthTimer);
-        updatePasswordStrength();
+        [fullNameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput, agreeTermsInput].forEach(markTouched);
 
-        if (!validateEmailField()) {
+        if (!validateRegisterForm(true)) {
             e.preventDefault();
-            emailInput.reportValidity();
-            return;
-        }
+            const firstInvalidField = [fullNameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput, agreeTermsInput]
+                .find(input => !input.checkValidity());
 
-        if (!validatePhoneField()) {
-            e.preventDefault();
-            phoneInput.reportValidity();
-            return;
-        }
-
-        if (!passwordInput.checkValidity()) {
-            e.preventDefault();
-            passwordInput.reportValidity();
-            return;
-        }
-
-        if (!validateConfirmPassword()) {
-            e.preventDefault();
-            confirmPasswordInput.reportValidity();
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+            }
         }
     });
 </script>
