@@ -102,10 +102,16 @@
                         </label>
                         <div class="password-input-wrapper">
                             <input type="password" id="password" name="password"
-                                   placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)" minlength="6" required>
+                                   placeholder="Tối thiểu 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt" minlength="8" required>
                             <button type="button" class="toggle-password" data-target="password">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength" data-strength="">
+                            <div class="password-strength-bar">
+                                <span id="passwordStrengthFill"></span>
+                            </div>
+                            <p id="passwordStrengthText">Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</p>
                         </div>
                     </div>
 
@@ -116,7 +122,7 @@
                         </label>
                         <div class="password-input-wrapper">
                             <input type="password" id="confirmPassword" name="confirmPassword"
-                                   placeholder="Nhập lại mật khẩu" minlength="6" required>
+                                   placeholder="Nhập lại mật khẩu" minlength="8" required>
                             <button type="button" class="toggle-password" data-target="confirmPassword">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
@@ -174,6 +180,13 @@
     const registerForm = document.getElementById('registerForm');
     const emailInput = document.getElementById('email');
     const phoneInput = document.getElementById('phone');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const passwordStrengthFill = document.getElementById('passwordStrengthFill');
+    const passwordStrengthText = document.getElementById('passwordStrengthText');
+    const passwordRuleMessage = 'Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.';
+    let passwordStrengthTimer;
 
     function validateEmailField() {
         const email = emailInput.value.trim().toLowerCase();
@@ -218,6 +231,96 @@
         return true;
     }
 
+    function getPasswordStrength(password) {
+        if (!password) {
+            return '';
+        }
+
+        let types = 0;
+
+        if (/[a-z]/.test(password)) {
+            types++;
+        }
+        if (/[A-Z]/.test(password)) {
+            types++;
+        }
+        if (/[0-9]/.test(password)) {
+            types++;
+        }
+        if (/[^A-Za-z0-9\s]/.test(password)) {
+            types++;
+        }
+
+        if (password.length < 8 || types <= 2) {
+            return 'Yếu';
+        }
+        if (types === 3) {
+            return 'Trung bình';
+        }
+        return 'Mạnh';
+    }
+
+    function setPasswordStrengthState(strength) {
+        passwordStrength.dataset.strength = strength;
+
+        if (!strength) {
+            passwordStrengthFill.style.width = '0%';
+            passwordStrengthText.textContent = passwordRuleMessage;
+            return;
+        }
+
+        if (strength === 'Yếu') {
+            passwordStrengthFill.style.width = '33%';
+            passwordStrengthText.textContent = 'Mức độ: Yếu. ' + passwordRuleMessage;
+            return;
+        }
+
+        if (strength === 'Trung bình') {
+            passwordStrengthFill.style.width = '66%';
+            passwordStrengthText.textContent = 'Mức độ: Trung bình. Thêm 1 nhóm ký tự còn thiếu để đạt mức mạnh.';
+            return;
+        }
+
+        passwordStrengthFill.style.width = '100%';
+        passwordStrengthText.textContent = 'Mức độ: Mạnh. Bạn có thể dùng mật khẩu này để đăng ký.';
+    }
+
+    function validateConfirmPassword() {
+        const confirmPassword = confirmPasswordInput.value;
+
+        if (!confirmPassword) {
+            confirmPasswordInput.setCustomValidity('');
+            return true;
+        }
+
+        if (passwordInput.value !== confirmPassword) {
+            confirmPasswordInput.setCustomValidity('Mật khẩu xác nhận không khớp!');
+            return false;
+        }
+
+        confirmPasswordInput.setCustomValidity('');
+        return true;
+    }
+
+    function updatePasswordStrength() {
+        const strength = getPasswordStrength(passwordInput.value);
+        setPasswordStrengthState(strength);
+
+        if (passwordInput.value && strength !== 'Mạnh') {
+            passwordInput.setCustomValidity(passwordRuleMessage);
+        } else {
+            passwordInput.setCustomValidity('');
+        }
+
+        validateConfirmPassword();
+        return strength;
+    }
+
+    function schedulePasswordStrengthUpdate() {
+        clearTimeout(passwordStrengthTimer);
+        passwordStrengthTimer = setTimeout(updatePasswordStrength, 400);
+    }
+
     emailInput.addEventListener('input', function() {
         validateEmailField();
     });
@@ -225,6 +328,20 @@
     phoneInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
         validatePhoneField();
+    });
+
+    passwordInput.addEventListener('input', function() {
+        validateConfirmPassword();
+        schedulePasswordStrengthUpdate();
+    });
+
+    passwordInput.addEventListener('blur', function() {
+        clearTimeout(passwordStrengthTimer);
+        updatePasswordStrength();
+    });
+
+    confirmPasswordInput.addEventListener('input', function() {
+        validateConfirmPassword();
     });
 
     document.querySelectorAll('.toggle-password').forEach(button => {
@@ -247,8 +364,8 @@
 
     
     registerForm.addEventListener('submit', function(e) {
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
+        clearTimeout(passwordStrengthTimer);
+        updatePasswordStrength();
 
         if (!validateEmailField()) {
             e.preventDefault();
@@ -262,9 +379,15 @@
             return;
         }
 
-        if (password !== confirmPassword) {
+        if (!passwordInput.checkValidity()) {
             e.preventDefault();
-            alert('Mật khẩu xác nhận không khớp!');
+            passwordInput.reportValidity();
+            return;
+        }
+
+        if (!validateConfirmPassword()) {
+            e.preventDefault();
+            confirmPasswordInput.reportValidity();
         }
     });
 </script>

@@ -67,7 +67,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         if (!PasswordUtil.isValidPassword(password)) {
-            setErrorAndForward(request, response, "Mật khẩu phải có ít nhất 6 ký tự!");
+            setErrorAndForward(request, response, PasswordUtil.getPasswordRequirementMessage());
             return;
         }
 

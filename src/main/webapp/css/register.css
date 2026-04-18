@@ -204,6 +204,46 @@ body {
     color: #c0392b;
 }
 
+.password-strength {
+    margin-top: 12px;
+}
+
+.password-strength-bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #f2e6d9;
+    margin-bottom: 8px;
+}
+
+.password-strength-bar span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: #d7ccc8;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.password-strength p {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #7a6a63;
+}
+
+.password-strength[data-strength="Yếu"] .password-strength-bar span {
+    background: #dc3545;
+}
+
+.password-strength[data-strength="Trung bình"] .password-strength-bar span {
+    background: #f39c12;
+}
+
+.password-strength[data-strength="Mạnh"] .password-strength-bar span {
+    background: #27ae60;
+}
+
 
 .form-options {
     margin-bottom: 24px;
