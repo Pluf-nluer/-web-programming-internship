@@ -169,7 +169,7 @@
                                 <span class="required">*</span>
                             </label>
                             <div class="password-input-wrapper">
-                                <input type="password" id="newPassword" name="newPassword" placeholder="Nhập mật khẩu mới" required>
+                                <input type="password" id="newPassword" name="newPassword" placeholder="Nhập mật khẩu mới" minlength="8" required>
                                 <label class="toggle-password" for="showNewPassword">
                                     <input type="checkbox" id="showNewPassword" hidden>
                                     <i class="fa-solid fa-eye"></i>
@@ -184,7 +184,7 @@
                                 <span class="required">*</span>
                             </label>
                             <div class="password-input-wrapper">
-                                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu mới" required>
+                                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu mới" minlength="8" required>
                                 <label class="toggle-password" for="showConfirmPassword">
                                     <input type="checkbox" id="showConfirmPassword" hidden>
                                     <i class="fa-solid fa-eye"></i>
@@ -213,11 +213,11 @@
                     <ul class="requirements-list">
                         <li>
                             <i class="fa-solid fa-check"></i>
-                            <span>Tối thiểu 6 ký tự</span>
+                            <span>Tối thiểu 8 ký tự</span>
                         </li>
                         <li>
                             <i class="fa-solid fa-check"></i>
-                            <span>Tránh dùng thông tin dễ đoán</span>
+                            <span>Gồm chữ hoa, chữ thường, số và ký tự đặc biệt</span>
                         </li>
                     </ul>
                 </div>

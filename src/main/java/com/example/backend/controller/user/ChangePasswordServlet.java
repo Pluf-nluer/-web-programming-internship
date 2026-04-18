@@ -79,7 +79,7 @@ public class ChangePasswordServlet extends HttpServlet {
         }
 
         if (!PasswordUtil.isValidPassword(newPassword)) {
-            request.setAttribute("errorMessage", "Mật khẩu mới phải có ít nhất 6 ký tự.");
+            request.setAttribute("errorMessage", PasswordUtil.getPasswordRequirementMessage());
             request.getRequestDispatcher("/account/account-change-password.jsp").forward(request, response);
             return;
         }

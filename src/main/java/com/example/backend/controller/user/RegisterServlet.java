@@ -2,8 +2,9 @@ package com.example.backend.controller.user;
 
 import com.example.backend.dao.UserDAO;
 import com.example.backend.model.User;
+import com.example.backend.util.PhoneNumberUtil;
 import com.example.backend.util.PasswordUtil;
-
+import com.example.backend.util.EmailValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -37,13 +38,15 @@ public class RegisterServlet extends HttpServlet {
 
         String fullName = request.getParameter("fullName");
         String email = request.getParameter("email");
+        String normalizedEmail = EmailValidationUtil.normalize(email);
         String phone = request.getParameter("phone");
+        String normalizedPhone = PhoneNumberUtil.normalize(phone);
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
         String agreeTerms = request.getParameter("agreeTerms");
 
-        if (isNullOrEmpty(fullName) || isNullOrEmpty(email) ||
-                isNullOrEmpty(phone) || isNullOrEmpty(password)) {
+        if (isNullOrEmpty(fullName) || isNullOrEmpty(normalizedEmail) ||
+                isNullOrEmpty(normalizedPhone) || isNullOrEmpty(password)) {
             setErrorAndForward(request, response, "Vui lòng nhập đầy đủ thông tin!");
             return;
         }
@@ -53,18 +56,18 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        if (!isValidEmail(email)) {
-            setErrorAndForward(request, response, "Email không hợp lệ!");
+        if (!isValidEmail(normalizedEmail)) {
+            setErrorAndForward(request, response, "Email không hợp lệ. Vui lòng nhập email thật và đúng định dạng.");
             return;
         }
 
         if (!isValidPhone(phone)) {
-            setErrorAndForward(request, response, "Số điện thoại không hợp lệ (10-11 số)!");
+            setErrorAndForward(request, response, "Số điện thoại không hợp lệ. Vui lòng nhập số di động Việt Nam đúng đầu số.");
             return;
         }
 
         if (!PasswordUtil.isValidPassword(password)) {
-            setErrorAndForward(request, response, "Mật khẩu phải có ít nhất 6 ký tự!");
+            setErrorAndForward(request, response, PasswordUtil.getPasswordRequirementMessage());
             return;
         }
 
@@ -73,12 +76,12 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        if (userDAO.isEmailExists(email.trim())) {
+        if (userDAO.isEmailExists(normalizedEmail)) {
             setErrorAndForward(request, response, "Email này đã được sử dụng!");
             return;
         }
 
-        if (userDAO.isPhoneExists(phone.trim())) {
+        if (userDAO.isPhoneExists(normalizedPhone)) {
             setErrorAndForward(request, response, "Số điện thoại này đã được sử dụng!");
             return;
         }
@@ -86,8 +89,8 @@ public class RegisterServlet extends HttpServlet {
         String hashedPassword = PasswordUtil.encrypt(password);
         User newUser = new User(
                 fullName.trim(),
-                email.trim().toLowerCase(),
-                phone.trim(),
+                normalizedEmail,
+                normalizedPhone,
                 hashedPassword
         );
 
@@ -96,10 +99,9 @@ public class RegisterServlet extends HttpServlet {
         if (success) {
             HttpSession session = request.getSession();
             String redirectUrl = (String) session.getAttribute("postLoginRedirect");
-            
-            
-            User user = userDAO.findByEmailOrPhone(email.trim().toLowerCase());
-            
+
+            User user = userDAO.findByEmailOrPhone(normalizedEmail);
+
             if (user != null) {
                 session.setAttribute("user", user);
                 session.setAttribute("userId", user.getId());
@@ -127,13 +129,11 @@ public class RegisterServlet extends HttpServlet {
     }
 
     private boolean isValidEmail(String email) {
-        if (email == null) return false;
-        return email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
+        return EmailValidationUtil.isValidEmail(email);
     }
 
     private boolean isValidPhone(String phone) {
-        if (phone == null) return false;
-        return phone.matches("^[0-9]{10,11}$");
+        return PhoneNumberUtil.isValidVietnamMobileNumber(phone);
     }
 
     private void setErrorAndForward(HttpServletRequest request,
