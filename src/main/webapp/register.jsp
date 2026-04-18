@@ -67,7 +67,7 @@
                 <div class="error-message" id="googleError"></div>
 
 
-                <form class="register-form" id="registerForm" action="${pageContext.request.contextPath}/register" method="post">
+                <form class="register-form" id="registerForm" action="${pageContext.request.contextPath}/register" method="post" novalidate>
                     <div class="form-group">
                         <label for="fullName">
                             <i class="fa-solid fa-user"></i>
@@ -75,6 +75,7 @@
                         </label>
                         <input type="text" id="fullName" name="fullName" value="${fullName}"
                                placeholder="Nhập họ và tên đầy đủ" required>
+                        <div class="field-feedback" id="fullNameError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-group">
@@ -84,6 +85,7 @@
                         </label>
                         <input type="email" id="email" name="email" value="${email}"
                                placeholder="example@email.com" required>
+                        <div class="field-feedback" id="emailError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-group">
@@ -92,7 +94,8 @@
                             Số điện thoại
                         </label>
                         <input type="tel" id="phone" name="phone" value="${phone}"
-                               placeholder="Nhập số điện thoại" pattern="[0-9]{10,11}" required>
+                               placeholder="Nhập số điện thoại" inputmode="numeric" maxlength="10" pattern="0[0-9]{9}" required>
+                        <div class="field-feedback" id="phoneError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-group">
@@ -102,11 +105,18 @@
                         </label>
                         <div class="password-input-wrapper">
                             <input type="password" id="password" name="password"
-                                   placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)" minlength="6" required>
+                                   placeholder="Tối thiểu 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt" minlength="8" required>
                             <button type="button" class="toggle-password" data-target="password">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
+                        <div class="password-strength" id="passwordStrength" data-strength="">
+                            <div class="password-strength-bar">
+                                <span id="passwordStrengthFill"></span>
+                            </div>
+                            <p id="passwordStrengthText">Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</p>
+                        </div>
+                        <div class="field-feedback" id="passwordError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-group">
@@ -116,11 +126,12 @@
                         </label>
                         <div class="password-input-wrapper">
                             <input type="password" id="confirmPassword" name="confirmPassword"
-                                   placeholder="Nhập lại mật khẩu" minlength="6" required>
+                                   placeholder="Nhập lại mật khẩu" minlength="8" required>
                             <button type="button" class="toggle-password" data-target="confirmPassword">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
+                        <div class="field-feedback" id="confirmPasswordError" aria-live="polite"></div>
                     </div>
 
                     <div class="form-options">
@@ -128,6 +139,7 @@
                             <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
                             <span>Tôi đồng ý với <a href="#" class="terms-link">điều khoản sử dụng</a> và <a href="#" class="terms-link">Chính sách bảo mật</a></span>
                         </label>
+                        <div class="field-feedback" id="agreeTermsError" aria-live="polite"></div>
                     </div>
 
                     <button type="submit" class="btn-register">
@@ -159,7 +171,324 @@
 </main>
 
 <script>
-    
+    const blockedEmailDomains = [
+        'example.com', 'example.org', 'example.net',
+        'test.com', 'test.org', 'test.net'
+    ];
+    const validPhonePrefixes = [
+        '032', '033', '034', '035', '036', '037', '038', '039',
+        '052', '055', '056', '058', '059',
+        '070', '076', '077', '078', '079',
+        '081', '082', '083', '084', '085', '086', '087', '088', '089',
+        '090', '091', '092', '093', '094',
+        '096', '097', '098', '099'
+    ];
+    const registerForm = document.getElementById('registerForm');
+    const fullNameInput = document.getElementById('fullName');
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const agreeTermsInput = document.getElementById('agreeTerms');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const passwordStrengthFill = document.getElementById('passwordStrengthFill');
+    const passwordStrengthText = document.getElementById('passwordStrengthText');
+    const passwordRuleMessage = 'Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.';
+    const fieldErrors = {
+        fullName: document.getElementById('fullNameError'),
+        email: document.getElementById('emailError'),
+        phone: document.getElementById('phoneError'),
+        password: document.getElementById('passwordError'),
+        confirmPassword: document.getElementById('confirmPasswordError'),
+        agreeTerms: document.getElementById('agreeTermsError')
+    };
+
+    function getFieldWrapper(input) {
+        return input.closest('.form-group') || input.closest('.form-options');
+    }
+
+    function markTouched(input) {
+        input.dataset.touched = 'true';
+    }
+
+    function shouldShowFieldError(input, forceShow) {
+        return forceShow || input.dataset.touched === 'true';
+    }
+
+    function clearFieldError(input) {
+        const wrapper = getFieldWrapper(input);
+        const errorElement = fieldErrors[input.id];
+
+        if (wrapper) {
+            wrapper.classList.remove('has-error');
+        }
+
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+        }
+    }
+
+    function showFieldError(input, message, forceShow) {
+        if (!shouldShowFieldError(input, forceShow)) {
+            clearFieldError(input);
+            return;
+        }
+
+        const wrapper = getFieldWrapper(input);
+        const errorElement = fieldErrors[input.id];
+
+        if (wrapper) {
+            wrapper.classList.add('has-error');
+        }
+
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+    }
+
+    function validateFullNameField(forceShow = false) {
+        const fullName = fullNameInput.value.trim();
+
+        if (!fullName) {
+            fullNameInput.setCustomValidity('Vui lòng nhập họ và tên.');
+            showFieldError(fullNameInput, 'Vui lòng nhập họ và tên.', forceShow);
+            return false;
+        }
+
+        fullNameInput.setCustomValidity('');
+        clearFieldError(fullNameInput);
+        return true;
+    }
+
+    function validateEmailField(forceShow = false) {
+        const email = emailInput.value.trim().toLowerCase();
+
+        if (!email) {
+            emailInput.setCustomValidity('Vui lòng nhập email.');
+            showFieldError(emailInput, 'Vui lòng nhập email.', forceShow);
+            return false;
+        }
+
+        if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$/.test(email)) {
+            emailInput.setCustomValidity('Vui lòng nhập email đúng định dạng.');
+            showFieldError(emailInput, 'Vui lòng nhập email đúng định dạng.', forceShow);
+            return false;
+        }
+
+        const parts = email.split('@');
+        const localPart = parts[0];
+        const domain = parts[1];
+
+        if (localPart.startsWith('.') || localPart.endsWith('.') || localPart.includes('..') || /^[0-9]+$/.test(localPart) || blockedEmailDomains.includes(domain) || domain.includes('..')) {
+            emailInput.setCustomValidity('Vui lòng nhập email thật và không dùng email mẫu.');
+            showFieldError(emailInput, 'Vui lòng nhập email thật và không dùng email mẫu.', forceShow);
+            return false;
+        }
+
+        emailInput.setCustomValidity('');
+        clearFieldError(emailInput);
+        return true;
+    }
+
+    function validatePhoneField(forceShow = false) {
+        const phone = phoneInput.value.trim();
+
+        if (!phone) {
+            phoneInput.setCustomValidity('Vui lòng nhập số điện thoại.');
+            showFieldError(phoneInput, 'Vui lòng nhập số điện thoại.', forceShow);
+            return false;
+        }
+
+        if (phone.length !== 10 || !phone.startsWith('0') || !validPhonePrefixes.includes(phone.substring(0, 3))) {
+            phoneInput.setCustomValidity('Vui lòng nhập số di động Việt Nam hợp lệ.');
+            showFieldError(phoneInput, 'Vui lòng nhập số di động Việt Nam hợp lệ.', forceShow);
+            return false;
+        }
+
+        phoneInput.setCustomValidity('');
+        clearFieldError(phoneInput);
+        return true;
+    }
+
+    function getPasswordStrength(password) {
+        if (!password) {
+            return '';
+        }
+
+        let types = 0;
+
+        if (/[a-z]/.test(password)) {
+            types++;
+        }
+        if (/[A-Z]/.test(password)) {
+            types++;
+        }
+        if (/[0-9]/.test(password)) {
+            types++;
+        }
+        if (/[^A-Za-z0-9\s]/.test(password)) {
+            types++;
+        }
+
+        if (password.length < 8 || types <= 2) {
+            return 'Yếu';
+        }
+        if (types === 3) {
+            return 'Trung bình';
+        }
+        return 'Mạnh';
+    }
+
+    function setPasswordStrengthState(strength) {
+        passwordStrength.dataset.strength = strength;
+
+        if (!strength) {
+            passwordStrengthFill.style.width = '0%';
+            passwordStrengthText.textContent = passwordRuleMessage;
+            return;
+        }
+
+        if (strength === 'Yếu') {
+            passwordStrengthFill.style.width = '33%';
+            passwordStrengthText.textContent = 'Mức độ: Yếu. ' + passwordRuleMessage;
+            return;
+        }
+
+        if (strength === 'Trung bình') {
+            passwordStrengthFill.style.width = '66%';
+            passwordStrengthText.textContent = 'Mức độ: Trung bình. Thêm 1 nhóm ký tự còn thiếu để đạt mức mạnh.';
+            return;
+        }
+
+        passwordStrengthFill.style.width = '100%';
+        passwordStrengthText.textContent = 'Mức độ: Mạnh. Bạn có thể dùng mật khẩu này để đăng ký.';
+    }
+
+    function validateConfirmPassword(forceShow = false) {
+        const confirmPassword = confirmPasswordInput.value;
+
+        if (!confirmPassword) {
+            confirmPasswordInput.setCustomValidity('Vui lòng nhập lại mật khẩu.');
+            showFieldError(confirmPasswordInput, 'Vui lòng nhập lại mật khẩu.', forceShow);
+            return false;
+        }
+
+        if (passwordInput.value !== confirmPassword) {
+            confirmPasswordInput.setCustomValidity('Mật khẩu xác nhận không khớp!');
+            showFieldError(confirmPasswordInput, 'Mật khẩu xác nhận không khớp!', forceShow);
+            return false;
+        }
+
+        confirmPasswordInput.setCustomValidity('');
+        clearFieldError(confirmPasswordInput);
+        return true;
+    }
+
+    function validateAgreeTermsField(forceShow = false) {
+        if (!agreeTermsInput.checked) {
+            agreeTermsInput.setCustomValidity('Bạn cần đồng ý với điều khoản sử dụng.');
+            showFieldError(agreeTermsInput, 'Bạn cần đồng ý với điều khoản sử dụng.', forceShow);
+            return false;
+        }
+
+        agreeTermsInput.setCustomValidity('');
+        clearFieldError(agreeTermsInput);
+        return true;
+    }
+
+    function updatePasswordStrength(forceShow = false) {
+        const strength = getPasswordStrength(passwordInput.value);
+        setPasswordStrengthState(strength);
+
+        if (!passwordInput.value) {
+            passwordInput.setCustomValidity('Vui lòng nhập mật khẩu.');
+            showFieldError(passwordInput, 'Vui lòng nhập mật khẩu.', forceShow);
+            validateConfirmPassword();
+            return strength;
+        }
+
+        if (strength !== 'Mạnh') {
+            passwordInput.setCustomValidity(passwordRuleMessage);
+            showFieldError(passwordInput, passwordRuleMessage, forceShow);
+        } else {
+            passwordInput.setCustomValidity('');
+            clearFieldError(passwordInput);
+        }
+
+        validateConfirmPassword();
+        return strength;
+    }
+
+    function validateRegisterForm(forceShow = false) {
+        const isFullNameValid = validateFullNameField(forceShow);
+        const isEmailValid = validateEmailField(forceShow);
+        const isPhoneValid = validatePhoneField(forceShow);
+        const passwordStrengthValue = updatePasswordStrength(forceShow);
+        const isPasswordValid = passwordInput.checkValidity() && passwordStrengthValue === 'Mạnh';
+        const isConfirmPasswordValid = validateConfirmPassword(forceShow);
+        const isAgreeTermsValid = validateAgreeTermsField(forceShow);
+
+        return isFullNameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid && isAgreeTermsValid;
+    }
+
+    fullNameInput.addEventListener('input', function() {
+        validateFullNameField();
+    });
+
+    fullNameInput.addEventListener('blur', function() {
+        markTouched(this);
+        validateFullNameField(true);
+    });
+
+    emailInput.addEventListener('input', function() {
+        validateEmailField();
+    });
+
+    emailInput.addEventListener('blur', function() {
+        markTouched(this);
+        validateEmailField(true);
+    });
+
+    phoneInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+        validatePhoneField();
+    });
+
+    phoneInput.addEventListener('blur', function() {
+        markTouched(this);
+        validatePhoneField(true);
+    });
+
+    passwordInput.addEventListener('input', function() {
+        updatePasswordStrength();
+    });
+
+    passwordInput.addEventListener('blur', function() {
+        markTouched(this);
+        updatePasswordStrength(true);
+    });
+
+    confirmPasswordInput.addEventListener('input', function() {
+        validateConfirmPassword();
+    });
+
+    confirmPasswordInput.addEventListener('blur', function() {
+        markTouched(this);
+        validateConfirmPassword(true);
+    });
+
+    agreeTermsInput.addEventListener('change', function() {
+        markTouched(this);
+        validateAgreeTermsField(true);
+    });
+
+    agreeTermsInput.addEventListener('blur', function() {
+        markTouched(this);
+        validateAgreeTermsField(true);
+    });
+
     document.querySelectorAll('.toggle-password').forEach(button => {
         button.addEventListener('click', function() {
             const targetId = this.getAttribute('data-target');
@@ -179,13 +508,17 @@
     });
 
     
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
+    registerForm.addEventListener('submit', function(e) {
+        [fullNameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput, agreeTermsInput].forEach(markTouched);
 
-        if (password !== confirmPassword) {
+        if (!validateRegisterForm(true)) {
             e.preventDefault();
-            alert('Mật khẩu xác nhận không khớp!');
+            const firstInvalidField = [fullNameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput, agreeTermsInput]
+                .find(input => !input.checkValidity());
+
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+            }
         }
     });
 </script>
