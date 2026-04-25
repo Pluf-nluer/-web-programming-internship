@@ -370,7 +370,7 @@ header .others .badge span {
     display: flex; 
     align-items: center;
     height: 100%;
-    z-index: 1000;
+    z-index: 10;
 }
 
 
