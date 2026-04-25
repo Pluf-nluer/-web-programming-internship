@@ -33,7 +33,7 @@ public class CheckoutServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/shopping-cart.jsp");
             return;
         }
-        String[] selectedId = request.getParameterValues("SelectedId");
+        String[] selectedId = request.getParameterValues("selectedId");
         if(selectedId == null || selectedId.length == 0){
             response.sendRedirect(request.getContextPath()+"/shopping-cart.jsp");
             return;
