@@ -46,7 +46,7 @@
             <div class="register-form-container">
                 <div class="register-header">
                     <a href="${pageContext.request.contextPath}/" class="auth-logo-link" aria-label="Về trang chủ">
-                        <img src="https://suncraft.com.vn/wp-content/uploads/2025/09/suncraft-new-logo.svg"
+                        <img src="https://thesuncraft.com/wp-content/webp-express/webp-images/uploads/2024/10/logo-thesuncraft.png.webp"
                              alt="Logo Suncraft" class="auth-logo">
                     </a>
                     <c:choose>
@@ -55,7 +55,7 @@
                             <p>Nhập mã đã gửi đến ${verificationEmail}</p>
                         </c:when>
                         <c:otherwise>
-                            <h1>Đăng Ký Tài Khoản</h1>
+                            <h1>Đăng Ký</h1>
                             <p>Tạo tài khoản để trải nghiệm mua sắm tuyệt vời</p>
                         </c:otherwise>
                     </c:choose>
