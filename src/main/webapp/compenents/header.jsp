@@ -115,6 +115,12 @@
         <% } %>
       </div>
 
+      <c:if test="${not empty sessionScope.user}">
+        <a href="${pageContext.request.contextPath}/account/wishlist.jsp" class="icon badge">
+          <i class="fa-regular fa-heart"></i>
+        </a>
+      </c:if>
+
       <a href="${pageContext.request.contextPath}/shopping-cart.jsp" class="icon badge">
         <i class="fa-solid fa-cart-shopping"></i>
         <span>${sessionScope.cart != null ? sessionScope.cart.totalQuantity : 0}</span>
