@@ -49,8 +49,16 @@
                         <img src="https://suncraft.com.vn/wp-content/uploads/2025/09/suncraft-new-logo.svg"
                              alt="Logo Suncraft" class="auth-logo">
                     </a>
-                    <h1>Đăng Ký Tài Khoản</h1>
-                    <p>Tạo tài khoản để trải nghiệm mua sắm tuyệt vời</p>
+                    <c:choose>
+                        <c:when test="${showVerificationForm}">
+                            <h1>Xác Thực Email</h1>
+                            <p>Nhập mã đã gửi đến ${verificationEmail}</p>
+                        </c:when>
+                        <c:otherwise>
+                            <h1>Đăng Ký Tài Khoản</h1>
+                            <p>Tạo tài khoản để trải nghiệm mua sắm tuyệt vời</p>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
 
                 
@@ -67,100 +75,131 @@
                 <div class="error-message" id="googleError"></div>
 
 
-                <form class="register-form" id="registerForm" action="${pageContext.request.contextPath}/register" method="post" novalidate>
-                    <div class="form-group">
-                        <label for="fullName">
-                            <i class="fa-solid fa-user"></i>
-                            Họ và tên
-                        </label>
-                        <input type="text" id="fullName" name="fullName" value="${fullName}"
-                               placeholder="Nhập họ và tên đầy đủ" required>
-                        <div class="field-feedback" id="fullNameError" aria-live="polite"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">
-                            <i class="fa-solid fa-envelope"></i>
-                            Email
-                        </label>
-                        <input type="email" id="email" name="email" value="${email}"
-                               placeholder="example@email.com" required>
-                        <div class="field-feedback" id="emailError" aria-live="polite"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">
-                            <i class="fa-solid fa-phone"></i>
-                            Số điện thoại
-                        </label>
-                        <input type="tel" id="phone" name="phone" value="${phone}"
-                               placeholder="Nhập số điện thoại" inputmode="numeric" maxlength="10" pattern="0[0-9]{9}" required>
-                        <div class="field-feedback" id="phoneError" aria-live="polite"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">
-                            <i class="fa-solid fa-lock"></i>
-                            Mật khẩu
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="password" name="password"
-                                   placeholder="Tối thiểu 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt" minlength="8" required>
-                            <button type="button" class="toggle-password" data-target="password">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
-                        <div class="password-strength" id="passwordStrength" data-strength="">
-                            <div class="password-strength-bar">
-                                <span id="passwordStrengthFill"></span>
+                <c:choose>
+                    <c:when test="${showVerificationForm}">
+                        <form class="register-form verification-form" id="verificationForm" action="${pageContext.request.contextPath}/register" method="post" novalidate>
+                            <input type="hidden" name="action" value="verifyEmail">
+                            <div class="verification-box">
+                                <div class="verification-icon">
+                                    <i class="fa-solid fa-envelope-open-text"></i>
+                                </div>
+                                <h2>Kiểm tra email của bạn</h2>
+                                <p>Mã xác thực gồm 4-6 số. Vui lòng nhập mã để hoàn tất đăng ký.</p>
                             </div>
-                            <p id="passwordStrengthText">Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</p>
-                        </div>
-                        <div class="field-feedback" id="passwordError" aria-live="polite"></div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="confirmPassword">
-                            <i class="fa-solid fa-lock"></i>
-                            Xác nhận mật khẩu
-                        </label>
-                        <div class="password-input-wrapper">
-                            <input type="password" id="confirmPassword" name="confirmPassword"
-                                   placeholder="Nhập lại mật khẩu" minlength="8" required>
-                            <button type="button" class="toggle-password" data-target="confirmPassword">
-                                <i class="fa-solid fa-eye"></i>
+                            <div class="form-group">
+                                <label for="verificationCode">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                    Mã xác thực
+                                </label>
+                                <input type="text" id="verificationCode" name="verificationCode"
+                                       placeholder="Nhập mã xác thực" inputmode="numeric" maxlength="6" pattern="[0-9]{4,6}" required autofocus>
+                                <div class="field-feedback" id="verificationCodeError" aria-live="polite"></div>
+                            </div>
+
+                            <button type="submit" class="btn-register">
+                                <i class="fa-solid fa-circle-check"></i> Xác nhận mã
                             </button>
+                            <a href="${pageContext.request.contextPath}/register" class="back-register-link">Nhập lại thông tin đăng ký</a>
+                        </form>
+                    </c:when>
+                    <c:otherwise>
+                        <form class="register-form" id="registerForm" action="${pageContext.request.contextPath}/register" method="post" novalidate>
+                            <div class="form-group">
+                                <label for="fullName">
+                                    <i class="fa-solid fa-user"></i>
+                                    Họ và tên
+                                </label>
+                                <input type="text" id="fullName" name="fullName" value="${fullName}"
+                                       placeholder="Nhập họ và tên đầy đủ" required>
+                                <div class="field-feedback" id="fullNameError" aria-live="polite"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="fa-solid fa-envelope"></i>
+                                    Email
+                                </label>
+                                <input type="email" id="email" name="email" value="${email}"
+                                       placeholder="example@email.com" required>
+                                <div class="field-feedback" id="emailError" aria-live="polite"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">
+                                    <i class="fa-solid fa-phone"></i>
+                                    Số điện thoại
+                                </label>
+                                <input type="tel" id="phone" name="phone" value="${phone}"
+                                       placeholder="Nhập số điện thoại" inputmode="numeric" maxlength="10" pattern="0[0-9]{9}" required>
+                                <div class="field-feedback" id="phoneError" aria-live="polite"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">
+                                    <i class="fa-solid fa-lock"></i>
+                                    Mật khẩu
+                                </label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" id="password" name="password"
+                                           placeholder="Tối thiểu 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt" minlength="8" required>
+                                    <button type="button" class="toggle-password" data-target="password">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength" id="passwordStrength" data-strength="">
+                                    <div class="password-strength-bar">
+                                        <span id="passwordStrengthFill"></span>
+                                    </div>
+                                    <p id="passwordStrengthText">Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</p>
+                                </div>
+                                <div class="field-feedback" id="passwordError" aria-live="polite"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword">
+                                    <i class="fa-solid fa-lock"></i>
+                                    Xác nhận mật khẩu
+                                </label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" id="confirmPassword" name="confirmPassword"
+                                           placeholder="Nhập lại mật khẩu" minlength="8" required>
+                                    <button type="button" class="toggle-password" data-target="confirmPassword">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="field-feedback" id="confirmPasswordError" aria-live="polite"></div>
+                            </div>
+
+                            <div class="form-options">
+                                <label class="terms-checkbox">
+                                    <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                                    <span>Tôi đồng ý với <a href="#" class="terms-link">điều khoản sử dụng</a> và <a href="#" class="terms-link">Chính sách bảo mật</a></span>
+                                </label>
+                                <div class="field-feedback" id="agreeTermsError" aria-live="polite"></div>
+                            </div>
+
+                            <button type="submit" class="btn-register">
+                                <i class="fa-solid fa-user-plus"></i> Đăng ký
+                            </button>
+                        </form>
+
+                        <div class="divider">
+                            <span>Hoặc đăng ký bằng</span>
                         </div>
-                        <div class="field-feedback" id="confirmPasswordError" aria-live="polite"></div>
-                    </div>
 
-                    <div class="form-options">
-                        <label class="terms-checkbox">
-                            <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
-                            <span>Tôi đồng ý với <a href="#" class="terms-link">điều khoản sử dụng</a> và <a href="#" class="terms-link">Chính sách bảo mật</a></span>
-                        </label>
-                        <div class="field-feedback" id="agreeTermsError" aria-live="polite"></div>
-                    </div>
-
-                    <button type="submit" class="btn-register">
-                        <i class="fa-solid fa-user-plus"></i> Đăng ký
-                    </button>
-                </form>
-
-                <div class="divider">
-                    <span>Hoặc đăng ký bằng</span>
-                </div>
-
-                <div class="social-login">
-                    <c:if test="${not empty applicationScope.googleClientId}">
-                        <div id="googleButton" class="google-signin"></div>
-                    </c:if>
-                    <c:if test="${empty applicationScope.googleClientId}">
-                        <button type="button" class="btn-social btn-google" disabled title="Google chưa được cấu hình">
-                            <i class="fa-brands fa-google"></i> Đăng ký với Google
-                        </button>
-                    </c:if>
-                </div>
+                        <div class="social-login">
+                            <c:if test="${not empty applicationScope.googleClientId}">
+                                <div id="googleButton" class="google-signin"></div>
+                            </c:if>
+                            <c:if test="${empty applicationScope.googleClientId}">
+                                <button type="button" class="btn-social btn-google" disabled title="Google chưa được cấu hình">
+                                    <i class="fa-brands fa-google"></i> Đăng ký với Google
+                                </button>
+                            </c:if>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
 
                 <div class="login-link">
                     <p>Bạn đã có tài khoản? <a href="${pageContext.request.contextPath}/login">Đăng nhập ngay</a></p>
@@ -184,12 +223,14 @@
         '096', '097', '098', '099'
     ];
     const registerForm = document.getElementById('registerForm');
+    const verificationForm = document.getElementById('verificationForm');
     const fullNameInput = document.getElementById('fullName');
     const emailInput = document.getElementById('email');
     const phoneInput = document.getElementById('phone');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
     const agreeTermsInput = document.getElementById('agreeTerms');
+    const verificationCodeInput = document.getElementById('verificationCode');
     const passwordStrength = document.getElementById('passwordStrength');
     const passwordStrengthFill = document.getElementById('passwordStrengthFill');
     const passwordStrengthText = document.getElementById('passwordStrengthText');
@@ -200,7 +241,8 @@
         phone: document.getElementById('phoneError'),
         password: document.getElementById('passwordError'),
         confirmPassword: document.getElementById('confirmPasswordError'),
-        agreeTerms: document.getElementById('agreeTermsError')
+        agreeTerms: document.getElementById('agreeTermsError'),
+        verificationCode: document.getElementById('verificationCodeError')
     };
 
     function getFieldWrapper(input) {
@@ -433,61 +475,83 @@
         return isFullNameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid && isAgreeTermsValid;
     }
 
-    fullNameInput.addEventListener('input', function() {
-        validateFullNameField();
-    });
+    function validateVerificationCodeField(forceShow = false) {
+        const code = verificationCodeInput.value.trim();
 
-    fullNameInput.addEventListener('blur', function() {
-        markTouched(this);
-        validateFullNameField(true);
-    });
+        if (!code) {
+            verificationCodeInput.setCustomValidity('Vui lòng nhập mã xác thực.');
+            showFieldError(verificationCodeInput, 'Vui lòng nhập mã xác thực.', forceShow);
+            return false;
+        }
 
-    emailInput.addEventListener('input', function() {
-        validateEmailField();
-    });
+        if (!/^[0-9]{4,6}$/.test(code)) {
+            verificationCodeInput.setCustomValidity('Mã xác thực phải gồm 4-6 số.');
+            showFieldError(verificationCodeInput, 'Mã xác thực phải gồm 4-6 số.', forceShow);
+            return false;
+        }
 
-    emailInput.addEventListener('blur', function() {
-        markTouched(this);
-        validateEmailField(true);
-    });
+        verificationCodeInput.setCustomValidity('');
+        clearFieldError(verificationCodeInput);
+        return true;
+    }
 
-    phoneInput.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
-        validatePhoneField();
-    });
+    if (registerForm) {
+        fullNameInput.addEventListener('input', function() {
+            validateFullNameField();
+        });
 
-    phoneInput.addEventListener('blur', function() {
-        markTouched(this);
-        validatePhoneField(true);
-    });
+        fullNameInput.addEventListener('blur', function() {
+            markTouched(this);
+            validateFullNameField(true);
+        });
 
-    passwordInput.addEventListener('input', function() {
-        updatePasswordStrength();
-    });
+        emailInput.addEventListener('input', function() {
+            validateEmailField();
+        });
 
-    passwordInput.addEventListener('blur', function() {
-        markTouched(this);
-        updatePasswordStrength(true);
-    });
+        emailInput.addEventListener('blur', function() {
+            markTouched(this);
+            validateEmailField(true);
+        });
 
-    confirmPasswordInput.addEventListener('input', function() {
-        validateConfirmPassword();
-    });
+        phoneInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+            validatePhoneField();
+        });
 
-    confirmPasswordInput.addEventListener('blur', function() {
-        markTouched(this);
-        validateConfirmPassword(true);
-    });
+        phoneInput.addEventListener('blur', function() {
+            markTouched(this);
+            validatePhoneField(true);
+        });
 
-    agreeTermsInput.addEventListener('change', function() {
-        markTouched(this);
-        validateAgreeTermsField(true);
-    });
+        passwordInput.addEventListener('input', function() {
+            updatePasswordStrength();
+        });
 
-    agreeTermsInput.addEventListener('blur', function() {
-        markTouched(this);
-        validateAgreeTermsField(true);
-    });
+        passwordInput.addEventListener('blur', function() {
+            markTouched(this);
+            updatePasswordStrength(true);
+        });
+
+        confirmPasswordInput.addEventListener('input', function() {
+            validateConfirmPassword();
+        });
+
+        confirmPasswordInput.addEventListener('blur', function() {
+            markTouched(this);
+            validateConfirmPassword(true);
+        });
+
+        agreeTermsInput.addEventListener('change', function() {
+            markTouched(this);
+            validateAgreeTermsField(true);
+        });
+
+        agreeTermsInput.addEventListener('blur', function() {
+            markTouched(this);
+            validateAgreeTermsField(true);
+        });
+    }
 
     document.querySelectorAll('.toggle-password').forEach(button => {
         button.addEventListener('click', function() {
@@ -508,19 +572,42 @@
     });
 
     
-    registerForm.addEventListener('submit', function(e) {
-        [fullNameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput, agreeTermsInput].forEach(markTouched);
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            [fullNameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput, agreeTermsInput].forEach(markTouched);
 
-        if (!validateRegisterForm(true)) {
-            e.preventDefault();
-            const firstInvalidField = [fullNameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput, agreeTermsInput]
-                .find(input => !input.checkValidity());
+            if (!validateRegisterForm(true)) {
+                e.preventDefault();
+                const firstInvalidField = [fullNameInput, emailInput, phoneInput, passwordInput, confirmPasswordInput, agreeTermsInput]
+                    .find(input => !input.checkValidity());
 
-            if (firstInvalidField) {
-                firstInvalidField.focus();
+                if (firstInvalidField) {
+                    firstInvalidField.focus();
+                }
             }
-        }
-    });
+        });
+    }
+
+    if (verificationForm) {
+        verificationCodeInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+            validateVerificationCodeField();
+        });
+
+        verificationCodeInput.addEventListener('blur', function() {
+            markTouched(this);
+            validateVerificationCodeField(true);
+        });
+
+        verificationForm.addEventListener('submit', function(e) {
+            markTouched(verificationCodeInput);
+
+            if (!validateVerificationCodeField(true)) {
+                e.preventDefault();
+                verificationCodeInput.focus();
+            }
+        });
+    }
 </script>
 <c:if test="${not empty applicationScope.googleClientId}">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
