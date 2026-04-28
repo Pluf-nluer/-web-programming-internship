@@ -30,7 +30,7 @@
             <div class="login-form-container">
                 <div class="login-header">
                     <a href="${pageContext.request.contextPath}/" class="auth-logo-link" aria-label="Về trang chủ">
-                        <img src="https://suncraft.com.vn/wp-content/uploads/2025/09/suncraft-new-logo.svg"
+                        <img src="https://thesuncraft.com/wp-content/webp-express/webp-images/uploads/2024/10/logo-thesuncraft.png.webp"
                              alt="Logo Suncraft" class="auth-logo">
                     </a>
                     <h1>Đăng Nhập</h1>
