@@ -471,4 +471,36 @@ public class ProductDAO {
         return reviews;
     }
 
+    public List<Integer> getTop10BestSellingProductIdsByCategory(int categoryId, int month, int year) {
+        List<Integer> ids = new ArrayList<>();
+        String sql = """
+                    SELECT oi.product_id, SUM(oi.quantity) as total_sold
+                    FROM order_items oi
+                    JOIN orders o ON oi.order_id = o.id
+                    JOIN products p ON oi.product_id = p.id
+                    WHERE p.category_id = ?
+                      AND MONTH(o.created_at) = ?
+                      AND YEAR(o.created_at) = ?
+                      AND o.status = 'COMPLETED'
+                    GROUP BY oi.product_id
+                    ORDER BY total_sold DESC
+                    LIMIT 10
+                """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, categoryId);
+            ps.setInt(2, month);
+            ps.setInt(3, year);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                ids.add(rs.getInt("product_id"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ids;
+    }
 }
