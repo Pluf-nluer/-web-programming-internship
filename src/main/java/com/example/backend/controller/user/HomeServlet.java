@@ -1,6 +1,8 @@
 package com.example.backend.controller.user;
 
 import com.example.backend.dao.BlogDAO;
+import com.example.backend.dao.ProductDAO;
+import com.example.backend.service.FeaturedProductService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -14,6 +16,12 @@ public class HomeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        FeaturedProductService featuredService = new FeaturedProductService();
+        featuredService.generateFeaturedProductsForCurrentMonth();
+
+        ProductDAO productDAO = new ProductDAO();
+//        request.setAttribute("featuredProducts", productDAO.getFeaturedProductsForCurrentMonth());
 
         BlogDAO blogDAO = new BlogDAO();
 
