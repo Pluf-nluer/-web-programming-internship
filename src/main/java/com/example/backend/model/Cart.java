@@ -118,4 +118,6 @@ public class Cart implements Serializable {
         this.user = user;
     }
 
+    public void setItems(List<CartItem> checkoutItems) {
+    }
 }
