@@ -78,7 +78,7 @@ public class CheckoutServlet extends HttpServlet {
         String district = request.getParameter("district");
         String ward = request.getParameter("ward");
         String note = request.getParameter("note");
-
+        String paymentMethod = request.getParameter("paymentMethod");
         cacheCheckoutForm(session, email, fullName, phone, address, province, district, ward, note);
 
         User user = (User) session.getAttribute("user");
@@ -104,41 +104,48 @@ public class CheckoutServlet extends HttpServlet {
         Cart tempCart = new Cart();
         tempCart.setItems(checkoutItems);
         OrderDao orderDao = new OrderDao();
-        String url = "/checkout.jsp";
+
         try {
-            int orderId = orderDao.saveOrder(order,tempCart);
+            int orderId = orderDao.saveOrder(order, tempCart);
 
-            
-            if(orderId>0){
-                List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
-                cart.getItems().removeAll(checkoutItems);
-                if(cart.getItems().isEmpty()) {
-                    session.removeAttribute("cart");
+
+            if (orderId > 0) {
+                if ("VnPay".equals(paymentMethod)) {
+                    //
+                    request.setAttribute("Error", "VnPay");
+                    request.getRequestDispatcher("/checkout.jsp").forward(request, response);
+                } else {
+
+                    List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
+                    cart.getItems().removeAll(checkoutItems);
+                    if (cart.getItems().isEmpty()) {
+                        session.removeAttribute("cart");
+                    }
+                    session.removeAttribute("checkoutItems");
+                    session.removeAttribute("totalCheckout");
+                    session.removeAttribute(CHECKOUT_FORM_SESSION_KEY);
+
+                    request.setAttribute("order", order);
+                    request.setAttribute("orderId", orderId);
+                    request.setAttribute("orderedItems", orderItems);
+                    request.setAttribute("customerEmail", email);
+
+
+                    request.getRequestDispatcher("/order-success.jsp").forward(request,response);
+                    }
                 }
-                session.removeAttribute("checkoutItems");
-                session.removeAttribute("totalCheckout");
-                session.removeAttribute(CHECKOUT_FORM_SESSION_KEY);
-
-                request.setAttribute("order",order);
-                request.setAttribute("orderId",orderId);
-                request.setAttribute("orderedItems",orderItems);
-                request.setAttribute("customerEmail",email);
-
-                url = "/order-success.jsp";
-                
-            }
             else{
-                request.setAttribute("ERROR","Đặt hàng thất bại");
-                
+                    request.setAttribute("ERROR", "Đặt hàng thất bại");
+                    request.getRequestDispatcher("/checkout.jsp").forward(request,response);
+
+                }
+
+            } catch(Exception e){
+                e.printStackTrace();
+                request.setAttribute("ERROR", "Lỗi hệ thống: " + e.getMessage());
+                request.getRequestDispatcher("/checkout.jsp").forward(request,response);
+
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("ERROR","Lỗi hệ thống: "+e.getMessage());
-            
-        }
-        request.getRequestDispatcher(url).forward(request,response);
-
     }
 
     private void cacheCheckoutForm(HttpSession session, String email, String fullName, String phone,
