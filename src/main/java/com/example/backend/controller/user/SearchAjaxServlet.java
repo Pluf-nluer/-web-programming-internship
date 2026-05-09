@@ -33,7 +33,7 @@ public class SearchAjaxServlet extends HttpServlet {
                 out.println("    <div class='search-item-image'>");
 
                 
-                String imgUrl = (p.getImage() != null) ? p.getImage().getImageUrl() : "https://via.placeholder.com/60";
+                String imgUrl = (p.getImage() != null) ? p.getImage().getImageUrl() : "#";
                 out.println("        <img src='" + imgUrl + "' alt='" + p.getName() + "'>");
 
                 out.println("    </div>");
