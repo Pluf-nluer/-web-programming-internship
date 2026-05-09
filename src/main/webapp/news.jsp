@@ -59,6 +59,36 @@
                     <p>Hiện chưa có bài viết nào.</p>
                 </c:if>
             </div>
+            <c:if test="${not empty posts && totalPages > 1}">
+                <div class="pagination-area">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <c:if test="${currentPage > 1}">
+                                <li class="page-item">
+                                    <a class="page-link" href="news?page=${currentPage - 1}">&laquo;</a>
+                                </li>
+                            </c:if>
+                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                <c:choose>
+                                    <c:when test="${i == 1 || i == totalPages || (i >= currentPage - 2 && i <= currentPage + 2)}">
+                                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                            <a class="page-link" href="news?page=${i}">${i}</a>
+                                        </li>
+                                    </c:when>
+                                    <c:when test="${i == currentPage - 3 || i == currentPage + 3}">
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    </c:when>
+                                </c:choose>
+                            </c:forEach>
+                            <c:if test="${currentPage < totalPages}">
+                                <li class="page-item">
+                                    <a class="page-link" href="news?page=${currentPage + 1}">&raquo;</a>
+                                </li>
+                            </c:if>
+                        </ul>
+                    </nav>
+                </div>
+            </c:if>
         </main>
         <div class="sidebar">
             <div class="news-category">

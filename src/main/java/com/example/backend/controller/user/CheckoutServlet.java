@@ -7,6 +7,7 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,26 @@ public class CheckoutServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/shopping-cart.jsp");
             return;
         }
-
+        String[] selectedId = request.getParameterValues("selectedId");
+        if(selectedId == null || selectedId.length == 0){
+            response.sendRedirect(request.getContextPath()+"/shopping-cart.jsp");
+            return;
+        }
+        List<CartItem> checkoutItems = new ArrayList<>();
+        double totalCheckout = 0;
+        for(String stringId: selectedId){
+            for (CartItem item: cart.getItems()){
+                if(String.valueOf(item.getProduct().getId()).equals(stringId)){
+                    checkoutItems.add(item);
+                    totalCheckout += (item.getProduct().getPrice()*item.getQuantity());
+                    break;
+                }
+            }
+        }
+        session.setAttribute("checkoutItems", checkoutItems);
+        session.setAttribute("totalCheckout" , totalCheckout);
+        request.setAttribute("checkoutItems",checkoutItems);
+        request.setAttribute("totalCheckout",totalCheckout);
         request.getRequestDispatcher("checkout.jsp").forward(request, response);
     }
 
@@ -42,7 +62,8 @@ public class CheckoutServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Cart cart = (Cart) session.getAttribute("cart");
-
+        List<CartItem> checkoutItems = (List<CartItem>) session.getAttribute("checkoutItems");
+        Double totalCheckout = (Double) session.getAttribute("totalCheckout");
         if(cart == null || cart.getTotalQuantity() == 0) {
             response.sendRedirect(request.getContextPath() + "/shopping-cart.jsp");
             return;
@@ -79,17 +100,23 @@ public class CheckoutServlet extends HttpServlet {
         order.setShipping_address(fullAddress);
         order.setShipping_fee(30000);
         order.setNote(note);
-        order.setTotal_amount(cart.getTotalMoney() + 30000);
-
+        order.setTotal_amount(totalCheckout + 30000);
+        Cart tempCart = new Cart();
+        tempCart.setItems(checkoutItems);
         OrderDao orderDao = new OrderDao();
         String url = "/checkout.jsp";
         try {
-            int orderId = orderDao.saveOrder(order,cart);
+            int orderId = orderDao.saveOrder(order,tempCart);
 
             
             if(orderId>0){
                 List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
-                session.removeAttribute("cart");
+                cart.getItems().removeAll(checkoutItems);
+                if(cart.getItems().isEmpty()) {
+                    session.removeAttribute("cart");
+                }
+                session.removeAttribute("checkoutItems");
+                session.removeAttribute("totalCheckout");
                 session.removeAttribute(CHECKOUT_FORM_SESSION_KEY);
 
                 request.setAttribute("order",order);
