@@ -10,6 +10,7 @@ import jakarta.servlet.annotation.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @WebServlet(name = "CheckoutServlet", value = "/checkout")
@@ -121,12 +122,22 @@ public class CheckoutServlet extends HttpServlet {
                     vnp_Params.put("vnp_Amount",String.valueOf(amount));
                     vnp_Params.put("vnp_CurrCode","VND");
                     vnp_Params.put("vnp_TxnRef",vnp_TxnRef);
-                    vnp_Params.put("vnp_OrderInfo","Thanh toán đơn hàng: "+vnp_TxnRef);
+                    vnp_Params.put("vnp_OrderInfo","Thanh toan don hang: "+vnp_TxnRef);
                     vnp_Params.put("vnp_OrderType", "other");
                     vnp_Params.put("vnp_Locale","vn");
                     vnp_Params.put("vnp_ReturnUrl",VnPayConfig.vnp_ReturnUrl);
                     vnp_Params.put("vnp_IpAddr",VnPayConfig.getIpAddress(request));
-                    //
+                    // Tính toán ngày giờ
+                    Calendar cl = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+                    SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+                    String vnp_CreateDate = format.format(cl.getTime());
+                    vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+
+                    cl.add(Calendar.MINUTE,15);
+                    String vnp_ExpireDate = format.format(cl.getTime());
+                    vnp_Params.put("vnp_ExpireDate",vnp_ExpireDate);
+
+                    // xếp param và tạo chuỗi hash
                     List<String> fieldName = new ArrayList<>(vnp_Params.keySet());
                     Collections.sort(fieldName);
                     StringBuilder data = new StringBuilder();
@@ -147,7 +158,7 @@ public class CheckoutServlet extends HttpServlet {
 
                     String queryUrl = query.toString();
                     String vnp_Secure = VnPayConfig.hmacSHA512(VnPayConfig.vnp_HashSecret, data.toString());
-                    queryUrl += "&vnp_SecureHash" + vnp_Secure;
+                    queryUrl += "&vnp_SecureHash=" + vnp_Secure;
                     String paymentUrl = VnPayConfig.vnp_PayUrl + "?" +queryUrl;
 
                     cart.getItems().removeAll(checkoutItems);
