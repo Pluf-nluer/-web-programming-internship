@@ -1,5 +1,6 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -30,7 +31,7 @@
             <div class="login-form-container">
                 <div class="login-header">
                     <a href="${pageContext.request.contextPath}/" class="auth-logo-link" aria-label="Về trang chủ">
-                        <img src="https://suncraft.com.vn/wp-content/uploads/2025/09/suncraft-new-logo.svg"
+                        <img src="https://thesuncraft.com/wp-content/webp-express/webp-images/uploads/2024/10/logo-thesuncraft.png.webp"
                              alt="Logo Suncraft" class="auth-logo">
                     </a>
                     <h1>Đăng Nhập</h1>
@@ -57,6 +58,7 @@
                             Email hoặc Số điện thoại
                         </label>
                         <input type="text" id="emailOrPhone" name="emailOrPhone"
+                               value="${fn:escapeXml(emailOrPhone)}"
                                placeholder="Nhập email hoặc số điện thoại" required>
                     </div>
 
@@ -74,7 +76,12 @@
                         </div>
                     </div>
 
-                    <div class="form-options form-options-single">
+                    <div class="form-options">
+                        <label class="remember-me" for="rememberMe">
+                            <input type="checkbox" id="rememberMe" name="rememberMe" value="on"
+                                   <c:if test="${rememberMe == 'on'}">checked</c:if>>
+                            <span>Ghi nhớ đăng nhập</span>
+                        </label>
                         <a href="${pageContext.request.contextPath}/forgot-password" class="forgot-password">Quên mật khẩu?</a>
                     </div>
 

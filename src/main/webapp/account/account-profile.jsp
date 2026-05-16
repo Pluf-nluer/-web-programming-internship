@@ -17,44 +17,7 @@
 
 <main class="dashboard-main">
     <div class="dashboard-container">
-        <aside class="dashboard-sidebar">
-            <div class="sidebar-header">
-                <div class="user-avatar">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-                <h3>${sessionScope.user.fullName}</h3>
-                <p>${sessionScope.user.email}</p>
-            </div>
-
-            <nav class="sidebar-menu">
-                <a href="${pageContext.request.contextPath}/account/dashboard.jsp" class="menu-item">
-                    <i class="fa-solid fa-gauge"></i>
-                    <span>Bảng điều khiển</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/account/order.jsp" class="menu-item">
-                    <i class="fa-solid fa-box"></i>
-                    <span>Đơn hàng</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/account/account-profile.jsp" class="menu-item active">
-                    <i class="fa-solid fa-user-circle"></i>
-                    <span>Thông tin</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/change-password" class="menu-item">
-                    <i class="fa-solid fa-key"></i>
-                    <span>Đổi mật khẩu</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/logout" class="menu-item logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Đăng xuất</span>
-                </a>
-            </nav>
-
-            <div class="sidebar-decoration">
-                <div class="pattern-circle"></div>
-                <div class="pattern-circle"></div>
-                <div class="pattern-circle"></div>
-            </div>
-        </aside>
+        <jsp:include page="/compenents/sidebar.jsp" />
 
         <div class="dashboard-content">
             <div class="page-header">
