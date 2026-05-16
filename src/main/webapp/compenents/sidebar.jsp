@@ -45,7 +45,7 @@
       <span>Đổi mật khẩu</span>
     </a>
 
-    <a href="${pageContext.request.contextPath}/logout" class="menu-item logout">
+    <a href="${pageContext.request.contextPath}/logout" class="menu-item logout" onclick="return confirm('Bạn có chắc muốn đăng xuất?')">
       <i class="fa-solid fa-right-from-bracket"></i>
       <span>Đăng xuất</span>
     </a>

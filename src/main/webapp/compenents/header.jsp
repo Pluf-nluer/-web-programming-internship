@@ -108,7 +108,7 @@
           <ul>
             <li><a href="${pageContext.request.contextPath}/account/dashboard.jsp"><i
                     class="fa-regular fa-address-card"></i> Thông tin cá nhân</a></li>
-            <li><a href="${pageContext.request.contextPath}/logout" class="logout-link"><i
+            <li><a href="${pageContext.request.contextPath}/logout" class="logout-link" onclick="return confirm('Bạn có chắc muốn đăng xuất?')"><i
                     class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
           </ul>
         </div>
