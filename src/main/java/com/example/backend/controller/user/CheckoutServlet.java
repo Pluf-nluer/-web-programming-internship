@@ -2,15 +2,15 @@ package com.example.backend.controller.user;
 
 import com.example.backend.dao.OrderDao;
 import com.example.backend.model.*;
+import com.example.backend.util.VnPayConfig;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @WebServlet(name = "CheckoutServlet", value = "/checkout")
 public class CheckoutServlet extends HttpServlet {
@@ -112,8 +112,55 @@ public class CheckoutServlet extends HttpServlet {
             if (orderId > 0) {
                 if ("VnPay".equals(paymentMethod)) {
                     //
-                    request.setAttribute("Error", "VnPay");
-                    request.getRequestDispatcher("/checkout.jsp").forward(request, response);
+                    long amount = (long)((totalCheckout + 30000)*100);
+                    String vnp_TxnRef = String.valueOf(orderId);
+                    Map<String,String> vnp_Params = new HashMap<>();
+                    vnp_Params.put("vnp_Version", "2.1.0");
+                    vnp_Params.put("vnp_Command","pay");
+                    vnp_Params.put("vnp_TmnCode", VnPayConfig.vnp_TmnCode);
+                    vnp_Params.put("vnp_Amount",String.valueOf(amount));
+                    vnp_Params.put("vnp_CurrCode","VND");
+                    vnp_Params.put("vnp_TxnRef",vnp_TxnRef);
+                    vnp_Params.put("vnp_OrderInfo","Thanh toán đơn hàng: "+vnp_TxnRef);
+                    vnp_Params.put("vnp_OrderType", "other");
+                    vnp_Params.put("vnp_Locale","vn");
+                    vnp_Params.put("vnp_ReturnUrl",VnPayConfig.vnp_ReturnUrl);
+                    vnp_Params.put("vnp_IpAddr",VnPayConfig.getIpAddress(request));
+                    //
+                    List<String> fieldName = new ArrayList<>(vnp_Params.keySet());
+                    Collections.sort(fieldName);
+                    StringBuilder data = new StringBuilder();
+                    StringBuilder query = new StringBuilder();
+                    Iterator<String> iterator= fieldName.iterator();
+                    while(iterator.hasNext()){
+                        String fieldNames = iterator.next();
+                        String fieldValue = vnp_Params.get(fieldNames);
+                        if((fieldValue!=null)&&(fieldValue.length()>0)){
+                            data.append(fieldNames).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                            query.append(URLEncoder.encode(fieldNames,StandardCharsets.US_ASCII.toString())).append('=').append(URLEncoder.encode(fieldValue,StandardCharsets.US_ASCII.toString()));
+                            if(iterator.hasNext()){
+                                query.append('&');
+                                data.append('&');
+                            }
+                        }
+                    }
+
+                    String queryUrl = query.toString();
+                    String vnp_Secure = VnPayConfig.hmacSHA512(VnPayConfig.vnp_HashSecret, data.toString());
+                    queryUrl += "&vnp_SecureHash" + vnp_Secure;
+                    String paymentUrl = VnPayConfig.vnp_PayUrl + "?" +queryUrl;
+
+                    cart.getItems().removeAll(checkoutItems);
+                    if(cart.getItems().isEmpty()){
+                        session.removeAttribute("cart");
+                    }
+                    session.removeAttribute("checkoutItems");
+                    session.removeAttribute("totalCheckout");
+                    session.removeAttribute(CHECKOUT_FORM_SESSION_KEY);
+                    response.sendRedirect(paymentUrl);
+
+//                    request.setAttribute("Error", "VnPay");
+//                    request.getRequestDispatcher("/checkout.jsp").forward(request, response);
                 } else {
 
                     List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
