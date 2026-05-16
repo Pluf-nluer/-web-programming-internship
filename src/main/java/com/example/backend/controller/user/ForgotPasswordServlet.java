@@ -29,6 +29,8 @@ public class ForgotPasswordServlet extends HttpServlet {
     private static final String RESET_VERIFIED = "resetPasswordVerified";
     private static final long OTP_TTL_MS = 10 * 60 * 1000;
     private static final int MAX_ATTEMPTS = 5;
+    private static final int FAKE_USER_ID = -1;
+    private static final String RESET_GENERIC_MESSAGE = "Nếu email hợp lệ, hệ thống sẽ gửi hướng dẫn khôi phục.";
 
     private UserDAO userDAO;
     private EmailService emailService;
@@ -76,28 +78,26 @@ public class ForgotPasswordServlet extends HttpServlet {
         }
 
         User user = userDAO.findByEmailOrPhone(email);
+        String otp = EmailVerificationUtil.generateCode();
+
         if (user == null) {
-            showEmailForm(request, response, "Email không tồn tại trong hệ thống. Vui lòng kiểm tra lại.", email);
+            prepareResetSession(request.getSession(), FAKE_USER_ID, email, otp);
+            request.setAttribute("successMessage", RESET_GENERIC_MESSAGE);
+            showOtpForm(request, response, email);
             return;
         }
 
-        String otp = EmailVerificationUtil.generateCode();
         boolean sent = emailService.sendPasswordResetOtpEmail(user.getEmail(), user.getFullName(), otp);
 
         if (!sent) {
-            showEmailForm(request, response, "Không thể gửi mã OTP. Vui lòng thử lại sau.", email);
+            prepareResetSession(request.getSession(), FAKE_USER_ID, email, EmailVerificationUtil.generateCode());
+            request.setAttribute("successMessage", RESET_GENERIC_MESSAGE);
+            showOtpForm(request, response, email);
             return;
         }
 
-        HttpSession session = request.getSession();
-        session.setAttribute(RESET_USER_ID, user.getId());
-        session.setAttribute(RESET_EMAIL, user.getEmail());
-        session.setAttribute(RESET_OTP, otp);
-        session.setAttribute(RESET_EXPIRES_AT, System.currentTimeMillis() + OTP_TTL_MS);
-        session.setAttribute(RESET_ATTEMPTS, 0);
-        session.setAttribute(RESET_VERIFIED, false);
-
-        request.setAttribute("successMessage", "Mã OTP đã được gửi đến email của bạn.");
+        prepareResetSession(request.getSession(), user.getId(), user.getEmail(), otp);
+        request.setAttribute("successMessage", RESET_GENERIC_MESSAGE);
         showOtpForm(request, response, user.getEmail());
     }
 
@@ -139,6 +139,12 @@ public class ForgotPasswordServlet extends HttpServlet {
 
             request.setAttribute("errorMessage", "Mã OTP không đúng. Vui lòng kiểm tra lại email.");
             showOtpForm(request, response, email);
+            return;
+        }
+
+        if (isFakeResetSession(session)) {
+            clearResetSession(session);
+            showEmailFormSuccess(request, response, email);
             return;
         }
 
@@ -188,8 +194,14 @@ public class ForgotPasswordServlet extends HttpServlet {
             return;
         }
 
-        Integer userId = (Integer) session.getAttribute(RESET_USER_ID);
-        boolean updated = userDAO.updatePassword(userId, hashedPassword);
+        Object userIdValue = session.getAttribute(RESET_USER_ID);
+        if (!(userIdValue instanceof Integer) || (Integer) userIdValue <= 0) {
+            clearResetSession(session);
+            showEmailFormSuccess(request, response, "");
+            return;
+        }
+
+        boolean updated = userDAO.updatePassword((Integer) userIdValue, hashedPassword);
 
         if (!updated) {
             request.setAttribute("errorMessage", "Cập nhật mật khẩu thất bại. Vui lòng thử lại.");
@@ -200,6 +212,15 @@ public class ForgotPasswordServlet extends HttpServlet {
         clearResetSession(session);
         session.setAttribute("successMessage", "Mật khẩu đã được cập nhật. Vui lòng đăng nhập lại.");
         response.sendRedirect(request.getContextPath() + "/login");
+    }
+
+    private void prepareResetSession(HttpSession session, int userId, String email, String otp) {
+        session.setAttribute(RESET_USER_ID, userId);
+        session.setAttribute(RESET_EMAIL, email);
+        session.setAttribute(RESET_OTP, otp);
+        session.setAttribute(RESET_EXPIRES_AT, System.currentTimeMillis() + OTP_TTL_MS);
+        session.setAttribute(RESET_ATTEMPTS, 0);
+        session.setAttribute(RESET_VERIFIED, false);
     }
 
     private boolean hasResetSession(HttpSession session) {
@@ -215,6 +236,11 @@ public class ForgotPasswordServlet extends HttpServlet {
             return true;
         }
         return System.currentTimeMillis() > (Long) expiresAt;
+    }
+
+    private boolean isFakeResetSession(HttpSession session) {
+        Object userId = session.getAttribute(RESET_USER_ID);
+        return userId instanceof Integer && (Integer) userId <= 0;
     }
 
     private int getAttempts(HttpSession session) {
@@ -237,6 +263,13 @@ public class ForgotPasswordServlet extends HttpServlet {
     private void showEmailForm(HttpServletRequest request, HttpServletResponse response, String errorMessage, String email)
             throws ServletException, IOException {
         request.setAttribute("errorMessage", errorMessage);
+        request.setAttribute("email", email);
+        request.getRequestDispatcher("/forgot-password.jsp").forward(request, response);
+    }
+
+    private void showEmailFormSuccess(HttpServletRequest request, HttpServletResponse response, String email)
+            throws ServletException, IOException {
+        request.setAttribute("successMessage", RESET_GENERIC_MESSAGE);
         request.setAttribute("email", email);
         request.getRequestDispatcher("/forgot-password.jsp").forward(request, response);
     }

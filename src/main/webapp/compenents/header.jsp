@@ -99,7 +99,7 @@
         <a href="${pageContext.request.contextPath}/login" class="icon">
           <i class="fa-regular fa-user"></i>
         </a>
-        <% if (session.getAttribute("user") != null) { %>
+        <c:if test="${not empty sessionScope.user}">
         <div class="user-dropdown">
           <div class="user-info-header">
             <span>Xin chào, <strong>${sessionScope.user.fullName}</strong></span>
@@ -108,11 +108,11 @@
           <ul>
             <li><a href="${pageContext.request.contextPath}/account/dashboard.jsp"><i
                     class="fa-regular fa-address-card"></i> Thông tin cá nhân</a></li>
-            <li><a href="${pageContext.request.contextPath}/logout" class="logout-link"><i
+            <li><a href="${pageContext.request.contextPath}/logout" class="logout-link" onclick="return confirm('Bạn có chắc muốn đăng xuất?')"><i
                     class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
           </ul>
         </div>
-        <% } %>
+        </c:if>
       </div>
 
       <c:if test="${not empty sessionScope.user}">
