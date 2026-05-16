@@ -99,7 +99,7 @@
         <a href="${pageContext.request.contextPath}/login" class="icon">
           <i class="fa-regular fa-user"></i>
         </a>
-        <% if (session.getAttribute("user") != null) { %>
+        <c:if test="${not empty sessionScope.user}">
         <div class="user-dropdown">
           <div class="user-info-header">
             <span>Xin chào, <strong>${sessionScope.user.fullName}</strong></span>
@@ -112,7 +112,7 @@
                     class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
           </ul>
         </div>
-        <% } %>
+        </c:if>
       </div>
 
       <c:if test="${not empty sessionScope.user}">
