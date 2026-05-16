@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 public class Category {
 
-    private String id;
+    private int id;
     private String name;
     private String description;
     private String imageUrl;
@@ -15,7 +15,7 @@ public class Category {
     public Category() {
     }
 
-    public Category(String id, String name, String description, String imageUrl, String status, int sale_id, Timestamp createdAt, int parentId) {
+    public Category(int id, String name, String description, String imageUrl, String status, int sale_id, Timestamp createdAt, int parentId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -26,11 +26,11 @@ public class Category {
         this.parentId = parentId;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

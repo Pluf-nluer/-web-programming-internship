@@ -22,7 +22,7 @@ public class CategoryDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Category category = new Category();
-                    category.setId(rs.getString("id"));
+                    category.setId(rs.getInt("id"));
                     category.setName(rs.getString("name"));
                     category.setDescription(rs.getString("description"));
                     category.setImageUrl(rs.getString("image_url"));
@@ -50,7 +50,7 @@ public class CategoryDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Category category = new Category();
-                    category.setId(rs.getString("id"));
+                    category.setId(rs.getInt("id"));
                     category.setName(rs.getString("name"));
                     category.setDescription(rs.getString("description"));
                     category.setImageUrl(rs.getString("image_url"));
@@ -92,7 +92,7 @@ public class CategoryDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Category category = new Category();
-                    category.setId(rs.getString("id"));
+                    category.setId(rs.getInt("id"));
                     category.setName(rs.getString("name"));
                     category.setDescription(rs.getString("description"));
                     category.setImageUrl(rs.getString("image_url"));
