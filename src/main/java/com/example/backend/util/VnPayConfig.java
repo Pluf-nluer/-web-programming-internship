@@ -6,8 +6,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 public class VnPayConfig {
-    public static String vnp_TmnCode = "THAY_MA_TMN_CODE_CUA_BAN_VAO_DAY";
-    public static String vnp_HashSecret = "THAY_SECRET_CUA_BAN_VAO_DAY";
+    public static String vnp_TmnCode = "1OX425KY";
+    public static String vnp_HashSecret = "A39RL365YF5TPJPZXHJPUDSAW2HPJ941";
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_ReturnUrl = "http://localhost:8080/vnpay-return";
     public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
