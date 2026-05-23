@@ -1,10 +1,13 @@
 package com.example.backend.util;
 import jakarta.servlet.http.HttpServletRequest;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 public class VnPayConfig {
-    public static String vnp_TmnCode = "THAY_MA_TMN_CODE_CUA_BAN_VAO_DAY";
-    public static String vnp_HashSecret = "THAY_SECRET_CUA_BAN_VAO_DAY";
+    public static String vnp_TmnCode = "1OX425KY";
+    public static String vnp_HashSecret = "A39RL365YF5TPJPZXHJPUDSAW2HPJ941";
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_ReturnUrl = "http://localhost:8080/vnpay-return";
     public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
@@ -18,6 +21,27 @@ public class VnPayConfig {
         }
         return sb.toString();
     }
+    public static String hmacSHA512(final String key, final String data){
+        try{
+            if(key == null || data == null){
+                throw new NullPointerException();
+            }
+            final Mac hmac512 = Mac.getInstance("HmacSHA512");
+            byte[] keyByte = key.getBytes();
+            final SecretKeySpec secret = new SecretKeySpec(keyByte, "HmacSHA512");
+            hmac512.init(secret);
+            byte[] dataByte = data.getBytes(StandardCharsets.UTF_8);
+            byte[] result = hmac512.doFinal(dataByte);
+            StringBuilder builder = new StringBuilder(2 * result.length);
+            for (byte b: result){
+                builder.append(String.format("%02x",b&0xff));
+            }
+            return builder.toString();
+        }catch(Exception exception){
+            return "";
+        }
+
+    }
     public static String getIpAddress(HttpServletRequest request) {
         String ipAdress;
         try {
@@ -26,7 +50,7 @@ public class VnPayConfig {
                 ipAdress = request.getRemoteAddr();
             }
         } catch (Exception e) {
-            ipAdress = "Ip Invalid";
+            ipAdress = "Invalid";
         }
         return ipAdress;
     }

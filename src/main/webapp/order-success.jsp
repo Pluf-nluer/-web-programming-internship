@@ -51,7 +51,7 @@
                                 <span>${order.shipping_phone}</span>
 
                                 <h3 style="margin-top: 15px;">Phương thức thanh toán</h3>
-                                <span>Thanh toán khi giao hàng (COD)</span>
+                                <span>${not empty paymentMethod ? paymentMethod:'Thanh toán khi giao hàng (COD)'}</span>
                             </div>
 
                             <div class="order-info-right">
@@ -115,7 +115,7 @@
                                 <div class="order-price-bottom">
                                     <a href="${pageContext.request.contextPath}/account/order.jsp" class="btn-review">Đơn mua</a>
 
-                                    <a href="${pageContext.request.contextPath}/product" class="btn-continue">Tiếp tục mua hàng</a>
+                                    <a href="${pageContext.request.contextPath}/products" class="btn-continue">Tiếp tục mua hàng</a>
                                 </div>
                             </div>
                         </div>
