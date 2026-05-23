@@ -40,6 +40,8 @@ public class AdminCustomerDetailServlet extends HttpServlet {
             return;
         }
 
+        customer.setPhone(null);
+        customer.setPassword(null);
         request.setAttribute("customer", customer);
         request.getRequestDispatcher("/admin/customers/customer-detail.jsp").forward(request, response);
     }

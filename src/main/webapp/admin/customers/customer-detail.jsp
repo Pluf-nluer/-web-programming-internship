@@ -70,12 +70,6 @@
                                     </p>
                                 </div>
                                 <div class="info-item">
-                                    <label><i class="fa-solid fa-phone"></i> Số điện thoại</label>
-                                    <p>
-                                        <a href="tel:${customer.phone}">${customer.phone}</a>
-                                    </p>
-                                </div>
-                                <div class="info-item">
                                     <label><i class="fa-solid fa-id-card"></i> Mã khách hàng</label>
                                     <p>${customer.id}</p>
                                 </div>
@@ -127,10 +121,6 @@
                                             <c:otherwise>Chưa cập nhật</c:otherwise>
                                         </c:choose>
                                     </p>
-                                </div>
-                                <div class="info-item" style="grid-column: 1 / -1;">
-                                    <label><i class="fa-solid fa-lock"></i> Mật khẩu (đã mã hóa)</label>
-                                    <p style="overflow-wrap: anywhere;">${customer.password}</p>
                                 </div>
                             </div>
                         </div>
