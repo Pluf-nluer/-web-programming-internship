@@ -24,6 +24,8 @@ public class Product {
     private ProductAttribute attribute;
     private double discountPercent;
 
+    private Timestamp endSale;
+
     public Product() {
     }
 
@@ -41,8 +43,13 @@ public class Product {
         this.updatedAt = updatedAt;
     }
 
-    public double getDiscountPercent() { return discountPercent; }
-    public void setDiscountPercent(double discountPercent) { this.discountPercent = discountPercent; }
+    public double getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(double discountPercent) {
+        this.discountPercent = discountPercent;
+    }
 
     public double getSalePrice() {
         return this.price * (1 - this.discountPercent);
@@ -147,6 +154,14 @@ public class Product {
 
     public void setAttribute(ProductAttribute attribute) {
         this.attribute = attribute;
+    }
+
+    public Timestamp getEndSale() {
+        return endSale;
+    }
+
+    public void setEndSale(java.sql.Timestamp endSale) {
+        this.endSale = endSale;
     }
 
     @Override

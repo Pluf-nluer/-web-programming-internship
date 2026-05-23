@@ -79,7 +79,7 @@ public class ProductDAO {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT p.*, " +
                 "(SELECT pi.image_url FROM product_images pi WHERE pi.product_id = p.id LIMIT 1) AS image_url, " +
-                "s.discount_percent " +
+                "s.discount_percent, s.end_sale " +
                 "FROM products p " +
                 "LEFT JOIN product_categories pc ON p.category_id = pc.id " +
                 "LEFT JOIN sale s ON pc.sale_id = s.id AND (NOW() BETWEEN s.start_sale AND s.end_sale) " +
@@ -93,6 +93,7 @@ public class ProductDAO {
                 while (rs.next()) {
                     Product p = mapResultSetToProduct(rs);
                     p.setDiscountPercent(rs.getDouble("discount_percent"));
+                    p.setEndSale(rs.getTimestamp("end_sale"));
                     list.add(p);
                 }
             }
