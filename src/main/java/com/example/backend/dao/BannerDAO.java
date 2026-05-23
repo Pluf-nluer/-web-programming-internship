@@ -15,11 +15,17 @@ public class BannerDAO {
         String sql = "SELECT * FROM banners WHERE status = 'active' " +
                 "AND ((start_date IS NULL AND end_date IS NULL) " +
                 "OR (NOW() BETWEEN start_date AND end_date))";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                list.add(mapResultSetToBanner(rs));
+        try (Connection conn = DBConnection.getConnection()) {
+            if (conn == null) {
+                System.err.println("BannerDAO: Connection is NULL. Check your DB settings.");
+                return list;
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToBanner(rs));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
