@@ -91,6 +91,33 @@ public class EmailService {
         return sendHtmlEmail(toEmail, subject, htmlBody);
     }
 
+    public boolean sendPasswordResetOtpEmail(String toEmail, String fullName, String code) {
+        String safeName = fullName == null || fullName.trim().isEmpty() ? "bạn" : escapeHtml(fullName.trim());
+        String subject = "Mã OTP đặt lại mật khẩu Sun Craft";
+        String htmlBody = "<div style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;\">"
+                + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);\">"
+                + "<div style=\"background-color: #2c3e50; padding: 20px; text-align: center;\">"
+                + "<h1 style=\"color: #ffffff; margin: 0; font-size: 24px;\">Sun Craft</h1>"
+                + "</div>"
+                + "<div style=\"padding: 30px;\">"
+                + "<h2 style=\"color: #333333; margin-top: 0;\">Xác nhận quên mật khẩu</h2>"
+                + "<p style=\"color: #666666; line-height: 1.6;\">Xin chào " + safeName + ",</p>"
+                + "<p style=\"color: #666666; line-height: 1.6;\">Vui lòng dùng mã OTP dưới đây để tiếp tục đặt lại mật khẩu:</p>"
+                + "<div style=\"background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 18px; margin: 20px 0; text-align: center;\">"
+                + "<span style=\"font-family: monospace; font-size: 30px; font-weight: bold; color: #2c3e50; letter-spacing: 6px;\">" + code + "</span>"
+                + "</div>"
+                + "<p style=\"color: #666666; line-height: 1.6;\">Mã này sẽ hết hạn sau 10 phút.</p>"
+                + "<p style=\"color: #666666; line-height: 1.6; margin-top: 30px;\">Trân trọng,<br>Đội ngũ Sun Craft</p>"
+                + "</div>"
+                + "<div style=\"background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 12px; color: #999999;\">"
+                + "<p style=\"margin: 0;\">&copy; 2026 Sun Craft. All rights reserved.</p>"
+                + "</div>"
+                + "</div>"
+                + "</div>";
+
+        return sendHtmlEmail(toEmail, subject, htmlBody);
+    }
+
     private boolean sendHtmlEmail(String toEmail, String subject, String htmlBody) {
         if (RESEND_API_KEY == null || RESEND_API_KEY.startsWith("REPLACE")) {
             System.err.println("Resend API Key is not configured.");
@@ -99,7 +126,7 @@ public class EmailService {
 
         String from = (RESEND_FROM_EMAIL != null) ? RESEND_FROM_EMAIL : "onboarding@resend.dev";
         String jsonPayload = String.format("{\"from\":\"Sun Craft <%s>\",\"to\":\"%s\",\"subject\":\"%s\",\"html\":\"%s\"}",
-                from, toEmail, subject, escapeJson(htmlBody));
+                escapeJson(from), escapeJson(toEmail), escapeJson(subject), escapeJson(htmlBody));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(RESEND_API_URL))
@@ -114,12 +141,16 @@ public class EmailService {
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 System.out.println("Email sent successfully! Response: " + response.body());
                 return true;
-            } else {
-                System.err.println("Failed to send email. Status: " + response.statusCode() + ", Body: " + response.body());
-                return false;
             }
-        } catch (IOException | InterruptedException e) {
+
+            System.err.println("Failed to send email. Status: " + response.statusCode() + ", Body: " + response.body());
+            return false;
+        } catch (IOException e) {
             e.printStackTrace();
+            return false;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
             return false;
         }
     }
