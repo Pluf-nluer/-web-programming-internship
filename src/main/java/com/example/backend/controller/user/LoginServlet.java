@@ -15,6 +15,7 @@ import java.io.IOException;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
+    private static final String INVALID_LOGIN_MESSAGE = "Thông tin đăng nhập không hợp lệ hoặc tài khoản không thể truy cập.";
     private UserDAO userDAO;
     @Override
     public void init() throws ServletException {
@@ -55,15 +56,15 @@ public class LoginServlet extends HttpServlet {
         }
 
         String hashedPassword = PasswordUtil.encrypt(password);
-        User user = userDAO.checkLogin(emailOrPhone, hashedPassword);
-
-        if (user != null && !user.isActive()) {
-            showLoginError(request, response, "Tài khoản đang bị khóa!", emailOrPhone, rememberMe);
+        if (hashedPassword == null) {
+            showLoginError(request, response, INVALID_LOGIN_MESSAGE, emailOrPhone, rememberMe);
             return;
         }
 
-        if (user == null) {
-            showLoginError(request, response, "Email/SĐT hoặc mật khẩu không đúng!", emailOrPhone, rememberMe);
+        User user = userDAO.checkLogin(emailOrPhone, hashedPassword);
+
+        if (user == null || !user.isActive()) {
+            showLoginError(request, response, INVALID_LOGIN_MESSAGE, emailOrPhone, rememberMe);
             return;
         }
 
