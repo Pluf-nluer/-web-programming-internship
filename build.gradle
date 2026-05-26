@@ -20,19 +20,29 @@ repositories {
 
 dependencies {
     api libs.com.mysql.mysql.connector.j
-    api libs.jakarta.servlet.jsp.jstl.jakarta.servlet.jsp.jstl.api
-    api libs.org.glassfish.web.jakarta.servlet.jsp.jstl
+
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
+
     api libs.com.google.api.client.google.api.client
     api libs.com.google.http.client.google.http.client.gson
+
     testImplementation libs.org.junit.jupiter.junit.jupiter.api
     testImplementation libs.org.junit.jupiter.junit.jupiter.engine
+
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1'
 }
 
 group = 'com.example'
 version = '1.0-SNAPSHOT'
 description = 'backend'
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 publishing {
     publications {
@@ -52,7 +62,7 @@ tasks.withType(Javadoc) {
 
 remotes {
     host {
-        host = '192.168.6.131'
+        host = '192.168.6.129'
         user = 'root'
         password = 'centos'
     }
@@ -67,10 +77,10 @@ task docker_app_start {
         println 'begin docker_app_start'
         project.ssh.run {
             session(remotes.host) {
-                execute 'docker stop tomcat9', ignoreError: true
-                execute 'docker rm tomcat9', ignoreError: true
+                execute 'docker stop tomcat10', ignoreError: true
+                execute 'docker rm tomcat10', ignoreError: true
                 execute 'docker run -d ' +
-                        '--name tomcat9 ' +
+                        '--name tomcat10 ' +
                         '-v /usr/deploy:/usr/local/tomcat/webapps ' +
                         '-p 80:8080 ' +
                         'tomcat:10.1'
@@ -97,4 +107,6 @@ task docker_upload_file_to_server {
 task docker_deploy {
     dependsOn docker_upload_file_to_server
     dependsOn docker_app_start
+    dependsOn build
+    
 }
