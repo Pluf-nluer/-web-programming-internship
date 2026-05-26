@@ -379,6 +379,31 @@ public class UserDAO {
         return findByPhone(phone) != null;
     }
 
+    public boolean isPhoneExistsForOtherUser(String phone, int userId) {
+        String sql = "SELECT COUNT(*) FROM users WHERE phone = ? AND id <> ?";
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, phone);
+            pstmt.setInt(2, userId);
+
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi kiểm tra số điện thoại trùng: " + e.getMessage());
+        } finally {
+            closeResources(conn, pstmt, rs);
+        }
+        return false;
+    }
+
     private User findByPhone(String phone) {
         String sql = "SELECT u.*, r.name AS role " +
                 "FROM users u " +

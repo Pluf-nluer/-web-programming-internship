@@ -2,6 +2,7 @@ package com.example.backend.controller.user;
 
 import com.example.backend.dao.UserDAO;
 import com.example.backend.model.User;
+import com.example.backend.util.PhoneNumberUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -79,20 +80,34 @@ public class UserProfileServlet extends HttpServlet {
         
         String fullName = request.getParameter("fullName");
         String phone = request.getParameter("phone");
+        String trimmedFullName = fullName == null ? "" : fullName.trim();
+        String normalizedPhone = PhoneNumberUtil.normalize(phone);
         
         
-        if (fullName == null || fullName.trim().isEmpty() || 
-            phone == null || phone.trim().isEmpty()) {
+        if (trimmedFullName.isEmpty() || normalizedPhone.isEmpty()) {
             
+            request.setAttribute("user", currentUser);
             request.setAttribute("errorMessage", "Vui lòng không để trống họ tên và số điện thoại!");
             request.getRequestDispatcher("/account/account-profile.jsp").forward(request, response);
             return;
         }
+        if (!PhoneNumberUtil.isValidVietnamMobileNumber(normalizedPhone)) {
+            request.setAttribute("user", currentUser);
+            request.setAttribute("errorMessage", "Số điện thoại không hợp lệ!");
+            request.getRequestDispatcher("/account/account-profile.jsp").forward(request, response);
+            return;
+        }
 
+        if (userDAO.isPhoneExistsForOtherUser(normalizedPhone, currentUser.getId())) {
+            request.setAttribute("user", currentUser);
+            request.setAttribute("errorMessage", "Số điện thoại này đã được sử dụng!");
+            request.getRequestDispatcher("/account/account-profile.jsp").forward(request, response);
+            return;
+        }
         
         
-        currentUser.setFullName(fullName.trim());
-        currentUser.setPhone(phone.trim());
+        currentUser.setFullName(trimmedFullName);
+        currentUser.setPhone(normalizedPhone);
 
         
         boolean success = userDAO.updateProfile(currentUser);
