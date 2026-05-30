@@ -79,7 +79,7 @@
                     <div class="header-info">
                         <h1>
                             <i class="fa-solid fa-file-invoice"></i>
-                            Chi tiết đơn hàng
+                            Chi tiết hóa đơn
                         </h1>
                         <p class="order-code">
                             <i class="fa-solid fa-hashtag"></i>
@@ -90,129 +90,114 @@
                 </div>
             </div>
 
-            <div class="info-grid">
-                <div class="info-card">
-                    <div class="card-header">
-                        <i class="fa-solid fa-calendar-check"></i>
-                        <h3>Thông tin đơn hàng</h3>
+            <div class="invoice-document">
+                <div class="invoice-data-grid">
+                    <section class="invoice-data-card">
+                        <h3><i class="fa-solid fa-calendar-check"></i> Thông tin hóa đơn</h3>
+                        <div class="invoice-data-row">
+                            <span>Mã hóa đơn</span>
+                            <strong>#<%= order.getId() %></strong>
+                        </div>
+                        <div class="invoice-data-row">
+                            <span>Ngày đặt</span>
+                            <strong><%= dateFormat.format(order.getCreated_at()) %></strong>
+                        </div>
+                        <div class="invoice-data-row">
+                            <span>Phương thức</span>
+                            <strong>Thanh toán khi nhận hàng</strong>
+                        </div>
+                    </section>
+
+                    <section class="invoice-data-card">
+                        <h3><i class="fa-solid fa-truck"></i> Người nhận</h3>
+                        <div class="invoice-data-row">
+                            <span>Họ tên</span>
+                            <strong><%= order.getShipping_name() %></strong>
+                        </div>
+                        <div class="invoice-data-row">
+                            <span>Số điện thoại</span>
+                            <strong><%= order.getShipping_phone() %></strong>
+                        </div>
+                        <div class="invoice-data-row invoice-address-row">
+                            <span>Địa chỉ</span>
+                            <strong><%= order.getShipping_address() %></strong>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="invoice-table-section">
+                    <div class="section-header">
+                        <h2>
+                            <i class="fa-solid fa-table-list"></i>
+                            Dữ liệu sản phẩm
+                        </h2>
                     </div>
-                    <div class="info-content">
-                        <div class="info-row">
-                            <span class="info-label">Mã đơn hàng:</span>
-                            <span class="info-value">#<%= order.getId() %></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Ngày đặt hàng:</span>
-                            <span class="info-value"><%= dateFormat.format(order.getCreated_at()) %></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Trạng thái:</span>
-                            <span class="status-badge status-<%= statusClass %>"><%= statusText %></span>
-                        </div>
+                    <div class="invoice-table-wrapper">
+                        <table class="invoice-table">
+                            <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Sản phẩm</th>
+                                <th>Đơn giá</th>
+                                <th>SL</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <%
+                                int rowIndex = 1;
+                                for (OrderItem item : orderItems) {
+                            %>
+                            <tr>
+                                <td class="invoice-index"><%= rowIndex++ %></td>
+                                <td>
+                                    <div class="invoice-product">
+                                        <img src="<%= item.getProduct().getImageUrl() %>" alt="<%= item.getProduct().getName() %>">
+                                        <div>
+                                            <strong><%= item.getProduct().getName() %></strong>
+                                            <span>SP-<%= item.getProduct().getId() %></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><%= currencyFormat.format(item.getProduct().getPrice()) %></td>
+                                <td><%= item.getQuantity() %></td>
+                                <td class="invoice-line-total"><%= currencyFormat.format(item.getTotalPrice()) %></td>
+                            </tr>
+                            <% } %>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="info-card">
-                    <div class="card-header">
-                        <i class="fa-solid fa-user"></i>
-                        <h3>Thông tin người nhận</h3>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-row">
-                            <span class="info-label">Họ và tên:</span>
-                            <span class="info-value"><%= order.getShipping_name() %></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Số điện thoại:</span>
-                            <span class="info-value"><%= order.getShipping_phone() %></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="info-card">
-                    <div class="card-header">
-                        <i class="fa-solid fa-location-dot"></i>
-                        <h3>Địa chỉ giao hàng</h3>
-                    </div>
-                    <div class="info-content">
-                        <p class="address-text"><%= order.getShipping_address() %></p>
+                <div class="invoice-footer-grid">
+                    <div class="invoice-note-box">
+                        <h3><i class="fa-solid fa-note-sticky"></i> Ghi chú hóa đơn</h3>
                         <% if (order.getNote() != null && !order.getNote().isEmpty()) { %>
-                        <div class="address-note">
-                            <i class="fa-solid fa-note-sticky"></i>
-                            <span>Ghi chú: <%= order.getNote() %></span>
-                        </div>
+                        <p><%= order.getNote() %></p>
+                        <% } else { %>
+                        <p>Không có ghi chú thêm cho đơn hàng này.</p>
                         <% } %>
+                        <span>Khách hàng thanh toán khi nhận hàng. Vui lòng kiểm tra sản phẩm trước khi hoàn tất thanh toán.</span>
                     </div>
-                </div>
 
-                <div class="info-card">
-                    <div class="card-header">
-                        <i class="fa-solid fa-credit-card"></i>
-                        <h3>Phương thức thanh toán</h3>
-                    </div>
-                    <div class="info-content">
-                        <div class="info-row">
-                            <span class="info-label">Thanh toán:</span>
-                            <span class="info-value">
-                                <i class="fa-solid fa-money-bill-wave"></i>
-                                Thanh toán khi nhận hàng (COD)
-                            </span>
+                    <div class="summary-content invoice-summary">
+                        <div class="summary-row">
+                            <span class="summary-label">Tạm tính:</span>
+                            <span class="summary-value"><%= currencyFormat.format(order.getTotal_amount() - order.getShipping_fee()) %></span>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="products-section">
-                <div class="section-header">
-                    <h2>
-                        <i class="fa-solid fa-bag-shopping"></i>
-                        Sản phẩm trong đơn hàng
-                    </h2>
-                </div>
-                <div class="products-list">
-                    <% for (OrderItem item : orderItems) { %>
-                    <div class="product-item">
-                        <div class="product-image">
-                            <img src="<%= item.getProduct().getImageUrl() %>" alt="<%= item.getProduct().getName() %>">
+                        <div class="summary-row">
+                            <span class="summary-label">Phí vận chuyển:</span>
+                            <span class="summary-value"><%= currencyFormat.format(order.getShipping_fee()) %></span>
                         </div>
-                        <div class="product-info">
-                            <h4 class="product-name"><%= item.getProduct().getName() %></h4>
-                            <div class="product-meta">
-                                <span class="product-qty">x <%= item.getQuantity() %></span>
-                            </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row total">
+                            <span class="summary-label">Tổng thanh toán:</span>
+                            <span class="summary-value"><%= currencyFormat.format(order.getTotal_amount()) %></span>
                         </div>
-                        <div class="product-price-info">
-                            <p class="product-price"><%= currencyFormat.format(item.getProduct().getPrice()) %></p>
+                        <div class="payment-note">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Thanh toán khi nhận hàng</span>
                         </div>
-                    </div>
-                    <% } %>
-                </div>
-            </div>
-
-            <div class="summary-section">
-                <div class="section-header">
-                    <h2>
-                        <i class="fa-solid fa-receipt"></i>
-                        Chi tiết thanh toán
-                    </h2>
-                </div>
-                <div class="summary-content">
-                    <div class="summary-row">
-                        <span class="summary-label">Tạm tính:</span>
-                        <span class="summary-value"><%= currencyFormat.format(order.getTotal_amount() - order.getShipping_fee()) %></span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="summary-label">Phí vận chuyển:</span>
-                        <span class="summary-value"><%= currencyFormat.format(order.getShipping_fee()) %></span>
-                    </div>
-                    <div class="summary-divider"></div>
-                    <div class="summary-row total">
-                        <span class="summary-label">Tổng cộng:</span>
-                        <span class="summary-value"><%= currencyFormat.format(order.getTotal_amount()) %></span>
-                    </div>
-                    <div class="payment-note">
-                        <i class="fa-solid fa-circle-info"></i>
-                        <span>Thanh toán khi nhận hàng</span>
                     </div>
                 </div>
             </div>

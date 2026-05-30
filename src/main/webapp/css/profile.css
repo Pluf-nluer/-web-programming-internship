@@ -416,6 +416,11 @@
     box-shadow: 0 6px 20px rgba(192, 57, 43, 0.4);
 }
 
+.profile-address-section {
+    padding-top: 30px;
+    border-top: 2px solid #f5f1e6;
+}
+
 .btn-submit:active,
 .btn-cancel:active {
     transform: translateY(0);

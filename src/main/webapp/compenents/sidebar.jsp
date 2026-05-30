@@ -33,8 +33,8 @@
       <span>Sản phẩm yêu thích</span>
     </a>
 
-    <a href="${pageContext.request.contextPath}/account/account-profile.jsp"
-       class="menu-item <%= currentUri.contains("account-profile.jsp") ? "active" : "" %>">
+    <a href="${pageContext.request.contextPath}/profile"
+       class="menu-item <%= currentUri.contains("profile") ? "active" : "" %>">
       <i class="fa-solid fa-user-circle"></i>
       <span>Thông tin</span>
     </a>
