@@ -3,6 +3,7 @@ package com.example.backend.controller.user;
 import com.example.backend.dao.UserDAO;
 import com.example.backend.model.User;
 import com.example.backend.util.PasswordUtil;
+import com.example.backend.util.RememberMeUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,6 +15,7 @@ import java.io.IOException;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
+    private static final String INVALID_LOGIN_MESSAGE = "Thông tin đăng nhập không hợp lệ hoặc tài khoản không thể truy cập.";
     private UserDAO userDAO;
     @Override
     public void init() throws ServletException {
@@ -38,7 +40,6 @@ public class LoginServlet extends HttpServlet {
         request.getRequestDispatcher("/login.jsp").forward(request, response);
     }
 
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -50,53 +51,59 @@ public class LoginServlet extends HttpServlet {
 
         if (emailOrPhone == null || emailOrPhone.trim().isEmpty() ||
                 password == null || password.trim().isEmpty()) {
-
-            request.setAttribute("errorMessage", "Vui lòng nhập đầy đủ thông tin!");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            showLoginError(request, response, "Vui lòng nhập đầy đủ thông tin!", emailOrPhone, rememberMe);
             return;
         }
 
-
         String hashedPassword = PasswordUtil.encrypt(password);
+        if (hashedPassword == null) {
+            showLoginError(request, response, INVALID_LOGIN_MESSAGE, emailOrPhone, rememberMe);
+            return;
+        }
 
         User user = userDAO.checkLogin(emailOrPhone, hashedPassword);
 
-        if (user != null && !user.isActive()) {
-            request.setAttribute("errorMessage", "Tài khoản đang bị khóa!");
-            request.setAttribute("emailOrPhone", emailOrPhone);
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+        if (user == null || !user.isActive()) {
+            showLoginError(request, response, INVALID_LOGIN_MESSAGE, emailOrPhone, rememberMe);
             return;
         }
 
-        if (user != null) {
-            HttpSession session = request.getSession(true);
+        HttpSession session = request.getSession(true);
+        session.setAttribute("user", user);
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("userName", user.getFullName());
+        session.setAttribute("userRole", user.getRole());
 
-            session.setAttribute("user", user);
-            session.setAttribute("userId", user.getId());
-            session.setAttribute("userName", user.getFullName());
-            session.setAttribute("userRole", user.getRole());
+        boolean rememberLogin = "on".equals(rememberMe) && !user.isAdmin();
+        session.setMaxInactiveInterval(rememberLogin ? RememberMeUtil.MAX_AGE_SECONDS : 30 * 60);
 
-            session.setMaxInactiveInterval(30 * 60);
-
-            if (user.isAdmin()) {
-                session.removeAttribute("postLoginRedirect");
-                response.sendRedirect(request.getContextPath() + "/admin/dashboard");
-                return;
-            }
-
-            String redirectUrl = (String) session.getAttribute("postLoginRedirect");
-            if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
-                session.removeAttribute("postLoginRedirect");
-                response.sendRedirect(redirectUrl);
-                return;
-            }
-
-            response.sendRedirect(request.getContextPath() + "/");
-
+        if (rememberLogin) {
+            response.addCookie(RememberMeUtil.createCookie(user, request.isSecure()));
         } else {
-            request.setAttribute("errorMessage", "Email/SĐT hoặc mật khẩu không đúng!");
-            request.setAttribute("emailOrPhone", emailOrPhone);
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            response.addCookie(RememberMeUtil.clearCookie(request.isSecure()));
         }
+
+        if (user.isAdmin()) {
+            session.removeAttribute("postLoginRedirect");
+            response.sendRedirect(request.getContextPath() + "/admin/dashboard");
+            return;
+        }
+
+        String redirectUrl = (String) session.getAttribute("postLoginRedirect");
+        if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
+            session.removeAttribute("postLoginRedirect");
+            response.sendRedirect(redirectUrl);
+            return;
+        }
+
+        response.sendRedirect(request.getContextPath() + "/");
+    }
+
+    private void showLoginError(HttpServletRequest request, HttpServletResponse response, String message,
+                                String emailOrPhone, String rememberMe) throws ServletException, IOException {
+        request.setAttribute("errorMessage", message);
+        request.setAttribute("emailOrPhone", emailOrPhone);
+        request.setAttribute("rememberMe", rememberMe);
+        request.getRequestDispatcher("/login.jsp").forward(request, response);
     }
 }

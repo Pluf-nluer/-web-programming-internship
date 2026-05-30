@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <header id="header">
   <div class="container">
@@ -96,23 +97,34 @@
         </label>
       </div>
       <div class="icon user-menu-container">
-        <a href="${pageContext.request.contextPath}/login" class="icon">
-          <i class="fa-regular fa-user"></i>
-        </a>
-        <% if (session.getAttribute("user") != null) { %>
-        <div class="user-dropdown">
-          <div class="user-info-header">
-            <span>Xin chào, <strong>${sessionScope.user.fullName}</strong></span>
-          </div>
-          <hr>
-          <ul>
-            <li><a href="${pageContext.request.contextPath}/account/dashboard.jsp"><i
+        <c:choose>
+          <c:when test="${not empty sessionScope.user}">
+            <c:set var="avatarName" value="${empty sessionScope.user.fullName ? sessionScope.user.email : sessionScope.user.fullName}" />
+            <c:if test="${empty avatarName}">
+              <c:set var="avatarName" value="U" />
+            </c:if>
+            <a href="${pageContext.request.contextPath}/account/dashboard.jsp" class="header-avatar-link" aria-label="Tai khoan">
+              <span class="header-avatar"><c:out value="${fn:toUpperCase(fn:substring(avatarName, 0, 1))}" /></span>
+            </a>
+            <div class="user-dropdown">
+              <div class="user-info-header">
+                <span>Xin chào, <strong>${sessionScope.user.fullName}</strong></span>
+              </div>
+              <hr>
+              <ul>
+                <li><a href="${pageContext.request.contextPath}/account/dashboard.jsp"><i
                     class="fa-regular fa-address-card"></i> Thông tin cá nhân</a></li>
-            <li><a href="${pageContext.request.contextPath}/logout" class="logout-link"><i
+                <li><a href="${pageContext.request.contextPath}/logout" class="logout-link" onclick="return confirm('Bạn có chắc muốn đăng xuất?')"><i
                     class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>
-          </ul>
-        </div>
-        <% } %>
+              </ul>
+            </div>
+          </c:when>
+          <c:otherwise>
+            <a href="${pageContext.request.contextPath}/login" class="icon">
+              <i class="fa-regular fa-user"></i>
+            </a>
+          </c:otherwise>
+        </c:choose>
       </div>
 
       <c:if test="${not empty sessionScope.user}">

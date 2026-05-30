@@ -58,6 +58,7 @@
                             Email hoặc Số điện thoại
                         </label>
                         <input type="text" id="emailOrPhone" name="emailOrPhone"
+                               value="${fn:escapeXml(emailOrPhone)}"
                                placeholder="Nhập email hoặc số điện thoại" required>
                     </div>
 
@@ -75,7 +76,12 @@
                         </div>
                     </div>
 
-                    <div class="form-options form-options-single">
+                    <div class="form-options">
+                        <label class="remember-me" for="rememberMe">
+                            <input type="checkbox" id="rememberMe" name="rememberMe" value="on"
+                                   <c:if test="${rememberMe == 'on'}">checked</c:if>>
+                            <span>Ghi nhớ đăng nhập</span>
+                        </label>
                         <a href="${pageContext.request.contextPath}/forgot-password" class="forgot-password">Quên mật khẩu?</a>
                     </div>
 

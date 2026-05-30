@@ -53,6 +53,7 @@
                 </div>
 
                 <div class="products-grid">
+                    <a href="${pageContext.request.contextPath}/products?category_id=1" class="category-link">
                     <div class="product-card">
                         <div class="product-image">
                             <img src="https://denmaytre.net/wp-content/uploads/2019/12/san-pham-may-tre-dan-xuat-khau-lang-nghe-tang-tien.jpg.webp" alt="Mây tre đan">
@@ -61,7 +62,8 @@
                             <h4>Mây tre đan</h4>
                         </div>
                     </div>
-
+                    </a>
+                    <a href="${pageContext.request.contextPath}/products?category_id=2" class = "category-link">
                     <div class="product-card">
                         <div class="product-image">
                             <img src="https://cdn.pixabay.com/photo/2023/05/29/18/10/pottery-8026823_1280.jpg" alt="Gốm sứ">
@@ -70,7 +72,8 @@
                             <h4>Gốm sứ</h4>
                         </div>
                     </div>
-
+                    </a>
+                    <a href = "${pageContext.request.contextPath}/products?category_id=3" class="category-link">
                     <div class="product-card">
                         <div class="product-image">
                             <img src="https://dntt.mediacdn.vn/197608888129458176/2023/7/14/27-1-1689328749793900374452.jpg" alt="Đồ gỗ mỹ nghệ">
@@ -79,7 +82,8 @@
                             <h4>Đồ gỗ mỹ nghệ</h4>
                         </div>
                     </div>
-
+                    </a>
+                    <a href="${pageContext.request.contextPath}/products?category_id=4" class="category-link">
                     <div class="product-card">
                         <div class="product-image">
                             <img src="https://images.pexels.com/photos/236748/pexels-photo-236748.jpeg" alt="Dệt thêu & may mặc thủ công">
@@ -88,7 +92,8 @@
                             <h4>Dệt thêu & may mặc thủ công</h4>
                         </div>
                     </div>
-
+                    </a>
+                    <a href="${pageContext.request.contextPath}/products?category_id=5" class="category-link">
                     <div class="product-card">
                         <div class="product-image">
                             <img src="https://nvhphunu.vn/wp-content/uploads/2023/12/2023-07-29_0000478.png" alt="Trang sức & phụ kiện thủ công">
@@ -97,7 +102,8 @@
                             <h4>Trang sức & phụ kiện thủ công</h4>
                         </div>
                     </div>
-
+                    </a>
+                    <a href="${pageContext.request.contextPath}/products?category_id=6" class="category-link">
                     <div class="product-card">
                         <div class="product-image">
                             <img src="https://chus.vn/images/detailed/239/10237_21_F1.jpg" alt="Đồ trang trí & quà tặng nghệ thuật">
@@ -106,6 +112,7 @@
                             <h4>Đồ trang trí & quà tặng nghệ thuật</h4>
                         </div>
                     </div>
+                    </a>
                 </div>
             </div>
         </section>

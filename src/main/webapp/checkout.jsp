@@ -155,7 +155,7 @@
             <div class="order-product">
                 <div class="order-summary">
 
-                    <c:forEach var="item" items="${sessionScope.cart.items}">
+                    <c:forEach var="item" items="${checkoutItems}">
                         <div class="cart-row">
                             <div class="cart-items">
                                 <div class="cart-image" style="position: relative;">
@@ -181,7 +181,7 @@
                     <div class="order-total-top">
                         <span>Tạm tính</span>
                         <span class="price">
-                            <fmt:formatNumber value="${sessionScope.cart.totalMoney}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                            <fmt:formatNumber value="${totalCheckout}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                         </span>
                     </div>
                     <div class="order-total-bottom">
@@ -194,7 +194,7 @@
                     <div class="order-price-top">
                         <span>Tổng cộng</span>
                         <span class="price">
-                            <fmt:formatNumber value="${sessionScope.cart.totalMoney + 30000}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                            <fmt:formatNumber value="${totalCheckout + 30000}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
                         </span>
                     </div>
                     <div class="order-price-bottom">
