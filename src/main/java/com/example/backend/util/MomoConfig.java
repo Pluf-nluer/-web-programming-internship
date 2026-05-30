@@ -5,9 +5,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
 public class MomoConfig {
-    public static final String PARTNER_CODE = "";
-    public static final String ACCESS_KEY = "";
-    public static final String SECRET_KEY = "";
+    public static final String PARTNER_CODE = "MOMOBKUN20180529";
+    public static final String ACCESS_KEY = "klm05TvNCyandKxG";
+    public static final String SECRET_KEY = "at67qH6mk8g5i1peY2x14P2hX0v91saM";
     public static final String ENDPOINT = "https://test-payment.momo.vn/v2/gateway/api/create";
     public static final String RETURN_URL = "http://localhost:8080/momo-return";
     public static final String NOTIFY_URL = "http://localhost:8080/momo-motify";
