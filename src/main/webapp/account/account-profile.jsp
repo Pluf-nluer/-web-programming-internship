@@ -1,6 +1,12 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
+<%
+    if (request.getAttribute("jakarta.servlet.forward.request_uri") == null) {
+        response.sendRedirect(request.getContextPath() + "/profile");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -83,6 +89,71 @@
                                     <span class="required">*</span>
                                 </label>
                                 <input type="tel" id="phone" name="phone" value="${profileUser.phone}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section profile-address-section">
+                        <div class="section-title">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <h2>Địa chỉ giao hàng</h2>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="receiverName">
+                                    <i class="fa-solid fa-user-check"></i>
+                                    Người nhận
+                                </label>
+                                <input type="text" id="receiverName" name="receiverName" value="${shippingAddress.receiverName}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="shippingPhone">
+                                    <i class="fa-solid fa-phone-volume"></i>
+                                    SĐT nhận hàng
+                                </label>
+                                <input type="tel" id="shippingPhone" name="shippingPhone" value="${shippingAddress.phone}">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="addressLine">
+                                    <i class="fa-solid fa-house"></i>
+                                    Địa chỉ cụ thể
+                                </label>
+                                <input type="text" id="addressLine" name="addressLine" value="${shippingAddress.addressLine}" placeholder="Số nhà, tên đường...">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="province">
+                                    <i class="fa-solid fa-city"></i>
+                                    Tỉnh / Thành phố
+                                </label>
+                                <input type="text" id="province" name="province" value="${shippingAddress.province}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="district">
+                                    <i class="fa-solid fa-map"></i>
+                                    Quận / Huyện
+                                </label>
+                                <input type="text" id="district" name="district" value="${shippingAddress.district}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ward">
+                                    <i class="fa-solid fa-location-crosshairs"></i>
+                                    Phường / Xã
+                                </label>
+                                <input type="text" id="ward" name="ward" value="${shippingAddress.ward}">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="note">
+                                    <i class="fa-solid fa-note-sticky"></i>
+                                    Ghi chú
+                                </label>
+                                <input type="text" id="note" name="note" value="${shippingAddress.note}" placeholder="Ví dụ: giao giờ hành chính">
                             </div>
                         </div>
                     </div>
