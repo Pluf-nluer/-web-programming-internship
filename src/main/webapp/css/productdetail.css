@@ -252,6 +252,43 @@ body {
     justify-content: space-between;
 }
 
+.sale-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: #c0392b;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(192, 57, 43, 0.4);
+}
+
+.detail-countdown {
+    background-color: #fff5f5;
+    border: 1px solid #f9d5d5;
+    padding: 10px 15px;
+    margin: 15px 0;
+    border-radius: 8px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.detail-countdown .countdown-text {
+    color: #444444;
+}
+
+.detail-countdown .countdown-timer {
+    color: #c0392b;
+    font-weight: 700;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+}
+
 
 @media (max-width: 768px) {
     .product-details .container { flex-direction: column; }

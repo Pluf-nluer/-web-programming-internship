@@ -20,7 +20,7 @@
 <c:set var="breadcrumbText"
        value="<a href='${pageContext.request.contextPath}/products'>Sản phẩm</a>"
        scope="request"/>
-<jsp:include page="compenents/hero-section.jsp" />
+<jsp:include page="compenents/hero-section.jsp"/>
 
 <div class="products-wrapper">
     <section class="filter-bar">
@@ -29,7 +29,7 @@
                 <select name="category_id" id="category" onchange="this.form.submit()">
                     <option value="">Tất cả danh mục</option>
                     <c:forEach items="${categoryList}" var="cat">
-                        
+
                         <option value="${cat.id}" ${param.category_id == cat.id ? 'selected' : ''}>
                                 ${cat.name}
                         </option>
@@ -60,27 +60,39 @@
                 <c:forEach items="${productList}" var="p">
                     <div class="product-card">
                         <a href="${pageContext.request.contextPath}/productdetail?id=${p.id}" class="product-link">
-                            <div class="product-img">
-                                <c:if test="${p.price > 0}">
+                            <div class="product-img" style="position: relative;">
+                                <c:if test="${p.discountPercent > 0}">
+                                    <div class="sale-badge">
+                                        -<fmt:formatNumber value="${p.discountPercent * 100}" maxFractionDigits="0"/>%
+                                    </div>
                                 </c:if>
+
                                 <img src="${p.imageUrl}" alt="${p.name}">
                             </div>
+                            <c:if test="${p.discountPercent > 0 && not empty p.endSale}">
+                                <div class="countdown-container" data-endtime="${p.endSale}">
+                                    <span class="countdown-text">Kết thúc sau: </span>
+                                    <span class="countdown-timer">00:00:00</span>
+                                </div>
+                            </c:if>
+
                             <div class="product-info">
-                                <h3><c:out value="${p.name}" /></h3>
+                                <h3><c:out value="${p.name}"/></h3>
                                 <div class="price-container">
                                     <fmt:setLocale value="vi_VN"/>
                                     <c:choose>
                                         <c:when test="${p.discountPercent > 0}">
-                                            
-                                            <span class="price-sale" style="color:red;">
-                                                <fmt:formatNumber value="${p.price * (1 - p.discountPercent)}" type="currency" currencySymbol="đ" />
-                                            </span>
-                                            <del><fmt:formatNumber value="${p.price}" type="currency" currencySymbol="đ"/></del>
+                        <span class="price-sale" style="color:red;">
+                            <fmt:formatNumber value="${p.price * (1 - p.discountPercent)}" type="currency"
+                                              currencySymbol="đ"/>
+                        </span>
+                                            <del><fmt:formatNumber value="${p.price}" type="currency"
+                                                                   currencySymbol="đ"/></del>
                                         </c:when>
                                         <c:otherwise>
-                                            <span class="price">
-                                                <fmt:formatNumber value="${p.price}" type="currency" currencySymbol="đ"/>
-                                            </span>
+                        <span class="price">
+                            <fmt:formatNumber value="${p.price}" type="currency" currencySymbol="đ"/>
+                        </span>
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
@@ -94,33 +106,36 @@
         <div class="pagination-area">
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    
+
                     <c:if test="${currentPage > 1}">
                         <li class="page-item">
-                            <a class="page-link" href="products?page=${currentPage - 1}${not empty paramCid ? '&category_id='.concat(paramCid) : ''}">&laquo;</a>
+                            <a class="page-link"
+                               href="products?page=${currentPage - 1}${not empty paramCid ? '&category_id='.concat(paramCid) : ''}">&laquo;</a>
                         </li>
                     </c:if>
 
                     <c:forEach begin="1" end="${totalPages}" var="i">
                         <c:choose>
-                            
+
                             <c:when test="${i == 1 || i == totalPages || (i >= currentPage - 2 && i <= currentPage + 2)}">
                                 <li class="page-item ${currentPage == i ? 'active' : ''}">
-                                    <a class="page-link" href="products?page=${i}${not empty paramCid ? '&category_id='.concat(paramCid) : ''}">${i}</a>
+                                    <a class="page-link"
+                                       href="products?page=${i}${not empty paramCid ? '&category_id='.concat(paramCid) : ''}">${i}</a>
                                 </li>
                             </c:when>
 
-                            
+
                             <c:when test="${i == currentPage - 3 || i == currentPage + 3}">
                                 <li class="page-item disabled"><span class="page-link">...</span></li>
                             </c:when>
                         </c:choose>
                     </c:forEach>
 
-                    
+
                     <c:if test="${currentPage < totalPages}">
                         <li class="page-item">
-                            <a class="page-link" href="products?page=${currentPage + 1}${not empty paramCid ? '&category_id='.concat(paramCid) : ''}">&raquo;</a>
+                            <a class="page-link"
+                               href="products?page=${currentPage + 1}${not empty paramCid ? '&category_id='.concat(paramCid) : ''}">&raquo;</a>
                         </li>
                     </c:if>
                 </ul>
@@ -129,7 +144,7 @@
     </main>
 </div>
 
-<%@include file="compenents/footer.jsp"%>
+<%@include file="compenents/footer.jsp" %>
 
 <script src="${pageContext.request.contextPath}/js/hero-section.js"></script>
 
@@ -161,28 +176,44 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const searchInput = document.getElementById("ajaxSearchInput");
-        const resultArea = document.getElementById("searchResultArea");
-        const searchTitle = document.getElementById("searchTitle");
+        function startCountdowns() {
+            const countdownElements = document.querySelectorAll(".countdown-container");
 
-        searchInput.addEventListener("input", function() {
-            const keyword = this.value.trim();
+            if (countdownElements.length === 0) return;
 
-            if (keyword.length >= 1) { 
-                searchTitle.innerText = "Kết quả gợi ý cho: '" + keyword + "'";
+            setInterval(function() {
+                const now = new Date().getTime();
 
-                
-                fetch("${pageContext.request.contextPath}/search-ajax?keyword=" + encodeURIComponent(keyword))
-                    .then(response => response.text())
-                    .then(data => {
-                        resultArea.innerHTML = data;
-                    })
-                    .catch(err => console.error("Lỗi tìm kiếm AJAX:", err));
-            } else {
-                searchTitle.innerText = "Sản phẩm gợi ý";
-                resultArea.innerHTML = "";
-            }
-        });
+                countdownElements.forEach(function(el) {
+                    const endTimeStr = el.getAttribute("data-endtime");
+                    const endTime = new Date(endTimeStr.replace(/-/g, "/")).getTime();
+                    const distance = endTime - now;
+
+                    const timerSlot = el.querySelector(".countdown-timer");
+
+                    if (distance < 0) {
+                        el.style.display = "none";
+                        return;
+                    }
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    let displayStr = "";
+                    if (days > 0) {
+                        displayStr += days + "ngày ";
+                    }
+                    displayStr += (hours < 10 ? "0" : "") + hours + ":";
+                    displayStr += (minutes < 10 ? "0" : "") + minutes + ":";
+                    displayStr += (seconds < 10 ? "0" : "") + seconds;
+
+                    timerSlot.innerText = displayStr;
+                });
+            }, 1000);
+        }
+
+        startCountdowns();
     });
 </script>
 </body>

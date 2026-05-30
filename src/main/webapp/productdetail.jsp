@@ -27,10 +27,14 @@
     <section class="product-details">
         <div class="container">
             <div class="product-gallery">
-                <div class="product-img">
-                    <a href="#">
-                        <img id="main-display" src="${product.imageUrl}" alt="${product.name}">
-                    </a>
+                <div class="product-img" style="position: relative; overflow: hidden; border-radius: 10px;">
+
+                    <c:if test="${product.discountPercent > 0}">
+                        <div class="sale-badge">
+                            -<fmt:formatNumber value="${product.discountPercent * 100}" maxFractionDigits="0"/>%
+                        </div>
+                    </c:if>
+                    <img id="main-display" src="${product.imageUrl}" alt="${product.name}">
                 </div>
             </div>
 
@@ -46,23 +50,36 @@
                     <div class="prices">
                         <c:choose>
                             <c:when test="${product.discountPercent > 0}">
-                                <span class="price" style="color: red; font-weight: bold;">
-                                    <fmt:formatNumber value="${product.price * (1 - product.discountPercent)}" type="currency" currencySymbol="đ"  maxFractionDigits="0"/>
-                                </span>
-                                    <span class="old-price" style="text-decoration: line-through; color: #888; margin-left: 10px; font-size: 0.9em;">
-                                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="đ"  maxFractionDigits="0"/>
-                                </span>
-                                    <span class="badge-sale" style="background: #ff4d4d; color: white; padding: 2px 5px; border-radius: 3px; margin-left: 5px;">
-                                    -<fmt:formatNumber value="${product.discountPercent * 100}"  />%
-                                </span>
+                <span class="price" style="color: red; font-weight: bold;">
+                    <fmt:formatNumber value="${product.price * (1 - product.discountPercent)}" type="currency"
+                                      currencySymbol="đ" maxFractionDigits="0"/>
+                </span>
+                                <span class="old-price"
+                                      style="text-decoration: line-through; color: #888; margin-left: 10px; font-size: 0.9em;">
+                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="đ"
+                                      maxFractionDigits="0"/>
+                </span>
+                                <span class="badge-sale"
+                                      style="background: #ff4d4d; color: white; padding: 2px 5px; border-radius: 3px; margin-left: 5px;">
+                    -<fmt:formatNumber value="${product.discountPercent * 100}"/>%
+                </span>
                             </c:when>
                             <c:otherwise>
-                                <span class="price">
-                                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
-                                </span>
+                <span class="price">
+                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="đ"
+                                      maxFractionDigits="0"/>
+                </span>
                             </c:otherwise>
                         </c:choose>
                     </div>
+
+                    <c:if test="${product.discountPercent > 0 && not empty product.endSale}">
+                        <div class="countdown-container detail-countdown" data-endtime="${product.endSale}">
+                            <span class="countdown-text"><i
+                                    class="fa-regular fa-clock"></i> Khuyến mãi kết thúc sau: </span>
+                            <span class="countdown-timer">00:00:00</span>
+                        </div>
+                    </c:if>
                 </div>
 
                 <form action="${pageContext.request.contextPath}/cart" method="get" class="product-amount-cart">
@@ -123,7 +140,8 @@
                             <c:choose>
                                 <c:when test="${not empty reviews}">
                                     <c:forEach items="${reviews}" var="rev">
-                                        <div class="review-item" style="border-bottom: 1px solid #eee; margin-bottom: 15px; padding-bottom: 10px;">
+                                        <div class="review-item"
+                                             style="border-bottom: 1px solid #eee; margin-bottom: 15px; padding-bottom: 10px;">
                                             <strong style="color: #333;">${rev.userName}</strong>
 
                                             <span style="color: #ffc107; margin-left: 10px;">
@@ -168,16 +186,21 @@
                                         <c:choose>
                                             <c:when test="${rp.discountPercent > 0}">
                                                 <span class="price" style="color: red;">
-                                                    <fmt:formatNumber value="${rp.price * (1 - rp.discountPercent/100)}" type="currency" currencySymbol="đ"  maxFractionDigits="0"/>
+                                                    <fmt:formatNumber value="${rp.price * (1 - rp.discountPercent/100)}"
+                                                                      type="currency" currencySymbol="đ"
+                                                                      maxFractionDigits="0"/>
                                                 </span>
                                                 <br>
-                                                <span class="old-price" style="text-decoration: line-through; color: #999; font-size: 0.8em;">
-                                                    <fmt:formatNumber value="${rp.price}" type="currency"  currencySymbol="đ" maxFractionDigits="0"/>
+                                                <span class="old-price"
+                                                      style="text-decoration: line-through; color: #999; font-size: 0.8em;">
+                                                    <fmt:formatNumber value="${rp.price}" type="currency"
+                                                                      currencySymbol="đ" maxFractionDigits="0"/>
                                                 </span>
                                             </c:when>
                                             <c:otherwise>
                                                 <span class="price">
-                                                    <fmt:formatNumber value="${rp.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                                    <fmt:formatNumber value="${rp.price}" type="currency"
+                                                                      currencySymbol="đ" maxFractionDigits="0"/>
                                                 </span>
                                             </c:otherwise>
                                         </c:choose>
@@ -278,12 +301,6 @@
             }
         }
 
-        
-        
-        
-        
-        
-        
 
         if (closeXBtn) {
             closeXBtn.addEventListener('click', closeModal);
@@ -304,23 +321,68 @@
 </script>
 <script>
     function openTab(evt, tabName) {
-        
+
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tab-content-item");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].style.display = "none";
         }
 
-        
+
         tablinks = document.getElementsByClassName("tab-link");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
 
-        
+
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
     }
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function startDetailCountdown() {
+            const countdownEl = document.querySelector(".countdown-container");
+            if (!countdownEl) return;
+
+            const endTimeStr = countdownEl.getAttribute("data-endtime");
+            if (!endTimeStr) return;
+
+            // Định dạng thời gian từ hệ thống DB sang JS chuẩn
+            const endTime = new Date(endTimeStr.replace(/-/g, "/")).getTime();
+
+            const timerInterval = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+                const timerSlot = countdownEl.querySelector(".countdown-timer");
+
+                if (distance < 0) {
+                    countdownEl.style.display = "none";
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                let displayStr = "";
+                if (days > 0) {
+                    displayStr += days + " ngày ";
+                }
+                displayStr += (hours < 10 ? "0" : "") + hours + ":";
+                displayStr += (minutes < 10 ? "0" : "") + minutes + ":";
+                displayStr += (seconds < 10 ? "0" : "") + seconds;
+
+                if (timerSlot) {
+                    timerSlot.innerText = displayStr;
+                }
+            }, 1000);
+        }
+
+        startDetailCountdown();
+    });
 </script>
 </body>
 </html>

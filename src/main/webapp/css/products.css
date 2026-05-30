@@ -186,3 +186,46 @@ body {
 .page-item:hover:not(.active):not(.disabled) .page-link {
     background-color: #f5f5f5;
 }
+
+.product-img {
+    position: relative;
+}
+
+.sale-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #c0392b;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    z-index: 5;
+    box-shadow: 0 2px 6px rgba(192, 57, 43, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.countdown-container {
+    background-color: #fff5f5;
+    border: 1px solid #f9d5d5;
+    text-align: center;
+    padding: 6px 4px;
+    margin: 4px 0;
+    border-radius: 6px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.countdown-text {
+    color: #666666;
+}
+
+.countdown-timer {
+    color: #c0392b;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
