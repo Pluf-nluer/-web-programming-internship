@@ -70,11 +70,10 @@ public class ChangePasswordServlet extends HttpServlet {
         String confirmPassword = request.getParameter("confirmPassword");
         String passwordChangeToken = request.getParameter("passwordChangeToken");
 
-        boolean isGoogleVerified = isValidPasswordChangeToken(session, passwordChangeToken);
+        boolean isGoogleVerified = consumePasswordChangeToken(session, passwordChangeToken);
         boolean usedGoogleToken = passwordChangeToken != null && !passwordChangeToken.trim().isEmpty();
 
         if (usedGoogleToken && !isGoogleVerified) {
-            clearPasswordChangeToken(session);
             request.setAttribute("errorMessage", "Phiên xác thực Google đã hết hạn. Vui lòng xác thực lại.");
             request.getRequestDispatcher("/account/account-change-password.jsp").forward(request, response);
             return;
@@ -196,6 +195,14 @@ public class ChangePasswordServlet extends HttpServlet {
         }
 
         return PasswordChangeTokenUtil.isValid(token, (String) expectedToken, (Long) expiresAt, System.currentTimeMillis());
+    }
+
+    private boolean consumePasswordChangeToken(HttpSession session, String token) {
+        boolean valid = isValidPasswordChangeToken(session, token);
+        if (token != null && !token.trim().isEmpty()) {
+            clearPasswordChangeToken(session);
+        }
+        return valid;
     }
 
     private void clearPasswordChangeToken(HttpSession session) {
