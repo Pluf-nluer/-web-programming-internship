@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
+<div id="toast-container"></div>
 <%@ include file="compenents/header.jsp" %>
 <c:set var="pageTitle" value="Giỏ hàng" scope="request"/>
 <c:set var="breadcrumbText"
@@ -70,17 +71,15 @@
                             </div>
 
                             <div class="cart-items-quantity">
-                                <form action="cart" method="GET" class="quantity">
-                                    <input type="hidden" name="action" value="update">
-                                    <input type="hidden" name="productId" value="${item.product.id}">
+                                <div class="quantity">
 
-                                    <button type="submit" name="quantity" value="${item.quantity - 1}" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
-                                    <input type="text" value="${item.quantity}" readonly>
-                                    <button type="submit" name="quantity" value="${item.quantity + 1}">+</button>
-                                </form>
+                                    <button type="button" class="btn-qty-ajax" data-action = "decrease" name="quantity" data-id="${item.quantity.id}">-</button>
+                                    <input type="text" id="qty-input-${item.product.id}" value="${item.quantity}" readonly>
+                                    <button type="button" class="btn-qty-ajax" data-action="increase" name="quantity" data-id="${item.quantity.id}">+</button>
+                                </div>
                             </div>
 
-                            <div class="price-total">
+                            <div class="price-total" id="row-total-${item.product.id}">
                                 <fmt:formatNumber value="${item.product.price * item.quantity}" pattern="#,##0"/> đ
                             </div>
 
@@ -135,23 +134,24 @@
     </div>
 </div>
 <script>
-    window.addEventListener("beforeunload", function() {
-        sessionStorage.setItem("position", window.scrollY);
-    });
+    // window.addEventListener("beforeunload", function() {
+    //     sessionStorage.setItem("position", window.scrollY);
+    // });
     document.addEventListener("DOMContentLoaded", function() {
-        let scrollPos = sessionStorage.getItem("position");
+        // let scrollPos = sessionStorage.getItem("position");
         const searchInput = document.getElementById("ajaxSearchInput");
         const resultArea = document.getElementById("searchResultArea");
         const searchTitle = document.getElementById("searchTitle");
         const checkAll = document.getElementById("selectedAll");
-        const itemChecks = document.querySelectorAll(".single-check")
+        let itemChecks = document.querySelectorAll(".single-check")
         const totalMoneyDisplay = document.getElementById('dynamicTotalMoney');
         const totalCountDisplay = document.getElementById('totalSelectedCount');
         const btnCheckout = document.getElementById('btnCheckout');
-        if (scrollPos) {
-            window.scrollTo(0, scrollPos);
-            sessionStorage.removeItem("position");
-        }
+        const cartBody = document.getElementById('cart-body');
+        // if (scrollPos) {
+        //     window.scrollTo(0, scrollPos);
+        //     sessionStorage.removeItem("position");
+        // }
         searchInput.addEventListener("input", function() {
             const keyword = this.value.trim();
 
@@ -195,26 +195,7 @@
 
             }
         }
-        // chọn tất cả sản phẩm
-        if(checkAll){
-            checkAll.addEventListener('change', function(){
-                itemChecks.forEach(check => check.checked = this.checked);
-                calculateTotal();
-            });
-        }
-        // chọn một vài sản phẩm
-        itemChecks.forEach(check => {
-            check.addEventListener('change', function(){
-                if(!this.checked){
-                    checkAll.checked = false;
-                }
-                let allChecked = Array.from(itemChecks).every(c => c.checked);
-                if(allChecked){
-                    checkAll.checked = true;
-                }
-                calculateTotal();
-            });
-        });
+
         // thanh toan
         if(btnCheckout){
             btnCheckout.addEventListener('click', function(e){
@@ -234,6 +215,79 @@
                 }
             });
         }
+        // Thông báo
+        function showInfo(message,type= 'success'){
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = ' toast' + type + ' show';
+            toast.innerText = message;
+            container.append(toast);
+            setTimeout(() =>{
+                toast.classList.remove('show');
+                setTimeout(()=>toast.remove(),300);
+            },3000);
+        }
+        // Danh sách sau khi xóa
+        function refreshChecks(){
+            itemChecks = document.querySelectorAll(".single-check");
+            itemChecks.forEach(check =>{
+                check.removeEventListener('change',handleCheck);
+                check.addEventListener('change',handleCheck)
+            });
+        }
+        function handleCheck(){
+            if(!this.checked && checkAll){
+                checkAll.checked = false;
+            }
+            let allChecked = Array.from(itemChecks).every(c => c.checked);
+            if(itemChecks.length >0&&checkAll ){
+                checkAll.checked = allChecked;
+            }
+            calculateTotal();
+        }
+        refreshChecks(); // Tạo lại checkbox
+        if(checkAll){
+            checkAll.addEventListener('change', function (){
+                itemChecks.forEach(c=>c.checked = this.checked);
+                calculateTotal();
+            });
+        }
+        // Tăng giảm
+        document.querySelectorAll('.btn-qty-ajax').forEach(button=>{
+           button.addEventListener('click',function (){
+              const action = this.getAttribute('data-action');
+              const productId = this.getAttribute('data-id');
+              const input = document.getElementById('qty-input-' + productId);
+              let current = parseInt(input.value);
+              if(action==='decrease' && current<=1){
+                  return;
+              }
+              let newQty = action ==='increase'?current+1:current-1;
+              fetch('${pageContext.request.contextPath}/cart?action=updateAjax&productId='+productId+'&quantity=' +newQty)
+                  .then(response=>response.json()).then(data=>{
+                  if(data.success){
+                      input.value = data.newQuantity;
+                      const checkbox = document.querySelector('input.single-check[value="'+productId+'"]');
+                      if (checkbox){
+                          checkbox.setAttribute('data-qty',data.newQuantity);
+                      }
+                      const rowTotal = document.getElementById('row-total-'+productId);
+                      if(rowTotal){
+                          rowTotal.innerText = new Intl.NumberFormat('vi-VN').format(data.rowTotal)+" đ";
+                      }
+                      calculateTotal();
+                      const headerCount = document.getElementById('header-cart-count');
+                      if(headerCount){
+                          headerCount.innerText = data.totalCartQuantity;
+                      }
+                  }else{
+                      showInfo(data.message);
+                  }
+              }).catch(err => console.error("Lỗi ajax:",err));
+           });
+        });
+
+
     });
 </script>
 </body>

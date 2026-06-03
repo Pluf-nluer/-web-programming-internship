@@ -119,5 +119,11 @@ public class Cart implements Serializable {
     }
 
     public void setItems(List<CartItem> checkoutItems) {
+        this.items.clear();
+        if(checkoutItems !=null){
+            for(CartItem item: checkoutItems){
+                this.items.put(item.getProduct().getId(),item);
+            }
+        }
     }
 }

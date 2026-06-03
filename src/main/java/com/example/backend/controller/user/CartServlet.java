@@ -1,11 +1,14 @@
 package com.example.backend.controller.user;
 
 import com.example.backend.model.Cart;
+import com.example.backend.model.CartItem;
 import com.example.backend.model.Product;
 import com.example.backend.service.ProductService;
+import com.google.gson.JsonObject;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
+import org.checkerframework.checker.units.qual.C;
 
 import java.io.IOException;
 
@@ -30,6 +33,9 @@ public class CartServlet extends HttpServlet {
                 case "remove":
                     removeFromCart(request,response);
                     break;
+                case "updateAjax":
+                    updateAjax(request,response);
+                    break;
                 case "view":
                 default:
                     viewCart(request,response);
@@ -41,6 +47,46 @@ public class CartServlet extends HttpServlet {
         }
     }
 
+    private void updateAjax(HttpServletRequest request,HttpServletResponse response) throws ServletException,IOException{
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        JsonObject json = new JsonObject();
+        try {
+            int productId = Integer.parseInt(request.getParameter("productId"));
+            int quantity = Integer.parseInt(request.getParameter("quantity"));
+            HttpSession session = request.getSession();
+            Cart cart = (Cart) session.getAttribute("cart");
+            if(cart!=null){
+                boolean isUpdate = cart.update(productId,quantity);
+                if(isUpdate){
+                    session.setAttribute("cart",cart);
+                    double total = 0;
+                    for (CartItem item: cart.getItems()){
+                        if(item.getProduct().getId() == productId){
+                            total+= item.getProduct().getPrice() * item.getQuantity();
+                            break;
+                        }
+                    }
+                    // đóng dữ liệu trả về jsp
+                    json.addProperty("success",true);
+                    json.addProperty("newQuantity",quantity);
+                    json.addProperty("rowTotal",total);
+                    json.addProperty("totalCartQuantity",cart.getTotalQuantity());
+                }else{
+                    json.addProperty("success",false);
+                    json.addProperty("message","Sản phẩm không có trong giỏ");
+                }
+            }else{
+                json.addProperty("success",false);
+                json.addProperty("message","Giỏ hàng trống");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            json.addProperty("success", false);
+            json.addProperty("message", "Lỗi hệ thống");
+        }
+        response.getWriter().write(json.toString());
+    }
     private void viewCart(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("shopping-cart.jsp").forward(request,response);
     }
@@ -90,6 +136,7 @@ public class CartServlet extends HttpServlet {
             
             if (cart == null) {
                 cart = new Cart();
+                session.setAttribute("cart",cart);
             }
 
             ProductService productService = new ProductService();
