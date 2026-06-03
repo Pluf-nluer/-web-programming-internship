@@ -488,9 +488,21 @@ public class UserDAO {
 
     
     public List<User> getUsers(String keyword, int offset, int limit) {
+        return getUsers(keyword, "", "", "", "", offset, limit);
+    }
+
+    public List<User> getUsers(String keyword, String status, String role, String createdFrom, String createdTo, int offset, int limit) {
         List<User> users = new ArrayList<>();
         String trimmedKeyword = keyword == null ? "" : keyword.trim();
+        String trimmedStatus = status == null ? "" : status.trim();
+        String trimmedRole = role == null ? "" : role.trim();
+        String trimmedCreatedFrom = createdFrom == null ? "" : createdFrom.trim();
+        String trimmedCreatedTo = createdTo == null ? "" : createdTo.trim();
         boolean hasKeyword = !trimmedKeyword.isEmpty();
+        boolean hasStatus = !trimmedStatus.isEmpty();
+        boolean hasRole = !trimmedRole.isEmpty();
+        boolean hasCreatedFrom = !trimmedCreatedFrom.isEmpty();
+        boolean hasCreatedTo = !trimmedCreatedTo.isEmpty();
         int safeOffset = Math.max(0, offset);
         int safeLimit = Math.max(1, limit);
 
@@ -500,6 +512,18 @@ public class UserDAO {
         sql.append("WHERE (r.name IS NULL OR r.name <> 'admin') ");
         if (hasKeyword) {
             sql.append("AND (u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?) ");
+        }
+        if (hasStatus) {
+            sql.append("AND u.status = ? ");
+        }
+        if (hasRole) {
+            sql.append("AND r.name = ? ");
+        }
+        if (hasCreatedFrom) {
+            sql.append("AND DATE(u.created_at) >= ? ");
+        }
+        if (hasCreatedTo) {
+            sql.append("AND DATE(u.created_at) <= ? ");
         }
         sql.append("ORDER BY u.created_at DESC ");
         sql.append("LIMIT ? OFFSET ?");
@@ -519,6 +543,18 @@ public class UserDAO {
                 pstmt.setString(index++, pattern);
                 pstmt.setString(index++, pattern);
             }
+            if (hasStatus) {
+                pstmt.setString(index++, trimmedStatus);
+            }
+            if (hasRole) {
+                pstmt.setString(index++, trimmedRole);
+            }
+            if (hasCreatedFrom) {
+                pstmt.setString(index++, trimmedCreatedFrom);
+            }
+            if (hasCreatedTo) {
+                pstmt.setString(index++, trimmedCreatedTo);
+            }
             pstmt.setInt(index++, safeLimit);
             pstmt.setInt(index, safeOffset);
 
@@ -536,14 +572,38 @@ public class UserDAO {
 
     
     public int countUsers(String keyword) {
+        return countUsers(keyword, "", "", "", "");
+    }
+
+    public int countUsers(String keyword, String status, String role, String createdFrom, String createdTo) {
         String trimmedKeyword = keyword == null ? "" : keyword.trim();
+        String trimmedStatus = status == null ? "" : status.trim();
+        String trimmedRole = role == null ? "" : role.trim();
+        String trimmedCreatedFrom = createdFrom == null ? "" : createdFrom.trim();
+        String trimmedCreatedTo = createdTo == null ? "" : createdTo.trim();
         boolean hasKeyword = !trimmedKeyword.isEmpty();
+        boolean hasStatus = !trimmedStatus.isEmpty();
+        boolean hasRole = !trimmedRole.isEmpty();
+        boolean hasCreatedFrom = !trimmedCreatedFrom.isEmpty();
+        boolean hasCreatedTo = !trimmedCreatedTo.isEmpty();
 
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM users u ");
         sql.append("LEFT JOIN role r ON u.role_id = r.id ");
         sql.append("WHERE (r.name IS NULL OR r.name <> 'admin') ");
         if (hasKeyword) {
-            sql.append("AND (u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)");
+            sql.append("AND (u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?) ");
+        }
+        if (hasStatus) {
+            sql.append("AND u.status = ? ");
+        }
+        if (hasRole) {
+            sql.append("AND r.name = ? ");
+        }
+        if (hasCreatedFrom) {
+            sql.append("AND DATE(u.created_at) >= ? ");
+        }
+        if (hasCreatedTo) {
+            sql.append("AND DATE(u.created_at) <= ? ");
         }
 
         Connection conn = null;
@@ -554,11 +614,24 @@ public class UserDAO {
             conn = DBConnection.getConnection();
             pstmt = conn.prepareStatement(sql.toString());
 
+            int index = 1;
             if (hasKeyword) {
                 String pattern = "%" + trimmedKeyword + "%";
-                pstmt.setString(1, pattern);
-                pstmt.setString(2, pattern);
-                pstmt.setString(3, pattern);
+                pstmt.setString(index++, pattern);
+                pstmt.setString(index++, pattern);
+                pstmt.setString(index++, pattern);
+            }
+            if (hasStatus) {
+                pstmt.setString(index++, trimmedStatus);
+            }
+            if (hasRole) {
+                pstmt.setString(index++, trimmedRole);
+            }
+            if (hasCreatedFrom) {
+                pstmt.setString(index++, trimmedCreatedFrom);
+            }
+            if (hasCreatedTo) {
+                pstmt.setString(index, trimmedCreatedTo);
             }
 
             rs = pstmt.executeQuery();
