@@ -33,6 +33,43 @@
                         <input type="text" name="q" placeholder="Tìm theo tên, email, số điện thoại"
                                class="search-input" value="${keyword}">
                     </div>
+                    <div class="filter-options">
+                        <div class="filter-group">
+                            <label for="status">
+                                <i class="fa-solid fa-toggle-on"></i>
+                                Trạng thái
+                            </label>
+                            <select id="status" name="status">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="active" ${statusFilter == 'active' ? 'selected' : ''}>Hoạt động</option>
+                                <option value="inactive" ${statusFilter == 'inactive' ? 'selected' : ''}>Bị khóa</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="role">
+                                <i class="fa-solid fa-user-tag"></i>
+                                Vai trò
+                            </label>
+                            <select id="role" name="role">
+                                <option value="">Tất cả vai trò</option>
+                                <option value="user" ${roleFilter == 'user' ? 'selected' : ''}>Người dùng</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="createdFrom">
+                                <i class="fa-solid fa-calendar-day"></i>
+                                Tạo từ ngày
+                            </label>
+                            <input type="date" id="createdFrom" name="createdFrom" value="${createdFrom}">
+                        </div>
+                        <div class="filter-group">
+                            <label for="createdTo">
+                                <i class="fa-solid fa-calendar-check"></i>
+                                Tạo đến ngày
+                            </label>
+                            <input type="date" id="createdTo" name="createdTo" value="${createdTo}">
+                        </div>
+                    </div>
                     <div class="filter-actions">
                         <button type="submit" class="btn-apply-filter">
                             <i class="fa-solid fa-filter"></i> Tìm kiếm
