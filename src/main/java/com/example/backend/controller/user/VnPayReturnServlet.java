@@ -1,6 +1,7 @@
 package com.example.backend.controller.user;
 import com.example.backend.dao.OrderDao;
 import com.example.backend.model.Cart;
+import com.example.backend.model.CartItem;
 import com.example.backend.model.Order;
 import com.example.backend.model.OrderItem;
 import jakarta.servlet.ServletException;
@@ -48,11 +49,15 @@ public class VnPayReturnServlet extends  HttpServlet{
 
             HttpSession session = request.getSession();
             Cart cart = (Cart) session.getAttribute("cart");
-            List<OrderItem> checkoutItems = (List<OrderItem>) session.getAttribute("checkoutItems");
+            List<CartItem> checkoutItems = (List<CartItem>) session.getAttribute("checkoutItems");
             if(cart != null && checkoutItems !=null){
-                cart.getItems().removeAll(checkoutItems);
+                for (CartItem item: checkoutItems){
+                    cart.remove(item.getProduct().getId());
+                }
                 if(cart.getItems().isEmpty()){
                     session.removeAttribute("cart");
+                }else{
+                    session.setAttribute("cart",cart);
                 }
             }
             session.removeAttribute("checkoutItems");

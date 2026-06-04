@@ -169,13 +169,7 @@ public class CheckoutServlet extends HttpServlet {
                     queryUrl += "&vnp_SecureHash=" + vnp_Secure;
                     String paymentUrl = VnPayConfig.vnp_PayUrl + "?" +queryUrl;
 
-                    cart.getItems().removeAll(checkoutItems);
-                    if(cart.getItems().isEmpty()){
-                        session.removeAttribute("cart");
-                    }
-                    session.removeAttribute("checkoutItems");
-                    session.removeAttribute("totalCheckout");
-                    session.removeAttribute(CHECKOUT_FORM_SESSION_KEY);
+
                     response.sendRedirect(paymentUrl);
 
 //                    request.setAttribute("Error", "VnPay");
@@ -227,7 +221,14 @@ public class CheckoutServlet extends HttpServlet {
                     OutputStream os = con.getOutputStream();
                     os.write(jsonRequest.toString().getBytes(StandardCharsets.UTF_8));
                     os.flush();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
+//                    BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
+                    BufferedReader br;
+                    int responseCode = con.getResponseCode();
+                    if(responseCode >= 400){
+                        br = new BufferedReader(new InputStreamReader(con.getErrorStream(),StandardCharsets.UTF_8));
+                    }else{
+                        br = new BufferedReader(new InputStreamReader(con.getInputStream(),StandardCharsets.UTF_8));
+                    }
                     StringBuilder builder = new StringBuilder();
                     String input;
                     while((input = br.readLine())!=null){
@@ -244,13 +245,7 @@ public class CheckoutServlet extends HttpServlet {
                     }
                     // Quét mã qr momo
                     if(!payUrl.isEmpty()){
-                        cart.getItems().removeAll(checkoutItems);
-                        if(cart.getItems().isEmpty()){
-                            session.removeAttribute("cart");
-                        }
-                        session.removeAttribute("checkoutItems");
-                        session.removeAttribute("totalCheckout");
-                        session.removeAttribute(CHECKOUT_FORM_SESSION_KEY);
+
 
                         response.sendRedirect(payUrl);
                     }else{
@@ -262,10 +257,18 @@ public class CheckoutServlet extends HttpServlet {
                 else {
 
                     List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
-                    cart.getItems().removeAll(checkoutItems);
-                    if (cart.getItems().isEmpty()) {
-                        session.removeAttribute("cart");
+//                    cart.getItems().removeAll(checkoutItems);
+                    if(cart!=null&&checkoutItems!=null){
+                        for(CartItem item:checkoutItems){
+                            cart.remove(item.getProduct().getId());
+                        }
+                        if (cart.getItems().isEmpty()) {
+                            session.removeAttribute("cart");
+                        }else{
+                            session.setAttribute("cart",cart);
+                        }
                     }
+
                     session.removeAttribute("checkoutItems");
                     session.removeAttribute("totalCheckout");
                     session.removeAttribute(CHECKOUT_FORM_SESSION_KEY);
