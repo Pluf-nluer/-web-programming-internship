@@ -36,6 +36,9 @@ public class CartServlet extends HttpServlet {
                 case "updateAjax":
                     updateAjax(request,response);
                     break;
+                case "removeAjax":
+                    removeAjax(request,response);
+                    break;
                 case "view":
                 default:
                     viewCart(request,response);
@@ -84,6 +87,30 @@ public class CartServlet extends HttpServlet {
             e.printStackTrace();
             json.addProperty("success", false);
             json.addProperty("message", "Lỗi hệ thống");
+        }
+        response.getWriter().write(json.toString());
+    }
+    private void removeAjax(HttpServletRequest request, HttpServletResponse response) throws  ServletException,IOException{
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        JsonObject json = new JsonObject();
+        try {
+            int productId = Integer.parseInt(request.getParameter("productId"));
+            HttpSession session = request.getSession();
+            Cart cart = (Cart) session.getAttribute("cart");
+            if(cart!=null){
+                cart.remove(productId);
+                session.setAttribute("cart",cart);
+                json.addProperty("success",true);
+                json.addProperty("totalCartQuantity",cart.getTotalQuantity());
+            }else{
+                json.addProperty("success",false);
+                json.addProperty("message","Giỏ hàng trống");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            json.addProperty("success",false);
+            json.addProperty("message","Lỗi hệ thống");
         }
         response.getWriter().write(json.toString());
     }

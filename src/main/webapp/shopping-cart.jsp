@@ -48,7 +48,7 @@
 
                     <c:forEach var="item" items="${sessionScope.cart.items}">
 
-                        <div class="cart-row">
+                        <div class="cart-row" id="cart-row-${item.product.id}">
                             <input type = "checkbox" value = "${item.product.id}" class = "item-checkbox single-check" data-price = "${item.product.price}" data-qty = "${item.quantity}">
                             <div class="cart-items">
                                 <a href="productdetail?id=${item.product.id}" class="cart-item">
@@ -58,9 +58,9 @@
                                     <strong class="cart-item-name">${item.product.name}</strong>
 
                                     <br>
-                                    <a href="cart?action=remove&productId=${item.product.id}" class="cart-item-delete" onclick="return confirm('Bạn muốn xóa sản phẩm này?');">
+                                    <button type="button" class="cart-item-delete btn-remove-ajax" data-id = "${item.product.id}" >
                                         <i class="fa-solid fa-trash"></i> Xóa
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
 
@@ -73,9 +73,9 @@
                             <div class="cart-items-quantity">
                                 <div class="quantity">
 
-                                    <button type="button" class="btn-qty-ajax" data-action = "decrease" name="quantity" data-id="${item.quantity.id}">-</button>
+                                    <button type="button" class="btn-qty-ajax" data-action = "decrease" name="quantity" data-id="${item.product.id}">-</button>
                                     <input type="text" id="qty-input-${item.product.id}" value="${item.quantity}" readonly>
-                                    <button type="button" class="btn-qty-ajax" data-action="increase" name="quantity" data-id="${item.quantity.id}">+</button>
+                                    <button type="button" class="btn-qty-ajax" data-action="increase" name="quantity" data-id="${item.product.id}">+</button>
                                 </div>
                             </div>
 
@@ -288,6 +288,38 @@
         });
 
 
+        // Xóa
+        document.querySelectorAll('.btn-remove-ajax').forEach(button=>{
+            button.addEventListener('click', function (e){
+                e.preventDefault();
+                if(!confirm('Bạn có chắc muốn xoa sản phẩm này ra khỏi giỏ hàng')){
+                    return;
+                }
+                const productId = this.getAttribute('data-id');
+                fetch('${pageContext.request.contextPath}/cart?action=removeAjax&productId='+productId)
+                    .then(response=>response.json())
+                    .then(data=>{
+                        if(data.success){
+                            const row = document.getElementById('cart-row-'+productId);
+                            if(row){
+                                row.remove();
+                            }
+                            refreshChecks();
+                            calculateTotal();
+                            showInfo("Đã xóa thành công sản phẩm");
+                            const headerCount = document.getElementById('header-cart-count');
+                            if(headerCount) {
+                                headerCount.innerText = data.totalCartQuantity;
+                            }
+                            if(data.totalCartQuantity === 0){
+                                window.location.reload();
+                            }
+                        }else{
+                            showInfo(data.message || "Lỗi xóa sản phẩm", 'error');
+                        }
+                    }).catch(err=>console.error("Lỗi khi xóa",err));
+            });
+        });
     });
 </script>
 </body>
