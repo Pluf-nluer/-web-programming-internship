@@ -2,12 +2,20 @@ package com.example.backend.controller.user;
 
 import com.example.backend.dao.OrderDao;
 import com.example.backend.model.*;
+import com.example.backend.util.MomoConfig;
 import com.example.backend.util.VnPayConfig;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -161,24 +169,106 @@ public class CheckoutServlet extends HttpServlet {
                     queryUrl += "&vnp_SecureHash=" + vnp_Secure;
                     String paymentUrl = VnPayConfig.vnp_PayUrl + "?" +queryUrl;
 
-                    cart.getItems().removeAll(checkoutItems);
-                    if(cart.getItems().isEmpty()){
-                        session.removeAttribute("cart");
-                    }
-                    session.removeAttribute("checkoutItems");
-                    session.removeAttribute("totalCheckout");
-                    session.removeAttribute(CHECKOUT_FORM_SESSION_KEY);
+
                     response.sendRedirect(paymentUrl);
 
 //                    request.setAttribute("Error", "VnPay");
 //                    request.getRequestDispatcher("/checkout.jsp").forward(request, response);
-                } else {
+                }else if("Momo".equals(paymentMethod)){
+                    long amount = (long) (totalCheckout + 30000);
+                    String amountStr = String.valueOf(amount);
+                    String orderIdStr = orderId +"_"+System.currentTimeMillis();
+                    String requestId = String.valueOf(System.currentTimeMillis());
+                    String orderInfo = "Thanh toan don hang:" + orderIdStr;
+                    String returnUrl = MomoConfig.RETURN_URL;
+                    String notifyUrl = MomoConfig.NOTIFY_URL;
+                    String requestType = "captureWallet";
+                    String extraData = "";
+
+                    String rawHash = "accessKey=" + MomoConfig.ACCESS_KEY+
+                            "&amount=" + amountStr+
+                            "&extraData=" + extraData+
+                            "&ipnUrl=" + notifyUrl+
+                            "&orderId=" + orderIdStr+
+                            "&orderInfo=" + orderInfo+
+                            "&partnerCode=" + MomoConfig.PARTNER_CODE+
+                            "&redirectUrl=" + returnUrl+
+                            "&requestId=" + requestId+
+                            "&requestType=" + requestType;
+                    // Chữ ký mã hoas
+                    String signature = MomoConfig.signHmacSHA256(rawHash,MomoConfig.SECRET_KEY);
+                    JsonObject jsonRequest = new JsonObject(); // đóng gói dữ liệu
+                    jsonRequest.addProperty("partnerCode",MomoConfig.PARTNER_CODE);
+                    jsonRequest.addProperty("partnerName","Test Store");
+                    jsonRequest.addProperty("storeId","MomoTestStore");
+                    jsonRequest.addProperty("requestId", requestId);
+                    jsonRequest.addProperty("amount", amount);
+                    jsonRequest.addProperty("orderId", orderIdStr);
+                    jsonRequest.addProperty("orderInfo", orderInfo);
+                    jsonRequest.addProperty("redirectUrl", returnUrl);
+                    jsonRequest.addProperty("ipnUrl", notifyUrl);
+                    jsonRequest.addProperty("lang", "vi");
+                    jsonRequest.addProperty("extraData", extraData);
+                    jsonRequest.addProperty("requestType", requestType);
+                    jsonRequest.addProperty("signature", signature);
+                    //HttpPostRequest sang Momo
+                    URL url = new URL(MomoConfig.ENDPOINT);
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setDoOutput(true);
+                    con.setRequestMethod("POST");
+                    con.setRequestProperty("Content-Type","application/json");
+                    // Thực hiện đọc ghi file nhị phân ltm
+                    OutputStream os = con.getOutputStream();
+                    os.write(jsonRequest.toString().getBytes(StandardCharsets.UTF_8));
+                    os.flush();
+//                    BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
+                    BufferedReader br;
+                    int responseCode = con.getResponseCode();
+                    if(responseCode >= 400){
+                        br = new BufferedReader(new InputStreamReader(con.getErrorStream(),StandardCharsets.UTF_8));
+                    }else{
+                        br = new BufferedReader(new InputStreamReader(con.getInputStream(),StandardCharsets.UTF_8));
+                    }
+                    StringBuilder builder = new StringBuilder();
+                    String input;
+                    while((input = br.readLine())!=null){
+                        builder.append(input);
+                    }
+                    br.close();
+                    String reData = builder.toString();
+                    System.out.println("Momo response: "+reData);
+
+                    JsonObject jsonResponse = JsonParser.parseString(reData).getAsJsonObject();
+                    String payUrl = "";
+                    if(jsonResponse.has("payUrl")) {
+                        payUrl = jsonResponse.get("payUrl").getAsString();
+                    }
+                    // Quét mã qr momo
+                    if(!payUrl.isEmpty()){
+
+
+                        response.sendRedirect(payUrl);
+                    }else{
+                        String error = jsonResponse.has("message")?jsonResponse.get("message").getAsString():"Không xác định";
+                        request.setAttribute("ERROR","Lỗi tạo thanh toán Momo"+error);
+                        request.getRequestDispatcher("/checkout.jsp").forward(request,response);
+                    }
+                }
+                else {
 
                     List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
-                    cart.getItems().removeAll(checkoutItems);
-                    if (cart.getItems().isEmpty()) {
-                        session.removeAttribute("cart");
+//                    cart.getItems().removeAll(checkoutItems);
+                    if(cart!=null&&checkoutItems!=null){
+                        for(CartItem item:checkoutItems){
+                            cart.remove(item.getProduct().getId());
+                        }
+                        if (cart.getItems().isEmpty()) {
+                            session.removeAttribute("cart");
+                        }else{
+                            session.setAttribute("cart",cart);
+                        }
                     }
+
                     session.removeAttribute("checkoutItems");
                     session.removeAttribute("totalCheckout");
                     session.removeAttribute(CHECKOUT_FORM_SESSION_KEY);

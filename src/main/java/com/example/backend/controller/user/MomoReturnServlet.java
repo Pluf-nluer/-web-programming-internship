@@ -14,27 +14,31 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/vnpay-return")
-public class VnPayReturnServlet extends  HttpServlet{
+@WebServlet("/momo-return")
+public class MomoReturnServlet extends  HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String vnPayRespone = request.getParameter("vnp_ResponseCode");
-        if("00".equals(vnPayRespone)){
-            String txnRef = request.getParameter("vnp_TxnRef");
-            String amountStr = request.getParameter("vnp_Amount");
-            String orderInfo = request.getParameter("vnp_OrderInfo");
-            String bankCode = request.getParameter("vnp_BankCode");
-
+        String resultCode = request.getParameter("resultCode");
+         // 0 thành công bên mm còn vnPay là 00
+        if("0".equals(resultCode)){
+            String momoOrderId = request.getParameter("orderId");
+            String amountStr = request.getParameter("amount");
+            String orderInfo = request.getParameter("orderInfo");
+            String payType = request.getParameter("payType");
+            String realOrderId = momoOrderId;
+            if(momoOrderId!=null && momoOrderId.contains("_")){
+                realOrderId = momoOrderId.split("_")[0];
+            }
             long amount = 0;
             if(amountStr!=null){
-                amount = Long.parseLong(amountStr)/100;
+                amount = Long.parseLong(amountStr);
             }
             try{
                 OrderDao orderDao = new OrderDao();
-                int orderId = Integer.parseInt(txnRef);
+                int orderId = Integer.parseInt(realOrderId);
                 Order order = orderDao.getOrderById(orderId);
                 List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
-                orderDao.updateOrderStatus(orderId, "Đã thanh toán bằng VnPay");
+                orderDao.updateOrderStatus(orderId, "Đã thanh toán bằng Momo");
                 request.setAttribute("order",order);
                 request.setAttribute("orderedItems",orderItems);
 
@@ -42,9 +46,9 @@ public class VnPayReturnServlet extends  HttpServlet{
                 e.printStackTrace();
             }
 
-            request.setAttribute("orderId", txnRef);
+            request.setAttribute("orderId", realOrderId);
             request.setAttribute("totalAmount",amount);
-            request.setAttribute("paymentMethod","VnPay("+ bankCode+ ")");
+            request.setAttribute("paymentMethod","Momo("+ payType+ ")");
             request.setAttribute("orderInfo",orderInfo);
 
             HttpSession session = request.getSession();
