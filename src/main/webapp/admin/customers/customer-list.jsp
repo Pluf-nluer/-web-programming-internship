@@ -140,7 +140,7 @@
                             </td>
                             <td class="col-customer-type">
                                 <span class="customer-badge regular">
-                                    <i class="fa-solid fa-user"></i> Khách hàng
+                                    <i class="fa-solid fa-user"></i> ${c.role == 'user' ? 'Người dùng' : c.role}
                                 </span>
                             </td>
                             <td class="col-status">
@@ -181,6 +181,10 @@
                                                 <c:if test="${not empty keyword}">
                                                     <input type="hidden" name="q" value="${keyword}">
                                                 </c:if>
+                                                <input type="hidden" name="status" value="${statusFilter}">
+                                                <input type="hidden" name="role" value="${roleFilter}">
+                                                <input type="hidden" name="createdFrom" value="${createdFrom}">
+                                                <input type="hidden" name="createdTo" value="${createdTo}">
                                                 <button type="submit" class="btn-action btn-toggle" title="Khóa tài khoản">
                                                     <i class="fa-solid fa-lock"></i>
                                                 </button>
@@ -195,6 +199,10 @@
                                                 <c:if test="${not empty keyword}">
                                                     <input type="hidden" name="q" value="${keyword}">
                                                 </c:if>
+                                                <input type="hidden" name="status" value="${statusFilter}">
+                                                <input type="hidden" name="role" value="${roleFilter}">
+                                                <input type="hidden" name="createdFrom" value="${createdFrom}">
+                                                <input type="hidden" name="createdTo" value="${createdTo}">
                                                 <button type="submit" class="btn-action btn-toggle btn-activate"
                                                         title="Mở khóa tài khoản">
                                                     <i class="fa-solid fa-unlock"></i>
@@ -234,6 +242,18 @@
                         <c:if test="${not empty keyword}">
                             <c:param name="q" value="${keyword}"/>
                         </c:if>
+                        <c:if test="${not empty statusFilter}">
+                            <c:param name="status" value="${statusFilter}"/>
+                        </c:if>
+                        <c:if test="${not empty roleFilter}">
+                            <c:param name="role" value="${roleFilter}"/>
+                        </c:if>
+                        <c:if test="${not empty createdFrom}">
+                            <c:param name="createdFrom" value="${createdFrom}"/>
+                        </c:if>
+                        <c:if test="${not empty createdTo}">
+                            <c:param name="createdTo" value="${createdTo}"/>
+                        </c:if>
                     </c:url>
                     <a href="${prevUrl}" class="page-link ${currentPage == 1 ? 'disabled' : ''}">
                         <i class="fa-solid fa-chevron-left"></i>
@@ -245,6 +265,18 @@
                             <c:if test="${not empty keyword}">
                                 <c:param name="q" value="${keyword}"/>
                             </c:if>
+                            <c:if test="${not empty statusFilter}">
+                                <c:param name="status" value="${statusFilter}"/>
+                            </c:if>
+                            <c:if test="${not empty roleFilter}">
+                                <c:param name="role" value="${roleFilter}"/>
+                            </c:if>
+                            <c:if test="${not empty createdFrom}">
+                                <c:param name="createdFrom" value="${createdFrom}"/>
+                            </c:if>
+                            <c:if test="${not empty createdTo}">
+                                <c:param name="createdTo" value="${createdTo}"/>
+                            </c:if>
                         </c:url>
                         <a href="${pageUrl}" class="page-link ${i == currentPage ? 'active' : ''}">
                             ${i}
@@ -255,6 +287,18 @@
                         <c:param name="page" value="${currentPage + 1}"/>
                         <c:if test="${not empty keyword}">
                             <c:param name="q" value="${keyword}"/>
+                        </c:if>
+                        <c:if test="${not empty statusFilter}">
+                            <c:param name="status" value="${statusFilter}"/>
+                        </c:if>
+                        <c:if test="${not empty roleFilter}">
+                            <c:param name="role" value="${roleFilter}"/>
+                        </c:if>
+                        <c:if test="${not empty createdFrom}">
+                            <c:param name="createdFrom" value="${createdFrom}"/>
+                        </c:if>
+                        <c:if test="${not empty createdTo}">
+                            <c:param name="createdTo" value="${createdTo}"/>
                         </c:if>
                     </c:url>
                     <a href="${nextUrl}" class="page-link ${currentPage == totalPages ? 'disabled' : ''}">
