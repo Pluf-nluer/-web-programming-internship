@@ -21,9 +21,17 @@ public class AccountStatusFilter implements Filter {
 
     private UserDAO userDAO;
 
+    public AccountStatusFilter() {
+    }
+
+    AccountStatusFilter(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
     @Override
     public void init(FilterConfig filterConfig) {
-        userDAO = new UserDAO();
+        if (userDAO == null) {
+            userDAO = new UserDAO();
+        }
     }
 
     @Override
@@ -48,15 +56,15 @@ public class AccountStatusFilter implements Filter {
         if (user != null && session != null) {
             User userFromDb = userDAO.getUserById(user.getId());
             if (userFromDb != null) {
-                setUserSession(session, userFromDb);
-
                 boolean accountDisabled = !userFromDb.isActive() && !userFromDb.isAdmin();
-                session.setAttribute("accountDisabled", accountDisabled);
-                request.setAttribute("accountDisabled", accountDisabled);
-
                 if (accountDisabled) {
                     res.addCookie(RememberMeUtil.clearCookie(req.isSecure()));
+                    session.invalidate();
+                    res.sendRedirect(req.getContextPath() + "/login?locked=true");
+                    return;
                 }
+                setUserSession(session, userFromDb);
+                session.removeAttribute("accountDisabled");
             }
         }
 
