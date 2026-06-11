@@ -55,34 +55,32 @@
 
                         <div class="form-group">
                             <label for="address">Địa chỉ</label>
-                            <input type="text" name="address" id="address" placeholder="Địa chỉ (Số nhà, đường...)" required
+                            <input type="text"  id="address" placeholder="Địa chỉ (Số nhà, đường...)" required
                                    value="${not empty sessionScope.checkoutForm.address ? sessionScope.checkoutForm.address : ''}">
                         </div>
 
+                        <input type="hidden" id="fullAddressInput" name="address">
                         <div class="form-group">
                             <label for="province">Tỉnh / Thành phố</label>
-                            <select id="province" name="province">
-                                <option value="" disabled ${empty sessionScope.checkoutForm.province ? 'selected' : ''}>Chọn Tỉnh / Thành phố</option>
-                                <option value="Hồ Chí Minh" ${sessionScope.checkoutForm.province == 'Hồ Chí Minh' ? 'selected' : ''}>Hồ Chí Minh</option>
-                                <option value="Hà Nội" ${sessionScope.checkoutForm.province == 'Hà Nội' ? 'selected' : ''}>Hà Nội</option>
-                                <option value="Đà Nẵng" ${sessionScope.checkoutForm.province == 'Đà Nẵng' ? 'selected' : ''}>Đà Nẵng</option>
+                            <select id="province" name="province" required>
+                                <option value="" disabled  selected }>Chọn Tỉnh / Thành phố</option>
+
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="district">Quận / Huyện</label>
-                            <select id="district" name="district">
-                                <option value="" disabled ${empty sessionScope.checkoutForm.district ? 'selected' : ''}>Chọn Quận / Huyện</option>
-                                <option value="Quận 1" ${sessionScope.checkoutForm.district == 'Quận 1' ? 'selected' : ''}>Quận 1</option>
-                                <option value="Thủ Đức" ${sessionScope.checkoutForm.district == 'Thủ Đức' ? 'selected' : ''}>Thủ Đức</option>
+                            <select id="district" name="district"required>
+                                <option value="" disabled   selected }>Chọn Quận / Huyện</option>
+
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="ward">Phường / Xã</label>
-                            <select id="ward" name="ward">
-                                <option value="" disabled ${empty sessionScope.checkoutForm.ward ? 'selected' : ''}>Chọn Phường / Xã</option>
-                                <option value="Linh Trung" ${sessionScope.checkoutForm.ward == 'Linh Trung' ? 'selected' : ''}>Linh Trung</option>
+                            <select id="ward" name="ward" required>
+                                <option value="" disabled  selected }>Chọn Phường / Xã</option>
+
                             </select>
                         </div>
                         <div class="form-group">
@@ -211,5 +209,82 @@
     </div>
 </main>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function (){
+        const provinceSelect = document.getElementById("province");
+        const districtSelect = document.getElementById("district");
+        const wardSelect = document.getElementById("ward");
+        const address = document.getElementById("address");
+        const fullAddress = document.getElementById("fullAddressInput");
+        fetch('https://provinces.open-api.vn/api/p/') //danh sách tỉnh tp từ việc gọi api
+            .then(response=>response.json()).then(data=>{
+                data.forEach(province=>{
+                    let option = document.createElement("option");
+                    option.value = province.code;
+                    option.text = province.name;
+                    option.setAttribute("data-name",province.name);
+                    provinceSelect.add(option);
+                });
+        });
+        provinceSelect.addEventListener("change",function (){
+            // khi bấm chọn tỉnh thì load huyện
+            const provinceCode = this.value;
+            districtSelect.innerHTML = '<option value="" disabled selected> Chọn Quận / Huyện</option>';
+            wardSelect.innerHTML = '<option value="" disabled selected> Chọn Phường / Xã</option>';
+            wardSelect.disabled = true;
+            if(provinceCode){
+                fetch('https://provinces.open-api.vn/api/p/'+provinceCode+'?depth=2')
+                    .then(response=>response.json())
+                    .then(data =>{
+                        data.districts.forEach(district =>{
+                            let option = document.createElement("option");
+                            option.value = district.code;
+                            option.text = district.name;
+                            option.setAttribute("data-name",district.name);
+                            districtSelect.add(option);
+                        });
+                        districtSelect.disabled = false;
+                    }).catch(err=> console.error("Lỗi danh sách huyện:", err));
+            }
+            updateFullAddress();
+        });
+
+        districtSelect.addEventListener("change",function (){
+            const districtCode = this.value;
+            wardSelect.innerHTML = '<option value="" disabled selected>Chọn Phường / Xã</option>';
+            wardSelect.disabled = true;
+            if(districtCode){
+                fetch('https://provinces.open-api.vn/api/d/'+districtCode+'?depth=2')
+                    .then(response=>response.json()).then(data=>{
+                        data.wards.forEach(ward=>{
+                            let option = document.createElement("option");
+                            option.value = ward.code;
+                            option.text = ward.name;
+                            option.setAttribute("data-name",ward.name);
+                            wardSelect.add(option)
+                        });
+                        wardSelect.disabled = false;
+                }).catch(err=> console.error("Lỗi danh sách xã:",err));
+            }
+            updateFullAddress();
+
+        });
+        wardSelect.addEventListener("change",updateFullAddress);
+        address.addEventListener("input",updateFullAddress);// ở xã và input nhận vào có thay đổi gì không
+
+        function updateFullAddress() {
+            let pName = provinceSelect.options[provinceSelect.selectedIndex]?.getAttribute("data-name")||"";
+            let dName = districtSelect.options[districtSelect.selectedIndex]?.getAttribute("data-name")||"";
+            let wName = wardSelect.options[wardSelect.selectedIndex]?.getAttribute("data-name")||"";
+            let detail= address.value.trim();
+            let finaladd = [];
+            if(detail) finaladd.push(detail);
+            if(wName) finaladd.push(wName);
+            if(dName) finaladd.push(dName);
+            if(pName) finaladd.push(pName);
+            fullAddress.value = finaladd.join(", "); // gộp chuỗi về servlet qua name=address
+        }
+    });
+</script>
 </body>
 </html>

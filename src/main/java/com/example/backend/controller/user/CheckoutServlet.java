@@ -88,6 +88,12 @@ public class CheckoutServlet extends HttpServlet {
         String ward = request.getParameter("ward");
         String note = request.getParameter("note");
         String paymentMethod = request.getParameter("paymentMethod");
+
+        if(email==null || fullName == null|| phone==null||address==null){
+            request.setAttribute("errorMessage","Vui lòng nhập đầy đủ thông tin.");
+            request.getRequestDispatcher("/checkout.jsp").forward(request,response);
+            return;
+        }
         cacheCheckoutForm(session, email, fullName, phone, address, province, district, ward, note);
 
         User user = (User) session.getAttribute("user");
@@ -97,10 +103,8 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        String fullAddress = address;
-        if (ward != null) fullAddress += ", " + ward;
-        if (district != null) fullAddress += ", " + district;
-        if (province != null) fullAddress += ", " + province;
+        String fullAddress = address.trim();
+
 
         Order order = new Order();
         order.setUser_id(user.getId());
