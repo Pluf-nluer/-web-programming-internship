@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @WebServlet(name = "CheckoutServlet", value = "/checkout")
@@ -114,6 +115,8 @@ public class CheckoutServlet extends HttpServlet {
         order.setShipping_fee(30000);
         order.setNote(note);
         order.setTotal_amount(totalCheckout + 30000);
+        LocalDate deliveryDate = LocalDate.now().plusDays(3);
+        order.setEstimated_delivery_date(java.sql.Date.valueOf(deliveryDate));
         Cart tempCart = new Cart();
         tempCart.setItems(checkoutItems);
         OrderDao orderDao = new OrderDao();
