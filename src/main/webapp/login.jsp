@@ -51,6 +51,11 @@
                         <i class="fa-solid fa-exclamation-circle"></i> ${errorMessage}
                     </div>
                 </c:if>
+                <c:if test="${param.locked == 'true'}">
+                    <div class="error-message show">
+                        Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.
+                    </div>
+                </c:if>
                 <div class="error-message" id="googleError"></div>
 
                 <form class="login-form" id="loginForm" action="${pageContext.request.contextPath}/login" method="post">

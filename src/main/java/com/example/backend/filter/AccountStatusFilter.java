@@ -58,13 +58,10 @@ public class AccountStatusFilter implements Filter {
             if (userFromDb != null) {
                 boolean accountDisabled = !userFromDb.isActive() && !userFromDb.isAdmin();
                 if (accountDisabled) {
-                    res.addCookie(RememberMeUtil.clearCookie(req.isSecure()));
-                    session.invalidate();
-                    res.sendRedirect(req.getContextPath() + "/login?locked=true");
+                    endLockedSession(req, res, session);
                     return;
                 }
                 setUserSession(session, userFromDb);
-                session.removeAttribute("accountDisabled");
             }
         }
 
@@ -147,5 +144,28 @@ public class AccountStatusFilter implements Filter {
                 || lowerPath.endsWith(".ttf")
                 || lowerPath.endsWith(".eot")
                 || lowerPath.endsWith(".map");
+    }
+
+    private void endLockedSession(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws IOException {
+        response.addCookie(RememberMeUtil.clearCookie(request.isSecure()));
+        session.invalidate();
+        if (isAjaxRequest(request)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/json");
+            response.setHeader("X-Account-Locked", "true");
+            response.getWriter().write("{\"success\":false,\"accountLocked\":true}");
+            return;
+        }
+        response.sendRedirect(request.getContextPath() + "/login?locked=true");
+    }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        String requestedWith = request.getHeader("X-Requested-With");
+        String fetchDestination = request.getHeader("Sec-Fetch-Dest");
+        String accept = request.getHeader("Accept");
+        return "XMLHttpRequest".equalsIgnoreCase(requestedWith) || "empty".equalsIgnoreCase(fetchDestination) ||
+                accept != null && accept.toLowerCase(Locale.ROOT).contains("application/json");
     }
 }
