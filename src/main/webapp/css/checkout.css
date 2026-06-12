@@ -350,3 +350,16 @@ a.back-to-cart {
     color: #c0392b;
     white-space: nowrap;
 }
+.error-text{
+    color: #c0392b;
+    display: none;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.error-text.active{
+    display: block;
+}
+.input-error{
+    border-color: #c0392b !important;
+}

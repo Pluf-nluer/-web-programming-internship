@@ -51,6 +51,9 @@
                                     <option>🇻🇳</option>
                                 </select>
                             </div>
+                            <small id="phoneError" class="error-text">
+                                <i class="fa-solid fa-circle-exclamation"></i>Gồm 10 số bắt đầu 03, 05, 07, 08, 09
+                            </small>
                         </div>
 
                         <div class="form-group">
@@ -216,6 +219,9 @@
         const wardSelect = document.getElementById("ward");
         const address = document.getElementById("address");
         const fullAddress = document.getElementById("fullAddressInput");
+        const phoneInput = document.getElementById("phone");
+        const checkoutForm = document.getElementById("checkoutForm");
+        const phoneErr = document.getElementById("phoneError");
         fetch('https://provinces.open-api.vn/api/p/') //danh sách tỉnh tp từ việc gọi api
             .then(response=>response.json()).then(data=>{
                 data.forEach(province=>{
@@ -284,6 +290,36 @@
             if(pName) finaladd.push(pName);
             fullAddress.value = finaladd.join(", "); // gộp chuỗi về servlet qua name=address
         }
+        const phoneRegex = /^(03|05|07|08|09)\d{8}$/;
+        phoneInput.addEventListener("keypress",function (event){
+            const str = event.key;
+            if(!/^[0-9]$/.test(str)){
+                event.preventDefault();
+                return;
+            }
+            if(phoneInput.value.length >=10){
+                event.preventDefault();
+            }
+        });
+        function validateP(){
+            const phoneValue = phoneInput.value.trim();
+            if(!phoneRegex.test(phoneValue)){
+                phoneErr.classList.add("active");
+                phoneInput.classList.add("input-error");
+                return false;
+            }else{
+                phoneErr.classList.remove("active");
+                phoneInput.classList.remove("input-error");
+                return true;
+            }
+        }
+        phoneInput.addEventListener("input", validateP);
+        checkoutForm.addEventListener("submit",function (e){
+            if(!validateP()){
+                e.preventDefault();
+                phoneInput.focus();
+            }
+        });
     });
 </script>
 </body>
