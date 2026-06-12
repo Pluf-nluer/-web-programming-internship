@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -103,7 +104,7 @@
                             <span>Giao hàng tận nơi</span>
                         </label>
                         <div class="shipping-price">
-                            <span>30.000₫</span>
+                            <span>30.000 đ</span>
                         </div>
                     </div>
                 </div>
@@ -171,7 +172,7 @@
                             </div>
 
                             <div class = "cart-item-price">
-                                <fmt:formatNumber value = "${item.product.price * item.quantity}" type = "currency" currencySymbol = "₫" maxFractionDigits = "0"/>
+                                <fmt:formatNumber value = "${item.product.price * item.quantity}" pattern="#,### đ"/>
                             </div>
 
                         </div>
@@ -182,12 +183,12 @@
                     <div class="order-total-top">
                         <span>Tạm tính</span>
                         <span class="price">
-                            <fmt:formatNumber value="${totalCheckout}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                            <fmt:formatNumber value="${totalCheckout}" pattern="#,### đ"/>
                         </span>
                     </div>
                     <div class="order-total-bottom">
                         <span>Phí vận chuyển</span>
-                        <span class="price">30.000₫</span>
+                        <span class="price">30.000 đ</span>
                     </div>
                 </div>
 
@@ -195,7 +196,7 @@
                     <div class="order-price-top">
                         <span>Tổng cộng</span>
                         <span class="price">
-                            <fmt:formatNumber value="${totalCheckout + 30000}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                            <fmt:formatNumber value="${totalCheckout + 30000}" pattern="#,### đ"/>
                         </span>
                     </div>
                     <div class="order-price-bottom">

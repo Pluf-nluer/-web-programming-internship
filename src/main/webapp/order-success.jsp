@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,7 +38,7 @@
                             </div>
                             <div class="thanks-content">
                                 <h3>Cảm ơn bạn đã đặt hàng</h3>
-                                <p>Mã đơn hàng: <strong style="color: #2a9dcc;">#${orderId}</strong></p>
+                                <p>Mã đơn hàng: <strong class="order-id-highlight" >#${orderId}</strong></p>
                                 <span>Một email xác nhận đã được gửi tới <strong>${customerEmail}</strong></span>
                                 <span>Xin vui lòng kiểm tra email của bạn.</span>
                             </div>
@@ -50,18 +51,22 @@
                                 <span>${customerEmail}</span>
                                 <span>${order.shipping_phone}</span>
 
-                                <h3 style="margin-top: 15px;">Phương thức thanh toán</h3>
+                                <h3 class="section-title">Phương thức thanh toán</h3>
                                 <span>${not empty paymentMethod ? paymentMethod:'Thanh toán khi giao hàng (COD)'}</span>
                             </div>
 
                             <div class="order-info-right">
                                 <h3>Địa chỉ nhận hàng</h3>
-                                <span>${order.shipping_name}</span>
-                                <span style="display: block; width: 100%; word-break: break-word;">${order.shipping_address}</span>
-                                <span>${order.shipping_phone}</span>
 
-                                <h3 style="margin-top: 15px;">Phương thức vận chuyển</h3>
+                                <span class="address-text">${order.shipping_address}</span>
+
+
+                                <h3 class="section-title">Phương thức vận chuyển</h3>
                                 <span>Giao hàng tận nơi</span>
+                                <h3 class="section-title">Ngày giao hàng dự kiến</h3>
+                                <span>
+                                    <fmt:formatDate value="${order.estimated_delivery_date}" pattern="dd/MM/yyyy"/>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -84,11 +89,11 @@
                                                 <span class="quantity">${item.quantity}</span>
                                             </div>
                                             <div class="cart-info">
-                                                <a href="#" class="cart-item-name" style="text-decoration: none; color: #333; font-weight: 500;">${item.product.name}</a>
+                                                <a href="#" class="cart-item-name" >${item.product.name}</a>
                                             </div>
                                         </div>
                                         <div class="price-total">
-                                            <span><fmt:formatNumber value="${item.product.price*item.quantity}" type="currency" currencySymbol="₫" maxFractionDigits="0"/></span>
+                                            <span><fmt:formatNumber value="${item.product.price*item.quantity}" pattern="#,### đ"/></span>
                                         </div>
                                     </div>
                                 </c:forEach>
@@ -97,19 +102,19 @@
                                 <div class="order-total-top">
                                     <span>Tạm tính</span>
                                 <span class="price">
-                                    <fmt:formatNumber value="${order.total_amount - 30000}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                                    <fmt:formatNumber value="${order.total_amount - 30000}" pattern="#,### đ"/>
                                 </span>
                                 </div>
                                 <div class="order-total-bottom">
                                     <span>Phí vận chuyển</span>
-                                <span class="price">30.000₫</span>
+                                <span class="price">30.000 đ</span>
                                 </div>
                             </div>
                             <div class="order-price">
                                 <div class="order-price-top">
                                     <span>Tổng cộng</span>
                                 <span class="price">
-                                    <fmt:formatNumber value="${order.total_amount}" type="currency" currencySymbol="₫" maxFractionDigits="0"/>
+                                    <fmt:formatNumber value="${order.total_amount}" pattern="#,### đ"/>
                                 </span>
                                 </div>
                                 <div class="order-price-bottom">
