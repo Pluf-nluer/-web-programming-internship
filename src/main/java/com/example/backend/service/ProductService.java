@@ -12,11 +12,6 @@ public class ProductService {
     private ProductDAO productDAO = new ProductDAO();
 
 
-    public List<Product> getFeaturedProducts() {
-        return productDAO.getFeaturedProducts();
-    }
-
-
     public List<Product> getSaleProducts() {
         return productDAO.getSaleProducts();
     }

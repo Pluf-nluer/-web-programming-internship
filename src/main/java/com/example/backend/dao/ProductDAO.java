@@ -13,33 +13,13 @@ import java.util.Set;
 
 public class ProductDAO {
 
-    public List<Product> getFeaturedProducts() {
-        List<Product> list = new ArrayList<>();
-        String sql = "SELECT * FROM products WHERE is_featured = 1 AND status = 'active' LIMIT 8";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                list.add(mapResultSetToProduct(rs));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-
-    
-
 
     public List<Product> getSaleProducts() {
         List<Product> list = new ArrayList<>();
 
         String sql = "SELECT p.* FROM products p JOIN product_categories pc ON p.category_id = pc.id " +
                 "JOIN sale s on pc.sale_id = s.id "+
-                "WHERE NOW() BETWEEN s.start_sale AND s.end_sale AND p.status = 'active'";
+                "WHERE NOW() BETWEEN s.start_sale    AND s.end_sale AND p.status = 'active'";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -304,7 +284,7 @@ public class ProductDAO {
 
     public int updateProduct(Product p) {
         String sql = "UPDATE products SET name=?, price=?, stock=?, " +
-                "full_description=?, status=?, is_featured=?, " +
+                "full_description=?, status=?, " +
                 "category_id=?, updated_at=NOW() WHERE id=?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -329,7 +309,7 @@ public class ProductDAO {
     }
 
     public int insertProduct(Product p) {
-        String sql = "INSERT INTO products (name, price, stock, category_id, full_description, status, is_featured, created_at) " +
+        String sql = "INSERT INTO products (name, price, stock, category_id, full_description, status, created_at) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
 
         int generatedId = -1;
@@ -342,7 +322,6 @@ public class ProductDAO {
             ps.setInt(4, p.getCategoryId());
             ps.setString(5, p.getFullDescription());
             ps.setString(6, p.getStatus());
-            ps.setBoolean(7, p.isFeatured());
 
             int rows = ps.executeUpdate();
             if (rows > 0) {
@@ -394,7 +373,6 @@ public class ProductDAO {
         p.setStock(rs.getInt("stock"));
         p.setFullDescription(rs.getString("full_description"));
         p.setStatus(rs.getString("status"));
-        p.setFeatured(rs.getBoolean("is_featured"));
         p.setCategoryId(rs.getInt("category_id"));
 
         ProductImage img = new ProductImage();
@@ -471,37 +449,58 @@ public class ProductDAO {
         }
         return reviews;
     }
+    public List<Product> getFeaturedProductsForCurrentMonth() {
+        List<Product> list = new ArrayList<>();
+        java.time.LocalDate now = java.time.LocalDate.now();
+        int currentMonth = now.getMonthValue();
+        int currentYear = now.getYear();
 
-    public List<Integer> getTop10BestSellingProductIdsByCategory(int categoryId, int month, int year) {
-        List<Integer> ids = new ArrayList<>();
         String sql = """
-                    SELECT oi.product_id, SUM(oi.quantity) as total_sold
-                    FROM order_items oi
-                    JOIN orders o ON oi.order_id = o.id
-                    JOIN products p ON oi.product_id = p.id
-                    WHERE p.category_id = ?
-                      AND MONTH(o.created_at) = ?
-                      AND YEAR(o.created_at) = ?
-                      AND o.status = 'COMPLETED'
-                    GROUP BY oi.product_id
-                    ORDER BY total_sold DESC
-                    LIMIT 10
-                """;
+        SELECT p.*, 
+               (SELECT pi.image_url FROM product_images pi WHERE pi.product_id = p.id LIMIT 1) AS image_url, 
+               s.discount_percent, s.end_sale,
+               COALESCE((SELECT SUM(oi.quantity) FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE oi.product_id = p.id), 0) AS total_sold,
+               COALESCE((SELECT AVG(r.rating) FROM review r WHERE r.pid = p.id), 0) AS avg_stars
+        FROM products p
+        JOIN featured_products fp ON p.id = fp.product_id
+        LEFT JOIN product_categories pc ON p.category_id = pc.id
+        LEFT JOIN sale s ON pc.sale_id = s.id AND (NOW() BETWEEN s.start_sale AND s.end_sale)
+        WHERE fp.month = ? AND fp.year = ? AND p.status = 'active'
+        ORDER BY fp.id ASC
+    """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, categoryId);
-            ps.setInt(2, month);
-            ps.setInt(3, year);
+            ps.setInt(1, currentMonth);
+            ps.setInt(2, currentYear);
 
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                ids.add(rs.getInt("product_id"));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Product p = mapResultSetToProduct(rs);
+                    p.setDiscountPercent(rs.getDouble("discount_percent"));
+                    p.setEndSale(rs.getTimestamp("end_sale"));
+
+                    int sold = rs.getInt("total_sold");
+                    double stars = rs.getDouble("avg_stars");
+
+                    if (sold == 0) {
+                        p.setTotalSold(10);
+                        p.setAverageStars(5.0);
+                    } else {
+                        p.setTotalSold(sold);
+                        if (stars == 0) {
+                            p.setAverageStars(5.0);
+                        } else {
+                            p.setAverageStars(stars);
+                        }
+                    }
+                    list.add(p);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return ids;
+        return list;
     }
 }
