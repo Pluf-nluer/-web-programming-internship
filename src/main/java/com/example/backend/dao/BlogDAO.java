@@ -87,5 +87,46 @@ public class BlogDAO {
         }
         return list;
     }
+    public int getTotalPost(){
+        String sql = "Select count(*) from blog_posts";
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement pre = con.prepareStatement(sql);
+            ResultSet rs = pre.executeQuery()){
+            if(rs.next()){
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    public List<BlogPost> getPostByPage(int page, int pageSize){
+        List<BlogPost> list = new ArrayList<>();
+        int offset = (page-1)*pageSize;
+        String sql = "select * from blog_posts order by created_at desc limit ? offset ?";
+
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement pre = con.prepareStatement(sql)){
+            pre.setInt(1,pageSize);
+            pre.setInt(2,offset);
+            try(ResultSet re = pre.executeQuery()){
+                while(re.next()) {
+                    BlogPost p = new BlogPost();
+                    p.setId(re.getInt("id"));
+                    p.setTitle(re.getString("title"));
+                    p.setContent(re.getString("content"));
+                    p.setFeaturedImageUrl(re.getString("featured_image_url"));
+                    p.setCategoryId(re.getInt("category_id"));
+                    p.setFeatured(re.getBoolean("is_featured"));
+                    p.setCreatedAt(re.getTimestamp("created_at"));
+                    p.setUpdatedAt(re.getTimestamp("updated_at"));
+                    list.add(p);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
 }

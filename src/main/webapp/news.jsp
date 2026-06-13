@@ -167,7 +167,7 @@
 
         <h3 id="searchTitle">Sản phẩm gợi ý</h3>
 
-        <div class="search-results-list">
+        <div class="search-results-list" id="searchResultArea">
         </div>
     </div>
 </div>
