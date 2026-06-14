@@ -1,12 +1,22 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.example.backend.model.User" %>
-<%@ page import="com.example.backend.model.Order" %>
-<%@ page import="com.example.backend.model.OrderItem" %>
-<%@ page import="com.example.backend.dao.OrderDao" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.text.NumberFormat" %>
-<%@ page import="java.util.Locale" %>
-<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+
+<c:if test="${empty sessionScope.user}">
+    <c:redirect url="${pageContext.request.contextPath}/login" />
+</c:if>
+
+<jsp:useBean id="orderDao" class="com.example.backend.dao.OrderDao" scope="request" />
+<c:catch var="orderLoadError">
+    <c:set var="order" value="${orderDao.getOrderById(param.id)}" />
+</c:catch>
+<c:if test="${not empty orderLoadError or empty order or order.user_id != sessionScope.user.id}">
+    <c:redirect url="${pageContext.request.contextPath}/account/order.jsp" />
+</c:if>
+<c:set var="orderItems" value="${orderDao.getOrderItems(order.id)}" />
+<fmt:setLocale value="vi_VN" />
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -21,44 +31,7 @@
 </head>
 <body>
 <jsp:include page="/compenents/header.jsp" />
-<%
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-        response.sendRedirect(request.getContextPath() + "/login");
-        return;
-    }
-    String orderIdStr = request.getParameter("id");
-    if (orderIdStr == null || orderIdStr.isEmpty()) {
-        response.sendRedirect("order.jsp");
-        return;
-    }
-    int orderId = Integer.parseInt(orderIdStr);
-    OrderDao orderDao = new OrderDao();
-    Order order = orderDao.getOrderById(orderId);
-    if (order == null || order.getUser_id() != user.getId()) {
-        response.sendRedirect("order.jsp");
-        return;
-    }
-    List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
-    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-    String statusClass = "";
-    String statusText = order.getOrder_status();
-    if ("Pending".equalsIgnoreCase(statusText)) {
-        statusClass = "pending";
-        statusText = "Chờ xác nhận";
-    } else if ("Shipping".equalsIgnoreCase(statusText)) {
-        statusClass = "shipping";
-        statusText = "Đang giao";
-    } else if ("Completed".equalsIgnoreCase(statusText)) {
-        statusClass = "completed";
-        statusText = "Hoàn thành";
-    } else if ("Cancelled".equalsIgnoreCase(statusText)) {
-        statusClass = "cancelled";
-        statusText = "Đã hủy";
-    }
-%>
 <main class="dashboard-main">
     <div class="dashboard-container">
         <jsp:include page="/compenents/sidebar.jsp" />
@@ -83,10 +56,10 @@
                         </h1>
                         <p class="order-code">
                             <i class="fa-solid fa-hashtag"></i>
-                            <strong><%= order.getId() %></strong>
+                            <strong>${order.id}</strong>
                         </p>
                     </div>
-                    <span class="status-badge status-<%= statusClass %>"><%= statusText %></span>
+                    <span class="status-badge status-${order.statusClass}"><c:out value="${order.statusText}" /></span>
                 </div>
             </div>
 
@@ -96,11 +69,11 @@
                         <h3><i class="fa-solid fa-calendar-check"></i> Thông tin hóa đơn</h3>
                         <div class="invoice-data-row">
                             <span>Mã hóa đơn</span>
-                            <strong>#<%= order.getId() %></strong>
+                            <strong>#${order.id}</strong>
                         </div>
                         <div class="invoice-data-row">
                             <span>Ngày đặt</span>
-                            <strong><%= dateFormat.format(order.getCreated_at()) %></strong>
+                            <strong><fmt:formatDate value="${order.created_at}" pattern="dd/MM/yyyy HH:mm" /></strong>
                         </div>
                         <div class="invoice-data-row">
                             <span>Phương thức</span>
@@ -112,15 +85,15 @@
                         <h3><i class="fa-solid fa-truck"></i> Người nhận</h3>
                         <div class="invoice-data-row">
                             <span>Họ tên</span>
-                            <strong><%= order.getShipping_name() %></strong>
+                            <strong><c:out value="${order.shipping_name}" /></strong>
                         </div>
                         <div class="invoice-data-row">
                             <span>Số điện thoại</span>
-                            <strong><%= order.getShipping_phone() %></strong>
+                            <strong><c:out value="${order.shipping_phone}" /></strong>
                         </div>
                         <div class="invoice-data-row invoice-address-row">
                             <span>Địa chỉ</span>
-                            <strong><%= order.getShipping_address() %></strong>
+                            <strong><c:out value="${order.shipping_address}" /></strong>
                         </div>
                     </section>
                 </div>
@@ -144,26 +117,23 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <%
-                                int rowIndex = 1;
-                                for (OrderItem item : orderItems) {
-                            %>
-                            <tr>
-                                <td class="invoice-index"><%= rowIndex++ %></td>
-                                <td>
-                                    <div class="invoice-product">
-                                        <img src="<%= item.getProduct().getImageUrl() %>" alt="<%= item.getProduct().getName() %>">
-                                        <div>
-                                            <strong><%= item.getProduct().getName() %></strong>
-                                            <span>SP-<%= item.getProduct().getId() %></span>
+                            <c:forEach var="item" items="${orderItems}" varStatus="row">
+                                <tr>
+                                    <td class="invoice-index">${row.count}</td>
+                                    <td>
+                                        <div class="invoice-product">
+                                            <img src="${fn:escapeXml(item.product.imageUrl)}" alt="${fn:escapeXml(item.product.name)}">
+                                            <div>
+                                                <strong><c:out value="${item.product.name}" /></strong>
+                                                <span>SP-${item.product.id}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td><%= currencyFormat.format(item.getProduct().getPrice()) %></td>
-                                <td><%= item.getQuantity() %></td>
-                                <td class="invoice-line-total"><%= currencyFormat.format(item.getTotalPrice()) %></td>
-                            </tr>
-                            <% } %>
+                                    </td>
+                                    <td><fmt:formatNumber value="${item.product.price}" type="currency" /></td>
+                                    <td>${item.quantity}</td>
+                                    <td class="invoice-line-total"><fmt:formatNumber value="${item.totalPrice}" type="currency" /></td>
+                                </tr>
+                            </c:forEach>
                             </tbody>
                         </table>
                     </div>
@@ -172,27 +142,30 @@
                 <div class="invoice-footer-grid">
                     <div class="invoice-note-box">
                         <h3><i class="fa-solid fa-note-sticky"></i> Ghi chú hóa đơn</h3>
-                        <% if (order.getNote() != null && !order.getNote().isEmpty()) { %>
-                        <p><%= order.getNote() %></p>
-                        <% } else { %>
-                        <p>Không có ghi chú thêm cho đơn hàng này.</p>
-                        <% } %>
+                        <c:choose>
+                            <c:when test="${not empty order.note}">
+                                <p><c:out value="${order.note}" /></p>
+                            </c:when>
+                            <c:otherwise>
+                                <p>Không có ghi chú thêm cho đơn hàng này.</p>
+                            </c:otherwise>
+                        </c:choose>
                         <span>Khách hàng thanh toán khi nhận hàng. Vui lòng kiểm tra sản phẩm trước khi hoàn tất thanh toán.</span>
                     </div>
 
                     <div class="summary-content invoice-summary">
                         <div class="summary-row">
                             <span class="summary-label">Tạm tính:</span>
-                            <span class="summary-value"><%= currencyFormat.format(order.getTotal_amount() - order.getShipping_fee()) %></span>
+                            <span class="summary-value"><fmt:formatNumber value="${order.subtotal}" type="currency" /></span>
                         </div>
                         <div class="summary-row">
                             <span class="summary-label">Phí vận chuyển:</span>
-                            <span class="summary-value"><%= currencyFormat.format(order.getShipping_fee()) %></span>
+                            <span class="summary-value"><fmt:formatNumber value="${order.shipping_fee}" type="currency" /></span>
                         </div>
                         <div class="summary-divider"></div>
                         <div class="summary-row total">
                             <span class="summary-label">Tổng thanh toán:</span>
-                            <span class="summary-value"><%= currencyFormat.format(order.getTotal_amount()) %></span>
+                            <span class="summary-value"><fmt:formatNumber value="${order.total_amount}" type="currency" /></span>
                         </div>
                         <div class="payment-note">
                             <i class="fa-solid fa-circle-info"></i>

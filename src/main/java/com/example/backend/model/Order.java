@@ -107,6 +107,29 @@ public class Order {
     public void setOrder_status(String order_status) {
         this.order_status = order_status;
     }
+    public String getStatusClass() {
+        return order_status == null ? "" : order_status.toLowerCase();
+    }
+
+    public String getStatusText() {
+        if ("Pending".equalsIgnoreCase(order_status)) {
+            return "Chờ xác nhận";
+        }
+        if ("Shipping".equalsIgnoreCase(order_status)) {
+            return "Đang giao";
+        }
+        if ("Completed".equalsIgnoreCase(order_status)) {
+            return "Hoàn thành";
+        }
+        if ("Cancelled".equalsIgnoreCase(order_status)) {
+            return "Đã hủy";
+        }
+        return order_status == null ? "" : order_status;
+    }
+
+    public double getSubtotal() {
+        return total_amount - shipping_fee;
+    }
 
     public Timestamp getCreated_at() {
         return created_at;

@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @WebServlet("/admin/customers")
@@ -32,12 +34,22 @@ public class AdminUserServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String keyword = request.getParameter("q");
+        String status = normalizeStatus(request.getParameter("status"));
+        String role = normalizeRole(request.getParameter("role"));
+        String createdFrom = normalizeDate(request.getParameter("createdFrom"));
+        String createdTo = normalizeDate(request.getParameter("createdTo"));
+        if (!createdFrom.isEmpty() && !createdTo.isEmpty() && createdFrom.compareTo(createdTo) > 0) {
+            String temp = createdFrom;
+            createdFrom = createdTo;
+            createdTo = temp;
+        }
+
         int page = parseIntOrDefault(request.getParameter("page"), 1);
         if (page < 1) {
             page = 1;
         }
 
-        int totalCustomers = userDAO.countUsers(keyword);
+        int totalCustomers = userDAO.countUsers(keyword, status, role, createdFrom, createdTo);
         int totalPages = (int) Math.ceil((double) totalCustomers / PAGE_SIZE);
         if (totalPages == 0) {
             totalPages = 1;
@@ -47,7 +59,7 @@ public class AdminUserServlet extends HttpServlet {
         }
 
         int offset = (page - 1) * PAGE_SIZE;
-        List<User> customers = userDAO.getUsers(keyword, offset, PAGE_SIZE);
+        List<User> customers = userDAO.getUsers(keyword, status, role, createdFrom, createdTo, offset, PAGE_SIZE);
 
         request.setAttribute("customers", customers);
         request.setAttribute("currentPage", page);
@@ -55,6 +67,10 @@ public class AdminUserServlet extends HttpServlet {
         request.setAttribute("totalCustomers", totalCustomers);
         request.setAttribute("pageSize", PAGE_SIZE);
         request.setAttribute("keyword", keyword);
+        request.setAttribute("statusFilter", status);
+        request.setAttribute("roleFilter", role);
+        request.setAttribute("createdFrom", createdFrom);
+        request.setAttribute("createdTo", createdTo);
 
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -129,6 +145,39 @@ public class AdminUserServlet extends HttpServlet {
         }
     }
 
+    private String normalizeStatus(String value) {
+        if (value == null) {
+            return "";
+        }
+        String status = value.trim().toLowerCase();
+        if ("active".equals(status) || "inactive".equals(status)) {
+            return status;
+        }
+        return "";
+    }
+
+    private String normalizeRole(String value) {
+        if (value == null) {
+            return "";
+        }
+        String role = value.trim().toLowerCase();
+        if (role.isEmpty() || "admin".equals(role)) {
+            return "";
+        }
+        return role;
+    }
+
+    private String normalizeDate(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return "";
+        }
+        try {
+            return LocalDate.parse(value.trim()).toString();
+        } catch (DateTimeParseException e) {
+            return "";
+        }
+    }
+
     private void setFlashMessage(HttpSession session, String message, String type) {
         session.setAttribute("adminCustomerMessage", message);
         session.setAttribute("adminCustomerMessageType", type);
@@ -138,21 +187,30 @@ public class AdminUserServlet extends HttpServlet {
         StringBuilder url = new StringBuilder(request.getContextPath()).append("/admin/customers");
         String page = request.getParameter("page");
         String keyword = request.getParameter("q");
+        String status = request.getParameter("status");
+        String role = request.getParameter("role");
+        String createdFrom = request.getParameter("createdFrom");
+        String createdTo = request.getParameter("createdTo");
         String separator = "?";
 
-        if (page != null && !page.trim().isEmpty()) {
-            url.append(separator)
-                    .append("page=")
-                    .append(URLEncoder.encode(page.trim(), StandardCharsets.UTF_8));
-            separator = "&";
-        }
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            url.append(separator)
-                    .append("q=")
-                    .append(URLEncoder.encode(keyword.trim(), StandardCharsets.UTF_8));
-        }
+        separator = appendQueryParam(url, separator, "page", page);
+        separator = appendQueryParam(url, separator, "q", keyword);
+        separator = appendQueryParam(url, separator, "status", normalizeStatus(status));
+        separator = appendQueryParam(url, separator, "role", normalizeRole(role));
+        separator = appendQueryParam(url, separator, "createdFrom", normalizeDate(createdFrom));
+        appendQueryParam(url, separator, "createdTo", normalizeDate(createdTo));
 
         return url.toString();
+    }
+
+    private String appendQueryParam(StringBuilder url, String separator, String name, String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return separator;
+        }
+        url.append(separator)
+                .append(name)
+                .append("=")
+                .append(URLEncoder.encode(value.trim(), StandardCharsets.UTF_8));
+        return "&";
     }
 }

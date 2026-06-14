@@ -140,4 +140,19 @@
     </div>
   </div>
 </header>
-<jsp:include page="/compenents/overlay-disable.jsp"/>
+<c:url var="lockedLoginUrl" value="/login">
+  <c:param name="locked" value="true" />
+</c:url>
+<script>
+  (function () {
+    const originalFetch = window.fetch;
+    window.fetch = function () {
+      return originalFetch.apply(window, arguments).then(function (response) {
+        if (response.status === 403 && response.headers.get('X-Account-Locked') === 'true') {
+          window.location.href = '<c:out value="${lockedLoginUrl}" />';
+        }
+        return response;
+      });
+    };
+  })();
+</script>

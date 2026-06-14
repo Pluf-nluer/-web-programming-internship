@@ -88,6 +88,7 @@
                     <c:when test="${resetStep == 'password'}">
                         <form class="login-form reset-form" action="${pageContext.request.contextPath}/forgot-password" method="post" novalidate>
                             <input type="hidden" name="action" value="resetPassword">
+                            <input type="hidden" name="resetPasswordToken" value="${resetPasswordToken}">
                             <div class="form-group">
                                 <label for="newPassword">
                                     <i class="fa-solid fa-lock"></i>

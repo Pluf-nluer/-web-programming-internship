@@ -81,6 +81,7 @@
                         </div>
                     </c:if>
                     <form class="password-form" action="${pageContext.request.contextPath}/change-password" method="post">
+                        <input type="hidden" id="passwordChangeToken" name="passwordChangeToken">
 
                         <c:if test="${not empty sessionScope.user.googleId}">
                             <div class="verification-method-selector">
@@ -239,6 +240,10 @@
             .then(res => res.json())
             .then(data => {
                 if (data && data.success) {
+                    const tokenInput = document.getElementById('passwordChangeToken');
+                    if (tokenInput) {
+                        tokenInput.value = data.token || '';
+                    }
                     document.getElementById('googleVerifySuccess').style.display = 'flex';
                     document.getElementById('googleVerifyButton').style.display = 'none';
                     
