@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%
     if (request.getAttribute("categories") == null) {
         try {
@@ -62,7 +63,80 @@
 
         </div>
     </section>
+    <section class="section_danhmuc" style="padding-top: 0;">
+        <div class="container">
+            <div class="promotions-container discount">
+                <div class="section-header">
+                    <h2>Sản phẩm nổi bật</h2>
+                    <a href="${pageContext.request.contextPath}/products" class="view-all">Xem tất cả <i class="fa-solid fa-angle-right"></i></a>
+                </div>
 
+                <div class="product-grid">
+                    <c:choose>
+                        <c:when test="${not empty featuredProducts}">
+                            <c:forEach items="${featuredProducts}" var="prod">
+                                <div class="product-card">
+                                    <a href="${pageContext.request.contextPath}/product-detail?id=${prod.id}" class="product-link">
+
+                                        <div class="product-img" style="position: relative;">
+                                            <c:if test="${prod.discountPercent > 0}">
+                                <span class="sale" style="position: absolute; top: 10px; left: 10px; background-color: #c0392b; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; z-index: 2;">
+                                    SALE -<fmt:formatNumber value="${prod.discountPercent * 100}" maxFractionDigits="0"/>%
+                                </span>
+                                            </c:if>
+                                            <img src="${prod.imageUrl}" alt="${prod.name}">
+                                        </div>
+
+                                        <div class="product-info">
+                                            <h3>${prod.name}</h3>
+
+                                            <div class="price">
+                                                <c:choose>
+                                                    <c:when test="${prod.discountPercent > 0}">
+                                        <span class="price-old">
+                                            <fmt:formatNumber value="${prod.salePrice}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                        </span>
+                                                        <span class="sale-price" style="color: #999; font-size: 14px; margin-top: auto;">
+                                            <fmt:formatNumber value="${prod.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                        </span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                        <span class="price-old">
+                                            <fmt:formatNumber value="${prod.price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                        </span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+
+                                            <div class="comment-product">
+                                                <span style="color: #f39c12;">
+                                                    <c:forEach var="i" begin="1" end="5">
+                                                        <c:choose>
+                                                            <c:when test="${i <= prod.averageStars}">
+                                                                <i class="fa-solid fa-star"></i>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <i class="fa-regular fa-star" style="color: #ccc;"></i>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:forEach>
+                                                </span>
+                                                <span style="color: #777;">(Đã bán ${prod.totalSold})</span>
+                                            </div>
+                                        </div>
+
+                                    </a>
+                                </div>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <p style="text-align: center; grid-column: span 4; width: 100%; padding: 20px 0;">Hiện chưa có sản phẩm nổi bật nào cho tháng này.</p>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
+        </div>
+    </section>
     <section class="news-section">
         <div class="container">
             <div class="section-header">
