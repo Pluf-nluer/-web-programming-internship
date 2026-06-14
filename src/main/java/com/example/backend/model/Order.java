@@ -1,5 +1,6 @@
 package com.example.backend.model;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 public class Order {
@@ -13,13 +14,14 @@ public class Order {
     private double shipping_fee;
     private double total_amount;
     private String order_status;
+    private Date estimated_delivery_date;
     private Timestamp created_at;
     private Timestamp updated_at;
 
     public Order() {
     }
 
-    public Order(int id, int user_id, String shipping_name, String shipping_phone, String shipping_address, String note, double shipping_fee, double total_amount, String order_status, Timestamp created_at, Timestamp updated_at) {
+    public Order(int id, int user_id, String shipping_name, String shipping_phone, String shipping_address, String note, double shipping_fee, double total_amount, String order_status, Date estimated_delivery_date, Timestamp created_at, Timestamp updated_at) {
         this.id = id;
         this.user_id = user_id;
         this.shipping_name = shipping_name;
@@ -29,6 +31,7 @@ public class Order {
         this.shipping_fee = shipping_fee;
         this.total_amount = total_amount;
         this.order_status = order_status;
+        this.estimated_delivery_date = estimated_delivery_date;
         this.created_at = created_at;
         this.updated_at = updated_at;
     }
@@ -121,6 +124,13 @@ public class Order {
         this.updated_at = updated_at;
     }
 
+    public Date getEstimated_delivery_date() {
+        return estimated_delivery_date;
+    }
+
+    public void setEstimated_delivery_date(Date estimated_delivery_date) {
+        this.estimated_delivery_date = estimated_delivery_date;
+    }
     @Override
     public String toString() {
         return "Order{" +
@@ -133,6 +143,7 @@ public class Order {
                 ", note='" + note + '\'' +
                 ", total_amount=" + total_amount +
                 ", order_status='" + order_status + '\'' +
+                ", estimated_delivery_date="+estimated_delivery_date+
                 ", created_at=" + created_at +
                 ", updated_at=" + updated_at +
                 '}';

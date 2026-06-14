@@ -288,3 +288,19 @@
 .btn-review:hover {
     background-color: #f0f8ff;
 }
+.order-id-highlight{
+    color: #c0392b;
+}
+.section-title{
+    margin-top: 15px;
+}
+.address-text{
+    display: block;
+    width: 100%;
+    word-break: break-word;
+}
+.cart-item-name{
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}

@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @WebServlet(name = "CheckoutServlet", value = "/checkout")
@@ -88,6 +89,12 @@ public class CheckoutServlet extends HttpServlet {
         String ward = request.getParameter("ward");
         String note = request.getParameter("note");
         String paymentMethod = request.getParameter("paymentMethod");
+
+        if(email==null || fullName == null|| phone==null||address==null){
+            request.setAttribute("errorMessage","Vui lòng nhập đầy đủ thông tin.");
+            request.getRequestDispatcher("/checkout.jsp").forward(request,response);
+            return;
+        }
         cacheCheckoutForm(session, email, fullName, phone, address, province, district, ward, note);
 
         User user = (User) session.getAttribute("user");
@@ -97,10 +104,8 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        String fullAddress = address;
-        if (ward != null) fullAddress += ", " + ward;
-        if (district != null) fullAddress += ", " + district;
-        if (province != null) fullAddress += ", " + province;
+        String fullAddress = address.trim();
+
 
         Order order = new Order();
         order.setUser_id(user.getId());
@@ -110,6 +115,8 @@ public class CheckoutServlet extends HttpServlet {
         order.setShipping_fee(30000);
         order.setNote(note);
         order.setTotal_amount(totalCheckout + 30000);
+        LocalDate deliveryDate = LocalDate.now().plusDays(3);
+        order.setEstimated_delivery_date(java.sql.Date.valueOf(deliveryDate));
         Cart tempCart = new Cart();
         tempCart.setItems(checkoutItems);
         OrderDao orderDao = new OrderDao();

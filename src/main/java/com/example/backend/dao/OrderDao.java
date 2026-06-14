@@ -23,7 +23,7 @@ public class OrderDao {
             con.setAutoCommit(false);
 
             
-            String sqlOrder = "INSERT INTO orders (user_id, shipping_name, shipping_phone, shipping_address, shipping_fee, note, total_amount, order_status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sqlOrder = "INSERT INTO orders (user_id, shipping_name, shipping_phone, shipping_address, shipping_fee, note, total_amount, order_status,estimated_delivery_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
             preOrder = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
             preOrder.setInt(1, order.getUser_id());
             preOrder.setString(2, order.getShipping_name());
@@ -32,8 +32,9 @@ public class OrderDao {
             preOrder.setDouble(5, order.getShipping_fee());
             preOrder.setString(6, order.getNote());
             preOrder.setDouble(7, order.getTotal_amount());
-            preOrder.setString(8, "Pending"); 
-            preOrder.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
+            preOrder.setString(8, "Pending");
+            preOrder.setDate(9,order.getEstimated_delivery_date());
+            preOrder.setTimestamp(10, new Timestamp(System.currentTimeMillis()));
 
             int affectedRows = preOrder.executeUpdate();
 
@@ -113,6 +114,7 @@ public class OrderDao {
                 o.setShipping_fee(rs.getDouble("shipping_fee"));
                 o.setTotal_amount(rs.getDouble("total_amount"));
                 o.setOrder_status(rs.getString("order_status"));
+                o.setEstimated_delivery_date(rs.getDate("estimated_delivery_date"));
                 o.setCreated_at(rs.getTimestamp("created_at"));
                 o.setUpdated_at(rs.getTimestamp("updated_at"));
 
@@ -144,6 +146,7 @@ public class OrderDao {
                 o.setShipping_fee(rs.getDouble("shipping_fee"));
                 o.setTotal_amount(rs.getDouble("total_amount"));
                 o.setOrder_status(rs.getString("order_status"));
+                o.setEstimated_delivery_date(rs.getDate("estimated_delivery_date"));
                 o.setCreated_at(rs.getTimestamp("created_at"));
                 o.setUpdated_at(rs.getTimestamp("updated_at"));
 
@@ -175,6 +178,7 @@ public class OrderDao {
                 o.setShipping_fee(rs.getDouble("shipping_fee"));
                 o.setTotal_amount(rs.getDouble("total_amount"));
                 o.setOrder_status(rs.getString("order_status"));
+                o.setEstimated_delivery_date(rs.getDate("estimated_delivery_date"));
                 o.setCreated_at(rs.getTimestamp("created_at"));
                 return o;
             }
@@ -236,6 +240,7 @@ public class OrderDao {
             if (rs.next()) {
                 Order o = new Order();
                 o.setId(rs.getInt("id"));
+                o.setEstimated_delivery_date(rs.getDate("estimated_delivery_date"));
                 o.setCreated_at(rs.getTimestamp("created_at"));
                 o.setTotal_amount(rs.getDouble("total_amount"));
                 return o;
