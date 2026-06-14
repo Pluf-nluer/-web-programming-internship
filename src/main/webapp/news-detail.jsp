@@ -10,6 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết tin tức</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/news-detail.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
@@ -35,13 +36,14 @@
                 <c:otherwise>
                     <article>
                         <h2>${post.title}</h2>
+
+                        <div class="post-image-wrapper">
+                            <img src="${post.featuredImageUrl}" alt="${post.title}" class="post-featured-image">
+                        </div>
                         <span class="post-meta">
                             <i class="fa-regular fa-calendar-days"></i>
                             <fmt:formatDate value="${post.createdAt}" pattern="dd 'tháng' MM 'năm' yyyy"/>
                         </span>
-                        <div class="post-image-wrapper">
-                            <img src="${post.featuredImageUrl}" alt="${post.title}" class="post-featured-image">
-                        </div>
                         <div class="post-content">${post.content}</div>
                     </article>
                 </c:otherwise>
