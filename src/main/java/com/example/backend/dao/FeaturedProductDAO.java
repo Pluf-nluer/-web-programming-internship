@@ -24,19 +24,18 @@ public class FeaturedProductDAO {
         return false;
     }
 
-    public void saveFeatured(int productId, int categoryId, int month, int year) {
+    public void saveFeatured(int productId, int month, int year) {
         String sql = """
-        INSERT IGNORE INTO featured_products(product_id, category_id, month, year)
-        VALUES (?, ?, ?, ?)
+        INSERT IGNORE INTO featured_products(product_id, month, year)
+        VALUES (?, ?, ?)
     """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, productId);
-            ps.setInt(2, categoryId);
-            ps.setInt(3, month);
-            ps.setInt(4, year);
+            ps.setInt(2, month);
+            ps.setInt(3, year);
             ps.executeUpdate();
 
         } catch (Exception e) {

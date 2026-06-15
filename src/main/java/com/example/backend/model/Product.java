@@ -26,6 +26,9 @@ public class Product {
 
     private Timestamp endSale;
 
+    private int totalSold;
+    private double averageStars;
+
     public Product() {
     }
 
@@ -162,6 +165,22 @@ public class Product {
 
     public void setEndSale(java.sql.Timestamp endSale) {
         this.endSale = endSale;
+    }
+
+    public int getTotalSold() {
+        return totalSold;
+    }
+
+    public void setTotalSold(int totalSold) {
+        this.totalSold = totalSold;
+    }
+
+    public double getAverageStars() {
+        return averageStars;
+    }
+
+    public void setAverageStars(double averageStars) {
+        this.averageStars = averageStars;
     }
 
     @Override

@@ -1,46 +1,45 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
-<%
-  String currentUri = request.getRequestURI();
-%>
+<c:set var="currentUri" value="${pageContext.request.requestURI}" />
 
 <aside class="dashboard-sidebar">
   <div class="sidebar-header">
     <div class="user-avatar">
       <i class="fa-solid fa-user"></i>
     </div>
-    <h3>${sessionScope.user.fullName}</h3>
-    <p>${sessionScope.user.email}</p>
+    <h3><c:out value="${sessionScope.user.fullName}" /></h3>
+    <p><c:out value="${sessionScope.user.email}" /></p>
   </div>
 
   <nav class="sidebar-menu">
     <a href="${pageContext.request.contextPath}/account/dashboard.jsp"
-       class="menu-item <%= currentUri.contains("dashboard.jsp") ? "active" : "" %>">
+       class="menu-item ${fn:contains(currentUri, 'dashboard.jsp') ? 'active' : ''}">
       <i class="fa-solid fa-gauge"></i>
       <span>Bảng điều khiển</span>
     </a>
 
     <a href="${pageContext.request.contextPath}/account/order.jsp"
-       class="menu-item <%= currentUri.contains("order.jsp") ? "active" : "" %>">
+       class="menu-item ${fn:contains(currentUri, '/account/order') ? 'active' : ''}">
       <i class="fa-solid fa-box"></i>
       <span>Đơn hàng</span>
     </a>
 
     <a href="${pageContext.request.contextPath}/account/wishlist.jsp"
-       class="menu-item <%= currentUri.contains("wishlist.jsp") ? "active" : "" %>">
+       class="menu-item ${fn:contains(currentUri, 'wishlist.jsp') ? 'active' : ''}">
       <i class="fa-solid fa-heart"></i>
       <span>Sản phẩm yêu thích</span>
     </a>
 
     <a href="${pageContext.request.contextPath}/profile"
-       class="menu-item <%= currentUri.contains("profile") ? "active" : "" %>">
+       class="menu-item ${fn:contains(currentUri, 'profile') ? 'active' : ''}">
       <i class="fa-solid fa-user-circle"></i>
       <span>Thông tin</span>
     </a>
 
     <a href="${pageContext.request.contextPath}/change-password"
-       class="menu-item <%= currentUri.contains("change-password") ? "active" : "" %>">
+       class="menu-item ${fn:contains(currentUri, 'change-password') ? 'active' : ''}">
       <i class="fa-solid fa-key"></i>
       <span>Đổi mật khẩu</span>
     </a>

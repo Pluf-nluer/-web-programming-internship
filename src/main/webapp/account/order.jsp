@@ -1,4 +1,4 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.example.backend.model.User" %>
 <%@ page import="com.example.backend.model.Order" %>
 <%@ page import="com.example.backend.dao.OrderDao" %>
@@ -244,7 +244,7 @@
                                     <a href="order-review?id=<%= order.getId() %>" class="btn-action btn-detail">
                                         Đánh giá
                                     </a>
-                                    <a href="${pageContext.request.contextPath}/order-detail?id=<%= order.getId() %>" class="btn-action btn-detail">
+                                    <a href="order-detail.jsp?id=<%= order.getId() %>" class="btn-action btn-detail">
                                         <i class="fa-solid fa-eye"></i>
                                         Xem chi tiết
                                     </a>
@@ -265,36 +265,6 @@
                         <% } %>
                     <% } %>
                 </div>
-                <% if (totalPage != null && totalPage > 1) { %>
-                <div class="pagination-area">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination">
-                            <% if (currPage > 1) { %>
-                            <li class="page-item">
-                                <a class="page-link" href="${pageContext.request.contextPath}/user-orders?page=<%= currPage - 1 %>">&laquo;</a>
-                            </li>
-                            <% } %>
-
-                            <% for (int i = 1; i <= totalPage; i++) {
-                                if (i == 1 || i == totalPage || (i >= currPage - 2 && i <= currPage + 2)) {
-                            %>
-                            <li class="page-item <%= (currPage == i) ? "active" : "" %>">
-                                <a class="page-link" href="${pageContext.request.contextPath}/user-orders?page=<%= i %>"><%= i %></a>
-                            </li>
-                            <%  } else if (i == currPage - 3 || i == currPage + 3) { %>
-                            <li class="page-item disabled"><span class="page-link">...</span></li>
-                            <%  }
-                            } %>
-
-                            <% if (currPage < totalPage) { %>
-                            <li class="page-item">
-                                <a class="page-link" href="${pageContext.request.contextPath}/user-orders?page=<%= currPage + 1 %>">&raquo;</a>
-                            </li>
-                            <% } %>
-                        </ul>
-                    </nav>
-                </div>
-                <% } %>
             </div>
         </div>
     </div>
@@ -302,7 +272,6 @@
 
 <form id="cancelOrderForm" action="${pageContext.request.contextPath}/cancel-order" method="post" style="display: none;">
     <input type="hidden" name="orderId" id="cancelOrderId">
-    <input type="hidden" name="page" value="<%= currPage != null ? currPage : 1 %>">
 </form>
 
 <script>

@@ -1,4 +1,4 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.example.backend.model.User" %>
 <%@ page import="com.example.backend.model.Order" %>
 <%@ page import="com.example.backend.model.OrderItem" %>
@@ -144,32 +144,28 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <%
-                                int rowIndex = 1;
-                                for (OrderItem item : orderItems) {
-                            %>
-                            <tr>
-                                <td class="invoice-index"><%= rowIndex++ %></td>
-                                <td>
-                                    <div class="invoice-product">
-                                        <img src="<%= item.getProduct().getImageUrl() %>" alt="<%= item.getProduct().getName() %>">
-                                        <div>
-                                            <strong><%= item.getProduct().getName() %></strong>
-                                            <span>SP-<%= item.getProduct().getId() %></span>
+                            <c:forEach var="item" items="${orderItems}" varStatus="row">
+                                <tr>
+                                    <td class="invoice-index">${row.count}</td>
+                                    <td>
+                                        <div class="invoice-product">
+                                            <img src="${fn:escapeXml(item.product.imageUrl)}" alt="${fn:escapeXml(item.product.name)}">
+                                            <div>
+                                                <strong><c:out value="${item.product.name}" /></strong>
+                                                <span>SP-${item.product.id}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="invoice-index"><%= currencyFormat.format(item.getProduct().getPrice()) %></td>
-                                <td><%= item.getQuantity() %></td>
-                                <td class="invoice-line-total"><%= currencyFormat.format(item.getTotalPrice()) %></td>
-                            </tr>
-                            <% } %>
+                                    </td>
+                                    <td><fmt:formatNumber value="${item.product.price}" type="currency" /></td>
+                                    <td>${item.quantity}</td>
+                                    <td class="invoice-line-total"><fmt:formatNumber value="${item.totalPrice}" type="currency" /></td>
+                                </tr>
+                            </c:forEach>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <div class="invoice-footer-row">
                 <div class="invoice-footer-grid">
                     <div class="invoice-note-box">
                         <h3><i class="fa-solid fa-note-sticky"></i> Ghi chú hóa đơn</h3>
@@ -195,23 +191,24 @@
                             <span class="summary-label">Tổng thanh toán:</span>
                             <span class="summary-value"><%= currencyFormat.format(order.getTotal_amount()) %></span>
                         </div>
-
-                    </div>
-                </div>
-                    <div class="action-section">
-                        <a href="${pageContext.request.contextPath}/account/order.jsp" class="btn-secondary">
-                            <i class="fa-solid fa-arrow-left"></i>
-                            Quay lại
-                        </a>
-                        <a href="${pageContext.request.contextPath}/contact.jsp" class="btn-support">
-                            <i class="fa-solid fa-headset"></i>
-                            Liên hệ hỗ trợ
-                        </a>
+                        <div class="payment-note">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Thanh toán khi nhận hàng</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-
+            <div class="action-section">
+                <a href="${pageContext.request.contextPath}/account/order.jsp" class="btn-secondary">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Quay lại
+                </a>
+                <a href="${pageContext.request.contextPath}/contact.jsp" class="btn-support">
+                    <i class="fa-solid fa-headset"></i>
+                    Liên hệ hỗ trợ
+                </a>
+            </div>
         </div>
     </div>
 </main>
