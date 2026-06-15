@@ -45,6 +45,57 @@
         .toast-error {
             background-color: #e74c3c;
         }
+        .orders-container .pagination-area {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .orders-container .pagination {
+            display: flex;
+            flex-direction: row;
+            list-style: none !important;
+            gap: 5px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .orders-container .page-item .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid #ddd;
+            color: #333;
+            text-decoration: none !important;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .orders-container .page-item.active .page-link {
+            background-color: #8b572a;
+            color: white;
+            border-color: #8b572a;
+        }
+
+        .orders-container .page-item.disabled .page-link {
+            border: none;
+            background: transparent;
+            cursor: default;
+            color: #999;
+        }
+
+        .orders-container .page-item:hover:not(.active):not(.disabled) .page-link {
+            background-color: #f5f5f5;
+            color: #c97a3a;
+            border-color: #c97a3a;
+        }
     </style>
 </head>
 <body>
@@ -57,11 +108,18 @@
         return;
     }
 
-    OrderDao orderDao = new OrderDao();
-    List<Order> orders = orderDao.getOrdersByUserId(user.getId());
+
+    List<Order> orders = (List<Order>) request.getAttribute("orders");
+    Integer totalOrder = (Integer) request.getAttribute("totalOrders");
+    Integer totalPage = (Integer) request.getAttribute("totalPages");
+    Integer currPage = (Integer) request.getAttribute("currentPageNumber");
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
+    if (orders == null) {
+        response.sendRedirect(request.getContextPath() + "/user-orders");
+        return;
+    }
     String message = (String) session.getAttribute("message");
     String messageType = (String) session.getAttribute("messageType");
     if (message != null) {
@@ -133,7 +191,7 @@
             <div class="orders-container">
                 <div class="orders-header">
                     <h2>Danh sách đơn hàng</h2>
-                    <p class="orders-count">Tổng: <strong><%= orders.size() %> đơn hàng</strong></p>
+                    <p class="orders-count">Tổng: <strong><%= totalOrder %> đơn hàng</strong></p>
                 </div>
 
                 <div class="orders-list">
@@ -207,6 +265,36 @@
                         <% } %>
                     <% } %>
                 </div>
+                <% if (totalPage != null && totalPage > 1) { %>
+                <div class="pagination-area">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <% if (currPage > 1) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="${pageContext.request.contextPath}/user-orders?page=<%= currPage - 1 %>">&laquo;</a>
+                            </li>
+                            <% } %>
+
+                            <% for (int i = 1; i <= totalPage; i++) {
+                                if (i == 1 || i == totalPage || (i >= currPage - 2 && i <= currPage + 2)) {
+                            %>
+                            <li class="page-item <%= (currPage == i) ? "active" : "" %>">
+                                <a class="page-link" href="${pageContext.request.contextPath}/user-orders?page=<%= i %>"><%= i %></a>
+                            </li>
+                            <%  } else if (i == currPage - 3 || i == currPage + 3) { %>
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                            <%  }
+                            } %>
+
+                            <% if (currPage < totalPage) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="${pageContext.request.contextPath}/user-orders?page=<%= currPage + 1 %>">&raquo;</a>
+                            </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                </div>
+                <% } %>
             </div>
         </div>
     </div>
@@ -214,6 +302,7 @@
 
 <form id="cancelOrderForm" action="${pageContext.request.contextPath}/cancel-order" method="post" style="display: none;">
     <input type="hidden" name="orderId" id="cancelOrderId">
+    <input type="hidden" name="page" value="<%= currPage != null ? currPage : 1 %>">
 </form>
 
 <script>

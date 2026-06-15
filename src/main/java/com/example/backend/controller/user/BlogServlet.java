@@ -37,7 +37,7 @@ public class BlogServlet extends HttpServlet {
             curPage = totalPage;
         }
         List<BlogPost> post = blogDAO.getPostByPage(curPage,pageSize);
-        List<BlogPost> feature = blogDAO.getFeaturedPosts(5);
+        List<BlogPost> feature = blogDAO.getFeaturedPosts(3);
         request.setAttribute("posts",post);
         request.setAttribute("featuredPosts",feature);
         request.setAttribute("currentPage",curPage);
