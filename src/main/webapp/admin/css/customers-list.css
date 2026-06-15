@@ -414,7 +414,7 @@
 }
 
 .col-customer-type {
-    width: 120px;
+    width: 190px;
 }
 
 .col-status {
@@ -557,9 +557,38 @@
     color: var(--admin-info);
 }
 
+.customer-badge.admin {
+    background: var(--admin-accent-soft);
+    color: var(--admin-accent);
+}
+
 .customer-badge.new {
     background: var(--admin-success-soft);
     color: var(--admin-success);
+}
+
+.role-update-form {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 170px;
+}
+
+.role-select {
+    width: 130px;
+    padding: 7px 10px;
+    border: 1px solid var(--admin-border-subtle);
+    border-radius: var(--admin-radius-sm);
+    background: var(--admin-surface);
+    color: var(--admin-text-main);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.role-select:focus {
+    outline: none;
+    border-color: var(--admin-accent);
+    box-shadow: 0 0 0 1px var(--admin-accent-soft);
 }
 
 
@@ -644,6 +673,24 @@
 
 .btn-action.btn-toggle.btn-activate:hover {
     background: var(--admin-success);
+    color: white;
+    box-shadow: var(--admin-shadow-md);
+}
+
+.btn-action.btn-disabled {
+    background: var(--admin-surface-alt);
+    color: var(--admin-text-soft);
+    cursor: not-allowed;
+}
+
+.btn-action.btn-role-save {
+    background: var(--admin-info-soft);
+    color: var(--admin-info);
+    flex-shrink: 0;
+}
+
+.btn-action.btn-role-save:hover {
+    background: var(--admin-info);
     color: white;
     box-shadow: var(--admin-shadow-md);
 }
@@ -860,6 +907,7 @@
 
 .search-input:focus-visible,
 .filter-group select:focus-visible,
+.role-select:focus-visible,
 .btn-apply-filter:focus-visible,
 .btn-reset-filter:focus-visible,
 .btn-bulk-action:focus-visible,

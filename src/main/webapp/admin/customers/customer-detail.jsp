@@ -42,9 +42,18 @@
                             </span>
                         </c:otherwise>
                     </c:choose>
-                    <span class="customer-badge regular">
-                        <i class="fa-solid fa-user"></i> Khách hàng
-                    </span>
+                    <c:choose>
+                        <c:when test="${customer.role == 'admin'}">
+                            <span class="customer-badge admin">
+                                <i class="fa-solid fa-user-shield"></i> Quản trị viên
+                            </span>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="customer-badge regular">
+                                <i class="fa-solid fa-user"></i> Khách hàng
+                            </span>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
 
@@ -90,7 +99,13 @@
                             <div class="info-grid">
                                 <div class="info-item">
                                     <label><i class="fa-solid fa-user-tag"></i> Vai trò</label>
-                                    <p>${customer.role}</p>
+                                    <p>
+                                        <c:choose>
+                                            <c:when test="${customer.role == 'admin'}">Quản trị viên</c:when>
+                                            <c:when test="${customer.role == 'user'}">Người dùng</c:when>
+                                            <c:otherwise>${customer.role}</c:otherwise>
+                                        </c:choose>
+                                    </p>
                                 </div>
                                 <div class="info-item">
                                     <label><i class="fa-solid fa-circle-info"></i> Trạng thái</label>
