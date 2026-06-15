@@ -244,7 +244,7 @@
                                     <a href="order-review?id=<%= order.getId() %>" class="btn-action btn-detail">
                                         Đánh giá
                                     </a>
-                                    <a href="order-detail.jsp?id=<%= order.getId() %>" class="btn-action btn-detail">
+                                    <a href="${pageContext.request.contextPath}/order-detail?id=<%= order.getId() %>" class="btn-action btn-detail">
                                         <i class="fa-solid fa-eye"></i>
                                         Xem chi tiết
                                     </a>

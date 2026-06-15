@@ -159,7 +159,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td><%= currencyFormat.format(item.getProduct().getPrice()) %></td>
+                                <td class="invoice-index"><%= currencyFormat.format(item.getProduct().getPrice()) %></td>
                                 <td><%= item.getQuantity() %></td>
                                 <td class="invoice-line-total"><%= currencyFormat.format(item.getTotalPrice()) %></td>
                             </tr>
@@ -169,6 +169,7 @@
                     </div>
                 </div>
 
+                <div class="invoice-footer-row">
                 <div class="invoice-footer-grid">
                     <div class="invoice-note-box">
                         <h3><i class="fa-solid fa-note-sticky"></i> Ghi chú hóa đơn</h3>
@@ -194,24 +195,23 @@
                             <span class="summary-label">Tổng thanh toán:</span>
                             <span class="summary-value"><%= currencyFormat.format(order.getTotal_amount()) %></span>
                         </div>
-                        <div class="payment-note">
-                            <i class="fa-solid fa-circle-info"></i>
-                            <span>Thanh toán khi nhận hàng</span>
-                        </div>
+
+                    </div>
+                </div>
+                    <div class="action-section">
+                        <a href="${pageContext.request.contextPath}/account/order.jsp" class="btn-secondary">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Quay lại
+                        </a>
+                        <a href="${pageContext.request.contextPath}/contact.jsp" class="btn-support">
+                            <i class="fa-solid fa-headset"></i>
+                            Liên hệ hỗ trợ
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <div class="action-section">
-                <a href="${pageContext.request.contextPath}/account/order.jsp" class="btn-secondary">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Quay lại
-                </a>
-                <a href="${pageContext.request.contextPath}/contact.jsp" class="btn-support">
-                    <i class="fa-solid fa-headset"></i>
-                    Liên hệ hỗ trợ
-                </a>
-            </div>
+
         </div>
     </div>
 </main>

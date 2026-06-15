@@ -117,7 +117,7 @@
                                     <p class="order-price"><%= currencyFormat.format(order.getTotal_amount()) %></p>
                                 </div>
                                 <div class="order-actions">
-                                    <a href="${pageContext.request.contextPath}/account/order-detail.jsp?id=<%= order.getId() %>" class="btn-detail">Chi tiết</a>
+                                    <a href="${pageContext.request.contextPath}/order-detail?id=<%= order.getId() %>" class="btn-detail">Chi tiết</a>
                                 </div>
                             </div>
                         <% } %>
