@@ -267,6 +267,31 @@
                         <% } %>
                     <% } %>
                 </div>
+                <% if (totalPage != null && totalPage > 1) { %>
+                <div class="pagination-area">
+                    <ul class="pagination">
+
+                        <% if (currPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="user-orders?page=<%= currPage - 1 %>">&laquo;</a>
+                        </li>
+                        <% } %>
+
+                        <% for (int i = 1; i <= totalPage; i++) { %>
+                        <li class="page-item <%= (currPage == i) ? "active" : "" %>">
+                            <a class="page-link" href="user-orders?page=<%= i %>"><%= i %></a>
+                        </li>
+                        <% } %>
+
+                        <% if (currPage < totalPage) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="user-orders?page=<%= currPage + 1 %>">&raquo;</a>
+                        </li>
+                        <% } %>
+
+                    </ul>
+                </div>
+                <% } %>
             </div>
         </div>
     </div>

@@ -132,7 +132,7 @@
       </div>
 
       <c:if test="${not empty sessionScope.user}">
-        <a href="${pageContext.request.contextPath}/account/wishlist.jsp" class="icon badge">
+        <a href="${pageContext.request.contextPath}/wishlist" class="icon badge">
           <i class="fa-regular fa-heart"></i>
         </a>
       </c:if>
@@ -160,3 +160,4 @@
     };
   })();
 </script>
+
