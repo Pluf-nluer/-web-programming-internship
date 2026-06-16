@@ -9,21 +9,19 @@ import java.util.List;
 
 public class OrderDao {
 
-    
+
     public int saveOrder(Order order, Cart cart) {
         Connection con = null;
         PreparedStatement preOrder = null;
         PreparedStatement preDetail = null;
         ResultSet rs = null;
-        int orderId = 0; 
+        int orderId = 0;
 
         try {
             con = DBConnection.getConnection();
-            
             con.setAutoCommit(false);
 
-            
-            String sqlOrder = "INSERT INTO orders (user_id, shipping_name, shipping_phone, shipping_address, shipping_fee, note, total_amount, order_status,estimated_delivery_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?, ?)";
+            String sqlOrder = "INSERT INTO orders (user_id, shipping_name, shipping_phone, shipping_address, shipping_fee, note, total_amount, order_status, estimated_delivery_date, created_at, payment_method_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             preOrder = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
             preOrder.setInt(1, order.getUser_id());
             preOrder.setString(2, order.getShipping_name());
@@ -32,17 +30,17 @@ public class OrderDao {
             preOrder.setDouble(5, order.getShipping_fee());
             preOrder.setString(6, order.getNote());
             preOrder.setDouble(7, order.getTotal_amount());
+
             preOrder.setString(8, "Pending");
-            preOrder.setDate(9,order.getEstimated_delivery_date());
+            preOrder.setDate(9, order.getEstimated_delivery_date());
             preOrder.setTimestamp(10, new Timestamp(System.currentTimeMillis()));
+            preOrder.setInt(11, order.getPayment_method_id());
 
             int affectedRows = preOrder.executeUpdate();
 
-            
             if (affectedRows > 0) {
                 rs = preOrder.getGeneratedKeys();
                 if (rs.next()) {
-                    
                     orderId = rs.getInt(1);
                     order.setId(orderId);
                 }
@@ -51,46 +49,30 @@ public class OrderDao {
                 return 0;
             }
 
-            
             String sqlDetail = "INSERT INTO order_items (order_id, product_id, quantity, total_price) VALUES (?, ?, ?, ?)";
             preDetail = con.prepareStatement(sqlDetail);
 
-            
             for (CartItem item : cart.getItems()) {
-                preDetail.setInt(1, orderId); 
+                preDetail.setInt(1, orderId);
                 preDetail.setInt(2, item.getProduct().getId());
                 preDetail.setInt(3, item.getQuantity());
                 preDetail.setDouble(4, item.getProduct().getPrice() * item.getQuantity());
-
                 preDetail.addBatch();
             }
             preDetail.executeBatch();
-
             con.commit();
 
         } catch (SQLException e) {
-            try {
-                if (con != null) {
-                    con.rollback();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            try { if (con != null) con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             e.printStackTrace();
-            return 0; 
+            return 0;
         } finally {
-            
             try {
                 if (rs != null) rs.close();
                 if (preOrder != null) preOrder.close();
                 if (preDetail != null) preDetail.close();
-                if (con != null) {
-                    con.setAutoCommit(true); 
-                    con.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+                if (con != null) { con.setAutoCommit(true); con.close(); }
+            } catch (SQLException e) { e.printStackTrace(); }
         }
         return orderId;
     }
@@ -170,6 +152,7 @@ public class OrderDao {
             if (rs.next()) {
                 Order o = new Order();
                 o.setId(rs.getInt("id"));
+                o.setPayment_method_id(rs.getInt("payment_method_id"));
                 o.setUser_id(rs.getInt("user_id"));
                 o.setShipping_name(rs.getString("shipping_name"));
                 o.setShipping_phone(rs.getString("shipping_phone"));
