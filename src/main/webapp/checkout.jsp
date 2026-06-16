@@ -113,18 +113,18 @@
                     <h3>Thanh toán</h3>
                     <div class="payment-options">
                         <label for="payment-cod" class="payment-option">
-                            <input type="radio" id="payment-cod" name="paymentMethod" value="COD">
+                            <input type="radio" id="payment-cod" name="paymentMethod" value="1">
                             <span>Thanh toán khi giao hàng (COD)</span>
                             <i class="fa fa-money-bill-alt"></i>
                         </label>
-                        <div class="payment-info" id = "info-cod">
+                        <div class="payment-info" id="info-cod">
                             <span>Bạn chỉ thanh toán khi nhận hàng</span>
                         </div>
                     </div>
 
                     <div class="payment-options">
                         <label for="payment-momo" class="payment-option">
-                            <input type="radio" id="payment-momo" name="paymentMethod" value="Momo">
+                            <input type="radio" id="payment-momo" name="paymentMethod" value="2">
                             <span>Thanh toán qua ví Momo</span>
                             <i class="fa-solid fa-wallet"></i>
                         </label>
@@ -135,7 +135,7 @@
 
                     <div class="payment-options">
                         <label for="payment-vnpay" class="payment-option">
-                            <input type="radio" id="payment-vnpay" name="paymentMethod" value="VnPay">
+                            <input type="radio" id="payment-vnpay" name="paymentMethod" value="3">
                             <span>Thanh toán qua VNPay</span>
                             <i class="fa-solid fa-qrcode"></i>
                         </label>

@@ -397,15 +397,14 @@
 #filter-pending:checked ~ .orders-container .order-card {
     display: none;
 }
-
-#filter-pending:checked ~ .orders-container .order-card[data-status="pending"] {
+#filter-pending:checked ~ .orders-container .order-card[data-status="pending"],
+#filter-pending:checked ~ .orders-container .order-card[data-status="confirmed"] {
     display: block;
 }
 
 #filter-shipping:checked ~ .orders-container .order-card {
     display: none;
 }
-
 #filter-shipping:checked ~ .orders-container .order-card[data-status="shipping"] {
     display: block;
 }
@@ -413,7 +412,6 @@
 #filter-completed:checked ~ .orders-container .order-card {
     display: none;
 }
-
 #filter-completed:checked ~ .orders-container .order-card[data-status="completed"] {
     display: block;
 }
@@ -421,7 +419,6 @@
 #filter-cancelled:checked ~ .orders-container .order-card {
     display: none;
 }
-
 #filter-cancelled:checked ~ .orders-container .order-card[data-status="cancelled"] {
     display: block;
 }

@@ -162,9 +162,11 @@
                                     <span class="total-amount"><fmt:formatNumber value="${order.total_amount}" type="currency" /></span>
                                 </div>
                                 <div class="order-actions">
-                                    <a href="${reviewUrl}" class="btn-action btn-detail">
-                                        Đánh giá
-                                    </a>
+                                    <c:if test="${order.statusClass == 'completed'}">
+                                        <a href="${reviewUrl}" class="btn-action btn-detail">
+                                            Đánh giá
+                                        </a>
+                                    </c:if>
                                     <a href="${orderDetailUrl}" class="btn-action btn-detail">
                                         <i class="fa-solid fa-eye"></i>
                                         Xem chi tiết

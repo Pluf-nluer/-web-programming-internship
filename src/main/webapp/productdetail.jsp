@@ -139,25 +139,82 @@
                         <div class="product-content">
                             <c:choose>
                                 <c:when test="${not empty reviews}">
+                                    <c:set var="totalReviews" value="${fn:length(reviews)}" />
+                                    <c:set var="sumRating" value="0" />
+                                    <c:set var="star5" value="0" />
+                                    <c:set var="star4" value="0" />
+                                    <c:set var="star3" value="0" />
+                                    <c:set var="star2" value="0" />
+                                    <c:set var="star1" value="0" />
+
                                     <c:forEach items="${reviews}" var="rev">
-                                        <div class="review-item"
-                                             style="border-bottom: 1px solid #eee; margin-bottom: 15px; padding-bottom: 10px;">
-                                            <strong style="color: #333;">${rev.userName}</strong>
-
-                                            <span style="color: #ffc107; margin-left: 10px;">
-                                                <c:forEach begin="1" end="${rev.rating}">★</c:forEach>
-                                            </span>
-
-                                            <p style="margin-top: 10px; color: #555;">${rev.comment}</p>
-
-                                            <small style="color: #999;">
-                                                <fmt:formatDate value="${rev.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
-                                            </small>
-                                        </div>
+                                        <c:set var="sumRating" value="${sumRating + rev.rating}" />
+                                        <c:choose>
+                                            <c:when test="${rev.rating == 5}"><c:set var="star5" value="${star5 + 1}" /></c:when>
+                                            <c:when test="${rev.rating == 4}"><c:set var="star4" value="${star4 + 1}" /></c:when>
+                                            <c:when test="${rev.rating == 3}"><c:set var="star3" value="${star3 + 1}" /></c:when>
+                                            <c:when test="${rev.rating == 2}"><c:set var="star2" value="${star2 + 1}" /></c:when>
+                                            <c:when test="${rev.rating == 1}"><c:set var="star1" value="${star1 + 1}" /></c:when>
+                                        </c:choose>
                                     </c:forEach>
+                                    <c:set var="avgRating" value="${sumRating / totalReviews}" />
+
+                                    <div class="review-dashboard" style="display: flex; background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 25px; gap: 30px; flex-wrap: wrap;">
+                                        <div class="rating-average" style="text-align: center; min-width: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                            <h2 style="font-size: 3rem; color: #ff9800; margin: 0;"><fmt:formatNumber value="${avgRating}" maxFractionDigits="1"/></h2>
+                                            <div class="stars" style="color: #ffc107; font-size: 1.2rem; margin: 5px 0;">
+                                                <fmt:formatNumber var="roundedAvg" value="${avgRating}" maxFractionDigits="0"/>
+                                                <c:forEach begin="1" end="5" var="i">
+                                                    <span style="color: ${i <= roundedAvg ? '#ffc107' : '#ddd'};">★</span>
+                                                </c:forEach>
+                                            </div>
+                                            <p style="color: #666; margin: 0;">(${totalReviews} đánh giá)</p>
+                                        </div>
+
+                                        <div class="rating-bars" style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 8px;">
+                                            <c:forEach var="starLevel" items="5,4,3,2,1">
+                                                <c:set var="currentStarCount" value="${starLevel == 5 ? star5 : (starLevel == 4 ? star4 : (starLevel == 3 ? star3 : (starLevel == 2 ? star2 : star1)))}" />
+                                                <c:set var="percent" value="${totalReviews > 0 ? (currentStarCount / totalReviews) * 100 : 0}" />
+
+                                                <div class="bar-item" style="display: flex; align-items: center; font-size: 0.9rem; color: #555;">
+                                                    <span style="width: 50px; font-weight: bold;">${starLevel} sao</span>
+                                                    <div class="progress-bg" style="flex: 1; background: #eee; height: 12px; border-radius: 6px; margin: 0 12px; overflow: hidden; position: relative;">
+                                                        <div class="progress-fill" style="width: ${percent}%; background: #ff9800; height: 100%; border-radius: 6px; transition: width 0.5s ease;"></div>
+                                                    </div>
+                                                    <span style="width: 40px; text-align: right; color: #888;">${currentStarCount}</span>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+                                    </div>
+
+                                    <div class="reviews-list">
+                                        <c:forEach items="${reviews}" var="rev">
+                                            <div class="review-item" style="border-bottom: 1px solid #eee; margin-bottom: 15px; padding-bottom: 15px;">
+                                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <strong style="color: #333; font-size: 1.05rem;">${rev.userName}</strong>
+                                                    <small style="color: #999;">
+                                                        <i class="fa-regular fa-clock"></i> <fmt:formatDate value="${rev.createdAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                                    </small>
+                                                </div>
+
+                                                <div style="color: #ffc107; margin: 5px 0; font-size: 0.9rem;">
+                                                    <c:forEach begin="1" end="5" var="i">
+                                                        <span>${i <= rev.rating ? '★' : '☆'}</span>
+                                                    </c:forEach>
+                                                </div>
+
+                                                <p style="margin-top: 8px; color: #555; line-height: 1.5; font-size: 0.95rem;">${rev.comment}</p>
+                                            </div>
+                                        </c:forEach>
+                                    </div>
                                 </c:when>
+
                                 <c:otherwise>
-                                    <p>Hiện chưa có đánh giá nào cho sản phẩm này.</p>
+                                    <div class="review-empty-state" style="text-align: center; padding: 40px 20px; color: #999;">
+                                        <i class="fa-regular fa-comments" style="font-size: 3rem; margin-bottom: 15px; color: #ccc;"></i>
+                                        <h3 style="margin: 0 0 10px 0; color: #666;">Chưa có đánh giá nào</h3>
+                                        <p style="margin: 0; font-size: 0.9rem;">Hãy là người đầu tiên chia sẻ cảm nhận về sản phẩm này!</p>
+                                    </div>
                                 </c:otherwise>
                             </c:choose>
                         </div>

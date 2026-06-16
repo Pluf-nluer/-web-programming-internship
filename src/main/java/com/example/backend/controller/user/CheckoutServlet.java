@@ -90,11 +90,13 @@ public class CheckoutServlet extends HttpServlet {
         String note = request.getParameter("note");
         String paymentMethod = request.getParameter("paymentMethod");
 
-        if(email==null || fullName == null|| phone==null||address==null){
-            request.setAttribute("errorMessage","Vui lòng nhập đầy đủ thông tin.");
+        if(email == null || fullName == null || phone == null || address == null || paymentMethod == null){
+            request.setAttribute("errorMessage","Vui lòng nhập đầy đủ thông tin và chọn phương thức thanh toán.");
             request.getRequestDispatcher("/checkout.jsp").forward(request,response);
             return;
         }
+
+        int paymentMethodId = Integer.parseInt(paymentMethod);
         cacheCheckoutForm(session, email, fullName, phone, address, province, district, ward, note);
 
         User user = (User) session.getAttribute("user");
@@ -115,8 +117,12 @@ public class CheckoutServlet extends HttpServlet {
         order.setShipping_fee(30000);
         order.setNote(note);
         order.setTotal_amount(totalCheckout + 30000);
+
+        order.setPayment_method_id(paymentMethodId);
+
         LocalDate deliveryDate = LocalDate.now().plusDays(3);
         order.setEstimated_delivery_date(java.sql.Date.valueOf(deliveryDate));
+
         Cart tempCart = new Cart();
         tempCart.setItems(checkoutItems);
         OrderDao orderDao = new OrderDao();
@@ -124,10 +130,8 @@ public class CheckoutServlet extends HttpServlet {
         try {
             int orderId = orderDao.saveOrder(order, tempCart);
 
-
             if (orderId > 0) {
-                if ("VnPay".equals(paymentMethod)) {
-                    //
+                if (paymentMethodId == 3) {
                     long amount = (long)((totalCheckout + 30000)*100);
                     String vnp_TxnRef = String.valueOf(orderId);
                     Map<String,String> vnp_Params = new HashMap<>();
@@ -181,7 +185,7 @@ public class CheckoutServlet extends HttpServlet {
 
 //                    request.setAttribute("Error", "VnPay");
 //                    request.getRequestDispatcher("/checkout.jsp").forward(request, response);
-                }else if("Momo".equals(paymentMethod)){
+                }else if(paymentMethodId == 2){
                     long amount = (long) (totalCheckout + 30000);
                     String amountStr = String.valueOf(amount);
                     String orderIdStr = orderId +"_"+System.currentTimeMillis();
@@ -261,7 +265,7 @@ public class CheckoutServlet extends HttpServlet {
                         request.getRequestDispatcher("/checkout.jsp").forward(request,response);
                     }
                 }
-                else {
+                else if (paymentMethodId == 1) {
 
                     List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
 //                    cart.getItems().removeAll(checkoutItems);
