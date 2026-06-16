@@ -8,7 +8,7 @@
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<fmt:setLocale value="vi_VN "/>
+<fmt:setLocale value="vi_VN"/>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -135,7 +135,7 @@
                                 <p class="order-price"><fmt:formatNumber value="${order.total_amount}" type="currency" /></p>
                             </div>
                             <div class="order-actions">
-                                <a href="${orderDetailUrl}" class="btn-detail">Chi tiết</a>
+                                <a href="${pageContext.request.contextPath}/order-detail?id=${order.id}" class="btn-detail">Chi tiết</a>
                             </div>
                         </div>
                     </c:forEach>

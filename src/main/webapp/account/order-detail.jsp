@@ -47,6 +47,8 @@
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
+    request.setAttribute("order", order);
+    request.setAttribute("orderItems", orderItems);
     String statusClass = "";
     String statusText = order.getOrder_status();
     if ("Pending".equalsIgnoreCase(statusText)) {
