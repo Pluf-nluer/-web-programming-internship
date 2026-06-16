@@ -257,7 +257,7 @@
                                             Mua lại
                                         </a>
 
-                                        <a href="${pageContext.request.contextPath}/order-review?id=<%= order.getId() %>" class="btn-action btn-detail">
+                                        <a href="${pageContext.request.contextPath}/order-review?orderId=<%= order.getId() %>" class="btn-action btn-detail">
                                             Đánh giá
                                         </a>
                                     <% } %>

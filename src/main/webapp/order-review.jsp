@@ -54,18 +54,10 @@
                         </div>
                     </div>
 
-                    <c:choose>
-                        <c:when test="${item.isReviewed}"> <button type="button" class="product-action-btn reviewed-btn" disabled style="background-color: #bdc3c7; color: #7f8c8d; cursor: not-allowed;">
-                            Đã đánh giá
-                        </button>
-                        </c:when>
-                        <c:otherwise>
-                            <button type="button" class="product-action-btn review-btn"
-                                    onclick="selectProduct('${item.productId}', '${item.product.name}')">
-                                Đánh giá
-                            </button>
-                        </c:otherwise>
-                    </c:choose>
+                    <button type="button" class="product-action-btn review-btn"
+                            onclick="selectProduct('${item.productId}', '${item.product.name}')">
+                        Đánh giá
+                    </button>
                 </div>
             </c:forEach>
         </div>
