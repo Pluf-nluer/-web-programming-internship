@@ -91,41 +91,7 @@
             </c:if>
         </main>
         <div class="sidebar">
-            <div class="news-category">
-                <h2>Danh mục</h2>
-                <ul>
-                    <li>
-                        <a href="#">
-                            <span class="items">Phòng ăn</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="items">Trà - cà phê</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="items">Nồi sứ dưỡng sinh</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="items">Sứ dưỡng sinh</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="items">Phụ kiện bàn ăn</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="items">Sứ nghệ thuật</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+
             <div class="news-hot">
                     <h2>Tin tức nổi bậc</h2>
                     <div class="post-list">
@@ -167,7 +133,7 @@
 
         <h3 id="searchTitle">Sản phẩm gợi ý</h3>
 
-        <div class="search-results-list">
+        <div class="search-results-list" id="searchResultArea">
         </div>
     </div>
 </div>

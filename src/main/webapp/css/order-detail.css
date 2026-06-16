@@ -147,8 +147,8 @@
 }
 
 .invoice-data-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 20px;
     margin-bottom: 25px;
 }
@@ -717,7 +717,7 @@
 }
 
 .summary-value {
-    color: #4e342e;
+    color: #c0392b;
     font-weight: 600;
 }
 
@@ -910,11 +910,17 @@
     }
 
     .invoice-footer-grid {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 25px;
+
     }
 
     .invoice-data-grid {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+
     }
 
     .invoice-data-row {
@@ -1074,4 +1080,9 @@
         border: 1px solid #e0e0e0;
         page-break-inside: avoid;
     }
+}
+.invoice-footer-row{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }

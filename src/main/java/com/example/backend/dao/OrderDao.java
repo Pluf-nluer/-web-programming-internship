@@ -267,4 +267,52 @@ public class OrderDao {
             return false;
         }
     }
+    public int getTotalOrder(int id){ //lấy tổng số lượng dựa theo id của khách
+        String sql = "select count(*) from orders where user_id=?";
+        try (Connection con = DBConnection.getConnection();
+            PreparedStatement pre = con.prepareStatement(sql)){
+            pre.setInt(1,id);
+            try (ResultSet re = pre.executeQuery()){
+                if(re.next()){
+                    return re.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    public List<Order> getOrdersByUserId(int id, int offset, int limit){
+        List<Order> list = new ArrayList<>();
+        String sql = "select * from orders where user_id = ? order by created_at desc limit ? offset ?";
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement pre = con.prepareStatement(sql)){
+            pre.setInt(1,id);
+            pre.setInt(2,limit);
+            pre.setInt(3,offset);
+            ResultSet re = pre.executeQuery();
+            while(re.next()){
+                Order o = new Order();
+                o.setId(re.getInt("id"));
+                o.setUser_id(re.getInt("user_id"));
+                o.setShipping_name(re.getString("shipping_name"));
+                o.setShipping_phone(re.getString("shipping_phone"));
+                o.setShipping_address(re.getString("shipping_address"));
+                o.setNote(re.getString("note"));
+                o.setShipping_fee(re.getDouble("shipping_fee"));
+                o.setTotal_amount(re.getDouble("total_amount"));
+                o.setOrder_status(re.getString("order_status"));
+                o.setEstimated_delivery_date(re.getDate("estimated_delivery_date"));
+                o.setCreated_at(re.getTimestamp("created_at"));
+                o.setUpdated_at(re.getTimestamp("updated_at"));
+
+                list.add(o);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 }

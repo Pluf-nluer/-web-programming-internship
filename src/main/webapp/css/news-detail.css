@@ -132,6 +132,7 @@ img {
     width: 100%;
     object-fit: cover;
     border-radius: 5%;
+    aspect-ratio: 16 / 9;
 }
 
 .news-text {
@@ -174,4 +175,12 @@ img {
 
 .read-more:hover {
     text-decoration: underline;
+}
+
+.post-image-wrapper .post-featured-image {
+    width: 100%;
+    max-height: 475px;
+    object-fit: cover;
+    border-radius: 5%;
+    margin-bottom: 20px;
 }
