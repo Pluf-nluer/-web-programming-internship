@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 
 public class Order {
     private int id;
-    
+    private int payment_method_id;
     private int user_id;
     private String shipping_name;
     private String shipping_phone;
@@ -21,9 +21,10 @@ public class Order {
     public Order() {
     }
 
-    public Order(int id, int user_id, String shipping_name, String shipping_phone, String shipping_address, String note, double shipping_fee, double total_amount, String order_status, Date estimated_delivery_date, Timestamp created_at, Timestamp updated_at) {
+    public Order(int id, int user_id, int payment_method_id, String shipping_name, String shipping_phone, String shipping_address, String note, double shipping_fee, double total_amount, String order_status, Date estimated_delivery_date, Timestamp created_at, Timestamp updated_at) {
         this.id = id;
         this.user_id = user_id;
+        this.payment_method_id = payment_method_id;
         this.shipping_name = shipping_name;
         this.shipping_phone = shipping_phone;
         this.shipping_address = shipping_address;
@@ -42,6 +43,14 @@ public class Order {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getPayment_method_id() {
+        return payment_method_id;
+    }
+
+    public void setPayment_method_id(int payment_method_id) {
+        this.payment_method_id = payment_method_id;
     }
 
     public int getUser_id() {

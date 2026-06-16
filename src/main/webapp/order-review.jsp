@@ -14,14 +14,14 @@
 
 <body>
 <div class="container">
-    <button class="close-btn" onclick="window.location.href='${pageContext.request.contextPath}/account/orders'" title="Đóng">
+    <button class="close-btn" onclick="window.location.href='${pageContext.request.contextPath}/account/order.jsp'" title="Đóng">
         <i class="bi bi-x"></i>
     </button>
 
     <div class="header">
         <div class="container-header">
             <a href="${pageContext.request.contextPath}/index.jsp" class="logo">
-                <img src="https://suncraft.com.vn/suncraft/Suncraft_website_Inf/suncraft_logo/e6e59529-b1df-4676-a5b2-f3757e67957e.png" alt="Suncraft Logo">
+                <img src="https://thesuncraft.com/wp-content/webp-express/webp-images/uploads/2024/10/logo-thesuncraft.png.webp" alt="Suncraft Logo">
             </a>
             <h1>Đánh giá đơn hàng</h1>
         </div>
@@ -53,10 +53,19 @@
                             <span class="product-quantity">× ${item.quantity}</span>
                         </div>
                     </div>
-                    <button type="button" class="product-action-btn review-btn"
-                            onclick="selectProduct('${item.productId}', '${item.product.name}')">
-                        Đánh giá
-                    </button>
+
+                    <c:choose>
+                        <c:when test="${item.isReviewed}"> <button type="button" class="product-action-btn reviewed-btn" disabled style="background-color: #bdc3c7; color: #7f8c8d; cursor: not-allowed;">
+                            Đã đánh giá
+                        </button>
+                        </c:when>
+                        <c:otherwise>
+                            <button type="button" class="product-action-btn review-btn"
+                                    onclick="selectProduct('${item.productId}', '${item.product.name}')">
+                                Đánh giá
+                            </button>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </c:forEach>
         </div>

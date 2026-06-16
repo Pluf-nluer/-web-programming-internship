@@ -241,10 +241,12 @@
                                     <span class="total-amount"><%= currencyFormat.format(order.getTotal_amount()) %></span>
                                 </div>
                                 <div class="order-actions">
-                                    <a href="order-review?id=<%= order.getId() %>" class="btn-action btn-detail">
-                                        Đánh giá
-                                    </a>
-                                    <a href="order-detail.jsp?id=<%= order.getId() %>" class="btn-action btn-detail">
+                                    <c:if test="${order.statusClass == 'completed'}">
+                                        <a href="${reviewUrl}" class="btn-action btn-detail">
+                                            Đánh giá
+                                        </a>
+                                    </c:if>
+                                    <a href="${orderDetailUrl}" class="btn-action btn-detail">
                                         <i class="fa-solid fa-eye"></i>
                                         Xem chi tiết
                                     </a>

@@ -112,6 +112,10 @@
               </div>
               <hr>
               <ul>
+                <c:if test="${sessionScope.user.role == 'admin'}">
+                  <li><a href="${pageContext.request.contextPath}/admin/dashboard"><i
+                          class="fa-solid fa-user-gear"></i> Trang quản lý</a></li>
+                </c:if>
                 <li><a href="${pageContext.request.contextPath}/account/dashboard.jsp"><i
                     class="fa-regular fa-address-card"></i> Thông tin cá nhân</a></li>
                 <li><a href="${pageContext.request.contextPath}/logout" class="logout-link" onclick="return confirm('Bạn có chắc muốn đăng xuất?')"><i

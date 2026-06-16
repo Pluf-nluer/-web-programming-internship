@@ -104,7 +104,14 @@
                         </div>
                         <div class="invoice-data-row">
                             <span>Phương thức</span>
-                            <strong>Thanh toán khi nhận hàng</strong>
+                            <strong>
+                                <c:choose>
+                                    <c:when test="${order.payment_method_id == 1}">Thanh toán khi nhận hàng (COD)</c:when>
+                                    <c:when test="${order.payment_method_id == 2}">Ví điện tử MoMo</c:when>
+                                    <c:when test="${order.payment_method_id == 3}">Cổng thanh toán VNPAY</c:when>
+                                    <c:otherwise>Chưa xác định</c:otherwise>
+                                </c:choose>
+                            </strong>
                         </div>
                     </section>
 
