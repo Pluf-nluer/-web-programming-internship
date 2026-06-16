@@ -99,5 +99,12 @@ public class ProductService {
         productDAO.deleteProduct(id);
     }
 
+    public List<Product> searchProductsWithPagination(String keyword, int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return productDAO.searchProductsWithPagination(keyword, offset, pageSize);
+    }
 
+    public int countSearchProducts(String keyword) {
+        return productDAO.countSearchProducts(keyword);
+    }
 }

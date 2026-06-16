@@ -20,14 +20,14 @@
       <span>Bảng điều khiển</span>
     </a>
 
-    <a href="${pageContext.request.contextPath}/account/order.jsp"
-       class="menu-item ${fn:contains(currentUri, '/account/order') ? 'active' : ''}">
+    <a href="${pageContext.request.contextPath}/user-orders"
+       class="menu-item ${fn:contains(currentUri, 'user-orders') ? 'active' : ''}">
       <i class="fa-solid fa-box"></i>
       <span>Đơn hàng</span>
     </a>
 
-    <a href="${pageContext.request.contextPath}/account/wishlist.jsp"
-       class="menu-item ${fn:contains(currentUri, 'wishlist.jsp') ? 'active' : ''}">
+    <a href="${pageContext.request.contextPath}/wishlist"
+       class="menu-item ${fn:contains(currentUri, 'wishlist') ? 'active' : ''}">
       <i class="fa-solid fa-heart"></i>
       <span>Sản phẩm yêu thích</span>
     </a>

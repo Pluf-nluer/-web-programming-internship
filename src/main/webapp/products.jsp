@@ -68,6 +68,12 @@
                                 </c:if>
 
                                 <img src="${p.imageUrl}" alt="${p.name}">
+
+                                <button type="button" class="btn-wishlist-toggle" data-pid="${p.id}"
+                                        onclick="toggleWishlist(event, this)"
+                                        style="position: absolute; top: 10px; right: 10px; background: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10;">
+                                    <i class="fa-regular fa-heart" style="color: #e74c3c; font-size: 1.1rem;"></i>
+                                </button>
                             </div>
                             <c:if test="${p.discountPercent > 0 && not empty p.endSale}">
                                 <div class="countdown-container" data-endtime="${p.endSale}">
@@ -215,6 +221,48 @@
 
         startCountdowns();
     });
+</script>
+<script>
+    function toggleWishlist(event, button) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const productId = button.getAttribute("data-pid");
+        const icon = button.querySelector("i");
+
+        const isAdding = icon.classList.contains("fa-regular");
+        const action = isAdding ? "add" : "remove";
+
+        const params = new URLSearchParams();
+        params.append("action", action);
+        params.append("productId", productId);
+
+        fetch("${pageContext.request.contextPath}wishlist", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params
+        })
+            .then(res => res.text())
+            .then(data => {
+                if (data === "success") {
+                    if (isAdding) {
+                        icon.classList.remove("fa-regular");
+                        icon.classList.add("fa-solid");
+                        alert("Đã thêm vào danh sách ưa thích!");
+                    } else {
+                        icon.classList.remove("fa-solid");
+                        icon.classList.add("fa-regular");
+                        alert("Đã xóa khỏi danh sách ưa thích!");
+                    }
+                } else if (data === "unauthorized") {
+                    alert("Vui lòng đăng nhập để sử dụng chức năng này.");
+                    window.location.href = "${pageContext.request.contextPath}/login";
+                } else {
+                    alert("Có lỗi xảy ra, vui lòng thử lại.");
+                }
+            })
+            .catch(err => console.error("Lỗi:", err));
+    }
 </script>
 </body>
 </html>

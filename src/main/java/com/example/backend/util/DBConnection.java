@@ -7,8 +7,8 @@ public class DBConnection {
 //    private static final String URL = "jdbc:mysql://mysql:3306/web_shop";
     private static final String URL = "jdbc:mysql://localhost:3306/web_shop";
     private static final String USER = "root";
-    private static final String PASS = "12345";
-//    private static final String PASS = "";
+//    private static final String PASS = "12345";
+    private static final String PASS = "";
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

@@ -41,8 +41,13 @@ public class ProductListServlet extends HttpServlet {
 
         try {
             if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
-                productList = productService.searchProducts(searchKeyword);
+                productList = productService.searchProductsWithPagination(searchKeyword,page, pageSize);
                 request.setAttribute("title", "Tìm kiếm: " + searchKeyword);
+
+                int totalSearchProducts = productService.countSearchProducts(searchKeyword);
+                totalPages = (int) Math.ceil((double) totalSearchProducts / pageSize);
+
+                request.setAttribute("title", "Tìm kiếm từ khóa: " + searchKeyword);
             } else if (categoryIdStr != null && !categoryIdStr.trim().isEmpty()) {
                 try {
                     int cid = Integer.parseInt(categoryIdStr);

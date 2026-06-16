@@ -503,4 +503,77 @@ public class ProductDAO {
         }
         return list;
     }
+
+    public List<Product> searchProductsWithPagination(String keyword, int offset, int limit) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT p.*, " +
+                "(SELECT pi.image_url FROM product_images pi WHERE pi.product_id = p.id LIMIT 1) AS image_url, " +
+                "s.discount_percent, s.end_sale " +
+                "FROM products p " +
+                "LEFT JOIN product_categories pc ON p.category_id = pc.id " +
+                "LEFT JOIN sale s ON pc.sale_id = s.id AND (NOW() BETWEEN s.start_sale AND s.end_sale) " +
+                "WHERE p.name LIKE ? AND p.status = 'active' " +
+                "ORDER BY p.id LIMIT ?, ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + keyword + "%");
+            ps.setInt(2, offset);
+            ps.setInt(3, limit);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Product p = mapResultSetToProduct(rs);
+                    p.setDiscountPercent(rs.getDouble("discount_percent"));
+                    p.setEndSale(rs.getTimestamp("end_sale"));
+                    list.add(p);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int countSearchProducts(String keyword) {
+        String sql = "SELECT COUNT(*) FROM products WHERE name LIKE ? AND status = 'active'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + keyword + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Product> getWishlistProductsByUserId(int userId) {
+        List<Product> list = new ArrayList<>();
+        String sql = "SELECT p.*, " +
+                "(SELECT pi.image_url FROM product_images pi WHERE pi.product_id = p.id LIMIT 1) AS image_url " +
+                "FROM wishlists w " +
+                "JOIN products p ON w.pid = p.id " +
+                "WHERE w.user_id = ? AND p.status = 'active' " +
+                "ORDER BY w.create_at DESC";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToProduct(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }
