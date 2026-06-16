@@ -6,6 +6,8 @@
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -32,6 +34,8 @@
     List<Order> orders = orderDao.getOrdersByUserId(user.getId());
     int totalOrders = orders.size();
 
+    request.setAttribute("orders", orders);
+    request.setAttribute("totalOrders", totalOrders);
     List<Order> recentOrders = orders.size() > 3 ? orders.subList(0, 3) : orders;
 
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
@@ -80,17 +84,39 @@
                     <a href="${pageContext.request.contextPath}/account/order.jsp" class="view-all">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
                 <div class="orders-list">
-                    <% if (recentOrders == null || recentOrders.isEmpty()) { %>
+                    <c:if test="${empty orders}">
                         <div class="empty-state">
                             <i class="fa-solid fa-box-open"></i>
                             <p>Bạn chưa có đơn hàng nào</p>
                             <a href="${pageContext.request.contextPath}/products" class="btn-shop">Mua sắm ngay</a>
                         </div>
                     </c:if>
+                    <c:if test="${not empty orders}">
                     <c:forEach var="order" items="${orders}" end="2">
-                        <c:url var="orderDetailUrl" value="/account/order-detail.jsp">
+                        <c:url var="orderDetailUrl" value="/order-detail">
                             <c:param name="id" value="${order.id}" />
                         </c:url>
+                        <c:set var="statusClass" value="" />
+                        <c:set var="statusText" value="${order.order_status}" />
+
+                        <c:choose>
+                            <c:when test="${order.order_status == 'Pending'}">
+                                <c:set var="statusClass" value="pending" />
+                                <c:set var="statusText" value="Chờ xác nhận" />
+                            </c:when>
+                            <c:when test="${order.order_status == 'Shipping'}">
+                                <c:set var="statusClass" value="shipping" />
+                                <c:set var="statusText" value="Đang giao" />
+                            </c:when>
+                            <c:when test="${order.order_status == 'Completed'}">
+                                <c:set var="statusClass" value="completed" />
+                                <c:set var="statusText" value="Hoàn thành" />
+                            </c:when>
+                            <c:when test="${order.order_status == 'Cancelled'}">
+                                <c:set var="statusClass" value="cancelled" />
+                                <c:set var="statusText" value="Đã hủy" />
+                            </c:when>
+                        </c:choose>
                         <div class="order-item">
                             <div class="order-info">
                                 <h4>Đơn hàng #${order.id}</h4>
@@ -108,6 +134,7 @@
                             </div>
                         </div>
                     </c:forEach>
+                    </c:if>
                 </div>
             </div>
         </div>
