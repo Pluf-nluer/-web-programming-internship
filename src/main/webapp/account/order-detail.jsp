@@ -7,6 +7,10 @@
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -14,7 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/order-detail.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/order-detail.css?v=2">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
     <title>Chi tiết đơn hàng</title>
@@ -43,6 +47,8 @@
     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
+    request.setAttribute("order", order);
+    request.setAttribute("orderItems", orderItems);
     String statusClass = "";
     String statusText = order.getOrder_status();
     if ("Pending".equalsIgnoreCase(statusText)) {
@@ -90,6 +96,50 @@
                 </div>
             </div>
 
+            <div class="order-tracking-wrapper">
+                <c:choose>
+                    <c:when test="${order.order_status =='Cancelled'}">
+                        <div class="tracking-cancelled">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                            <h2>Đơn hàng bị hủy</h2>
+                            <p>Rất tiếc, đơn hàng này đã bị hủy.</p>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <%--Pending,shipping,completed --%>
+                        <c:set var="progressWidth" value="0"/>
+                        <c:set var="step1" value="true"/>
+                        <c:set var="step2" value="false"/>
+                        <c:set var="step3" value="false"/>
+                        <c:if test="${order.order_status} == 'Shipping'">
+                            <c:set var="step1" value="true"/>
+                            <c:set var="progressWidth" value="50"/>
+                        </c:if>
+                        <c:if test="${order.order_status} == 'Completed'">
+                            <c:set var="step2" value="true"/>
+                            <c:set var="step3" value="true"/>
+                            <c:set var="progressWidth" value="100"/>
+                        </c:if>
+                        <div class="tracking-timeline">
+                            <div class="timeline-track">
+                                <div class="timeline-progress" style="width: ${progressWidth}%;"></div>
+                            </div>
+                        <div class="tracking-step ${step1?'active':''}">
+                            <div class="step-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                            <div class="step-label">Đã xác nhận</div>
+                        </div>
+                        <div class="tracking-step ${step2?'active':''}">
+                            <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                            <div class="step-label">Đang giao hàng</div>
+                        </div>
+                        <div class="tracking-step ${step3?'active':''}">
+                            <div class="step-icon"><i class="fa-solid fa-house-circle-check"></i></div>
+                            <div class="step-label">Giao hàng thành công</div>
+                        </div>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+            </div>
             <div class="invoice-document">
                 <div class="invoice-data-grid">
                     <section class="invoice-data-card">
@@ -163,8 +213,8 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td><fmt:formatNumber value="${item.product.price}" type="currency" /></td>
-                                    <td>${item.quantity}</td>
+                                    <td class="invoice-index"><fmt:formatNumber value="${item.product.price}" type="currency" /></td>
+                                    <td class="invoice-index">${item.quantity}</td>
                                     <td class="invoice-line-total"><fmt:formatNumber value="${item.totalPrice}" type="currency" /></td>
                                 </tr>
                             </c:forEach>
@@ -173,6 +223,7 @@
                     </div>
                 </div>
 
+                <div class="invoice-footer-row">
                 <div class="invoice-footer-grid">
                     <div class="invoice-note-box">
                         <h3><i class="fa-solid fa-note-sticky"></i> Ghi chú hóa đơn</h3>
@@ -203,19 +254,21 @@
                             <span>Thanh toán khi nhận hàng</span>
                         </div>
                     </div>
+                    </div>
+                    <div class="action-section">
+                        <a href="${pageContext.request.contextPath}/user-orders" class="btn-secondary">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Quay lại
+                        </a>
+                        <a href="${pageContext.request.contextPath}/contact.jsp" class="btn-support">
+                            <i class="fa-solid fa-headset"></i>
+                            Liên hệ hỗ trợ
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="action-section">
-                <a href="${pageContext.request.contextPath}/account/order.jsp" class="btn-secondary">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Quay lại
-                </a>
-                <a href="${pageContext.request.contextPath}/contact.jsp" class="btn-support">
-                    <i class="fa-solid fa-headset"></i>
-                    Liên hệ hỗ trợ
-                </a>
-            </div>
+
         </div>
     </div>
 </main>

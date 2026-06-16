@@ -6,6 +6,9 @@
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN"/>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -21,22 +24,7 @@
 
 <jsp:include page="/compenents/header.jsp" />
 
-<%
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-        response.sendRedirect(request.getContextPath() + "/login");
-        return;
-    }
 
-    OrderDao orderDao = new OrderDao();
-    List<Order> orders = orderDao.getOrdersByUserId(user.getId());
-    int totalOrders = orders.size();
-
-    List<Order> recentOrders = orders.size() > 3 ? orders.subList(0, 3) : orders;
-
-    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-%>
 <main class="dashboard-main">
     <div class="dashboard-container">
 
@@ -61,36 +49,79 @@
                         <i class="fa-solid fa-shopping-bag"></i>
                     </div>
                     <div class="stat-info">
-                        <h3><%= totalOrders %></h3>
+                        <h3>${ totalOrders }</h3>
                         <p>Đơn hàng</p>
                     </div>
                     <div class="stat-decoration">
                         <i class="fa-solid fa-certificate"></i>
                     </div>
                 </div>
+                <div class="stat-card card-spending">
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>
+                            <c:choose>
+                                <c:when test="${totalSpentThisMonth>0}">
+                                    <fmt:formatNumber value="${totalSpentThisMonth}" type="currency"/>
+                                </c:when>
+                                <c:otherwise>
+                                    0 ₫
+                                </c:otherwise>
+                            </c:choose>
+                        </h3>
+                        <p>Chi tiêu tháng ${currentMonth}</p>
+                    </div>
+                    <div class="stat-decoration">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                </div>
             </div>
 
-            
+
             <div class="section-container">
                 <div class="section-header">
                     <h2>
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         Đơn hàng gần đây
                     </h2>
-                    <a href="${pageContext.request.contextPath}/account/order.jsp" class="view-all">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="${pageContext.request.contextPath}/user-orders" class="view-all">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
                 <div class="orders-list">
-                    <% if (recentOrders == null || recentOrders.isEmpty()) { %>
+                    <c:if test="${empty orders}">
                         <div class="empty-state">
                             <i class="fa-solid fa-box-open"></i>
                             <p>Bạn chưa có đơn hàng nào</p>
                             <a href="${pageContext.request.contextPath}/products" class="btn-shop">Mua sắm ngay</a>
                         </div>
                     </c:if>
+                    <c:if test="${not empty orders}">
                     <c:forEach var="order" items="${orders}" end="2">
-                        <c:url var="orderDetailUrl" value="/account/order-detail.jsp">
+                        <c:url var="orderDetailUrl" value="/order-detail">
                             <c:param name="id" value="${order.id}" />
                         </c:url>
+                        <c:set var="statusClass" value="" />
+                        <c:set var="statusText" value="${order.order_status}" />
+
+                        <c:choose>
+                            <c:when test="${order.order_status == 'Pending'}">
+                                <c:set var="statusClass" value="pending" />
+                                <c:set var="statusText" value="Chờ xác nhận" />
+                            </c:when>
+                            <c:when test="${order.order_status == 'Shipping'}">
+                                <c:set var="statusClass" value="shipping" />
+                                <c:set var="statusText" value="Đang giao" />
+                            </c:when>
+                            <c:when test="${order.order_status == 'Completed'}">
+                                <c:set var="statusClass" value="completed" />
+                                <c:set var="statusText" value="Hoàn thành" />
+                            </c:when>
+                            <c:when test="${order.order_status == 'Cancelled'}">
+                                <c:set var="statusClass" value="cancelled" />
+                                <c:set var="statusText" value="Đã hủy" />
+                            </c:when>
+                        </c:choose>
                         <div class="order-item">
                             <div class="order-info">
                                 <h4>Đơn hàng #${order.id}</h4>
@@ -104,10 +135,11 @@
                                 <p class="order-price"><fmt:formatNumber value="${order.total_amount}" type="currency" /></p>
                             </div>
                             <div class="order-actions">
-                                <a href="${orderDetailUrl}" class="btn-detail">Chi tiết</a>
+                                <a href="${pageContext.request.contextPath}/order-detail?id=${order.id}" class="btn-detail">Chi tiết</a>
                             </div>
                         </div>
                     </c:forEach>
+                    </c:if>
                 </div>
             </div>
         </div>
