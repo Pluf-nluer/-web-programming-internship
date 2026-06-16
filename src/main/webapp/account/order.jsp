@@ -6,7 +6,6 @@
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
 <%@ page import="java.text.SimpleDateFormat" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -258,10 +257,9 @@
                                             Mua lại
                                         </a>
 
-                                            <a href="${pageContext.request.contextPath}/order-review?id=<%= order.getId() %>" class="btn-action btn-detail">
-                                                Đánh giá
-                                            </a>
-
+                                        <a href="${pageContext.request.contextPath}/order-review?id=<%= order.getId() %>" class="btn-action btn-detail">
+                                            Đánh giá
+                                        </a>
                                     <% } %>
                                 </div>
                             </div>
@@ -269,36 +267,6 @@
                         <% } %>
                     <% } %>
                 </div>
-                <c:if test="${not empty totalPages && totalPages > 1}">
-                    <div class="pagination-area">
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination">
-                                <c:if test="${currentPageNumber > 1}">
-                                    <li class="page-item">
-                                        <a class="page-link" href="${pageContext.request.contextPath}/user-orders?page=${currentPageNumber - 1}">&laquo;</a>
-                                    </li>
-                                </c:if>
-                                <c:forEach var="i" begin="1" end="${totalPages}">
-                                    <c:choose>
-                                        <c:when test="${i == 1 || i == totalPages || (i >= currentPageNumber - 2 && i <= currentPageNumber + 2)}">
-                                            <li class="page-item ${currentPageNumber == i ? 'active' : ''}">
-                                                <a class="page-link" href="${pageContext.request.contextPath}/user-orders?page=${i}">${i}</a>
-                                            </li>
-                                        </c:when>
-                                        <c:when test="${i == currentPageNumber - 3 || i == currentPageNumber + 3}">
-                                            <li class="page-item disabled"><span class="page-link">...</span></li>
-                                        </c:when>
-                                    </c:choose>
-                                </c:forEach>
-                                <c:if test="${currentPageNumber < totalPages}">
-                                    <li class="page-item">
-                                        <a class="page-link" href="${pageContext.request.contextPath}/user-orders?page=${currentPageNumber + 1}">&raquo;</a>
-                                    </li>
-                                </c:if>
-                            </ul>
-                        </nav>
-                    </div>
-                </c:if>
             </div>
         </div>
     </div>
