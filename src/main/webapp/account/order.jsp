@@ -242,9 +242,7 @@
                                     <span class="total-amount"><%= currencyFormat.format(order.getTotal_amount()) %></span>
                                 </div>
                                 <div class="order-actions">
-                                    <a href="order-review?id=<%= order.getId() %>" class="btn-action btn-detail">
-                                        Đánh giá
-                                    </a>
+
                                     <a href="${pageContext.request.contextPath}/order-detail?id=<%= order.getId() %>" class="btn-action btn-detail">
                                         <i class="fa-solid fa-eye"></i>
                                         Xem chi tiết
@@ -258,6 +256,9 @@
                                         <a href="${pageContext.request.contextPath}/shopping-cart.jsp" class="btn-action btn-rebuy">
                                             <i class="fa-solid fa-refresh"></i>
                                             Mua lại
+                                        </a>
+                                        <a href="${pageContext.request.contextPath}/order-review?id=<%= order.getId() %>" class="btn-action btn-detail">
+                                            Đánh giá
                                         </a>
                                     <% } %>
                                 </div>
