@@ -909,3 +909,20 @@ main{
     outline: 2px solid #c0392b;
     outline-offset: 2px;
 }
+.card-spending {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+}
+
+.card-spending .stat-icon {
+    color: #27ae60;
+    background: white;
+}
+
+.card-spending .stat-info h3 {
+    color: white;
+}
+
+.card-spending .stat-info p {
+    color: rgba(255, 255, 255, 0.9);
+}

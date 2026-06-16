@@ -103,7 +103,7 @@
             <c:if test="${empty avatarName}">
               <c:set var="avatarName" value="U" />
             </c:if>
-            <a href="${pageContext.request.contextPath}/account/dashboard.jsp" class="header-avatar-link" aria-label="Tai khoan">
+            <a href="${pageContext.request.contextPath}/dashboard" class="header-avatar-link" aria-label="Tai khoan">
               <span class="header-avatar"><c:out value="${fn:toUpperCase(fn:substring(avatarName, 0, 1))}" /></span>
             </a>
             <div class="user-dropdown">
@@ -112,7 +112,7 @@
               </div>
               <hr>
               <ul>
-                <li><a href="${pageContext.request.contextPath}/account/dashboard.jsp"><i
+                <li><a href="${pageContext.request.contextPath}/dashboard"><i
                     class="fa-regular fa-address-card"></i> Thông tin cá nhân</a></li>
                 <li><a href="${pageContext.request.contextPath}/logout" class="logout-link" onclick="return confirm('Bạn có chắc muốn đăng xuất?')"><i
                     class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a></li>

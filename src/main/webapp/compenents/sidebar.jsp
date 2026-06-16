@@ -14,7 +14,7 @@
   </div>
 
   <nav class="sidebar-menu">
-    <a href="${pageContext.request.contextPath}/account/dashboard.jsp"
+    <a href="${pageContext.request.contextPath}/dashboard"
        class="menu-item ${fn:contains(currentUri, 'dashboard.jsp') ? 'active' : ''}">
       <i class="fa-solid fa-gauge"></i>
       <span>Bảng điều khiển</span>

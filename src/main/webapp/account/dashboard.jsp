@@ -8,6 +8,7 @@
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:setLocale value="vi_VN "/>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -23,24 +24,7 @@
 
 <jsp:include page="/compenents/header.jsp" />
 
-<%
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-        response.sendRedirect(request.getContextPath() + "/login");
-        return;
-    }
 
-    OrderDao orderDao = new OrderDao();
-    List<Order> orders = orderDao.getOrdersByUserId(user.getId());
-    int totalOrders = orders.size();
-
-    request.setAttribute("orders", orders);
-    request.setAttribute("totalOrders", totalOrders);
-    List<Order> recentOrders = orders.size() > 3 ? orders.subList(0, 3) : orders;
-
-    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-%>
 <main class="dashboard-main">
     <div class="dashboard-container">
 
@@ -65,23 +49,44 @@
                         <i class="fa-solid fa-shopping-bag"></i>
                     </div>
                     <div class="stat-info">
-                        <h3><%= totalOrders %></h3>
+                        <h3>${ totalOrders }</h3>
                         <p>Đơn hàng</p>
                     </div>
                     <div class="stat-decoration">
                         <i class="fa-solid fa-certificate"></i>
                     </div>
                 </div>
+                <div class="stat-card card-spending">
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>
+                            <c:choose>
+                                <c:when test="${totalSpentThisMonth>0}">
+                                    <fmt:formatNumber value="${totalSpentThisMonth}" type="currency"/>
+                                </c:when>
+                                <c:otherwise>
+                                    0 ₫
+                                </c:otherwise>
+                            </c:choose>
+                        </h3>
+                        <p>Chi tiêu tháng ${currentMonth}</p>
+                    </div>
+                    <div class="stat-decoration">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                </div>
             </div>
 
-            
+
             <div class="section-container">
                 <div class="section-header">
                     <h2>
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         Đơn hàng gần đây
                     </h2>
-                    <a href="${pageContext.request.contextPath}/account/order.jsp" class="view-all">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="${pageContext.request.contextPath}/user-orders" class="view-all">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
                 <div class="orders-list">
                     <c:if test="${empty orders}">
