@@ -1,18 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-
-<c:if test="${empty sessionScope.user}">
-    <c:redirect url="${pageContext.request.contextPath}/login" />
-</c:if>
-<jsp:useBean id="orderDao" class="com.example.backend.dao.OrderDao" scope="request" />
-<c:set var="orders" value="${orderDao.getOrdersByUserId(sessionScope.user.id)}" />
-<c:set var="message" value="${sessionScope.message}" />
-<c:set var="messageType" value="${sessionScope.messageType}" />
-<c:remove var="message" scope="session" />
-<c:remove var="messageType" scope="session" />
-<fmt:setLocale value="vi_VN" />
+<%@ page import="com.example.backend.model.User" %>
+<%@ page import="com.example.backend.model.Order" %>
+<%@ page import="com.example.backend.dao.OrderDao" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.text.NumberFormat" %>
+<%@ page import="java.util.Locale" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -52,14 +45,92 @@
         .toast-error {
             background-color: #e74c3c;
         }
+        .orders-container .pagination-area {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .orders-container .pagination {
+            display: flex;
+            flex-direction: row;
+            list-style: none !important;
+            gap: 5px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .orders-container .page-item .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid #ddd;
+            color: #333;
+            text-decoration: none !important;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .orders-container .page-item.active .page-link {
+            background-color: #8b572a;
+            color: white;
+            border-color: #8b572a;
+        }
+
+        .orders-container .page-item.disabled .page-link {
+            border: none;
+            background: transparent;
+            cursor: default;
+            color: #999;
+        }
+
+        .orders-container .page-item:hover:not(.active):not(.disabled) .page-link {
+            background-color: #f5f5f5;
+            color: #c97a3a;
+            border-color: #c97a3a;
+        }
     </style>
 </head>
 <body>
 <jsp:include page="/compenents/header.jsp" />
 
-<c:if test="${not empty message}">
-    <div id="toast" class="toast-notification toast-${messageType}">
-        <c:out value="${message}" />
+<%
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+
+
+    List<Order> orders = (List<Order>) request.getAttribute("orders");
+    Integer totalOrder = (Integer) request.getAttribute("totalOrders");
+    Integer totalPage = (Integer) request.getAttribute("totalPages");
+    Integer currPage = (Integer) request.getAttribute("currentPageNumber");
+    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+    if (orders == null) {
+        response.sendRedirect(request.getContextPath() + "/user-orders");
+        return;
+    }
+    String message = (String) session.getAttribute("message");
+    String messageType = (String) session.getAttribute("messageType");
+    if (message != null) {
+        session.removeAttribute("message");
+        session.removeAttribute("messageType");
+    }
+%>
+
+<% if (message != null) { %>
+    <div id="toast" class="toast-notification toast-<%= messageType %>">
+        <%= message %>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -70,7 +141,7 @@
             }, 3000);
         });
     </script>
-</c:if>
+<% } %>
 <main class="dashboard-main">
     <div class="dashboard-container">
         <jsp:include page="/compenents/sidebar.jsp" />
@@ -120,71 +191,79 @@
             <div class="orders-container">
                 <div class="orders-header">
                     <h2>Danh sách đơn hàng</h2>
-                    <p class="orders-count">Tổng: <strong>${fn:length(orders)} đơn hàng</strong></p>
+                    <p class="orders-count">Tổng: <strong><%= totalOrder %> đơn hàng</strong></p>
                 </div>
 
                 <div class="orders-list">
-                    <c:if test="${empty orders}">
+                    <% if (orders == null || orders.isEmpty()) { %>
                         <div class="empty-state">
                             <i class="fa-solid fa-box-open"></i>
                             <h3>Bạn chưa có đơn hàng</h3>
                             <p>Hãy bắt đầu mua sắm để tạo đơn hàng mới.</p>
                             <a href="${pageContext.request.contextPath}/products.jsp" class="btn-shop">Mua sắm ngay</a>
                         </div>
-                    </c:if>
-
-                    <c:forEach var="order" items="${orders}">
-                        <c:url var="reviewUrl" value="/order-review">
-                            <c:param name="orderId" value="${order.id}" />
-                        </c:url>
-                        <c:url var="orderDetailUrl" value="/account/order-detail.jsp">
-                            <c:param name="id" value="${order.id}" />
-                        </c:url>
-
-                        <div class="order-card" data-status="${order.statusClass}">
+                    <% } else { %>
+                        <% for (Order order : orders) {
+                            String statusClass = "";
+                            String statusText = order.getOrder_status();
+                            if ("Pending".equalsIgnoreCase(statusText)) {
+                                statusClass = "pending";
+                                statusText = "Chờ xác nhận";
+                            } else if ("Shipping".equalsIgnoreCase(statusText)) {
+                                statusClass = "shipping";
+                                statusText = "Đang giao";
+                            } else if ("Completed".equalsIgnoreCase(statusText)) {
+                                statusClass = "completed";
+                                statusText = "Hoàn thành";
+                            } else if ("Cancelled".equalsIgnoreCase(statusText)) {
+                                statusClass = "cancelled";
+                                statusText = "Đã hủy";
+                            }
+                        %>
+                        <div class="order-card" data-status="<%= statusClass %>">
                             <div class="order-header">
                                 <div class="order-id-date">
                                     <p class="order-code">
                                         <i class="fa-solid fa-hashtag"></i>
-                                        #${order.id}
+                                        #<%= order.getId() %>
                                     </p>
                                     <p class="order-date">
                                         <i class="fa-regular fa-calendar"></i>
-                                        Ngày đặt: <fmt:formatDate value="${order.created_at}" pattern="dd/MM/yyyy" />
+                                        Ngày đặt: <%= dateFormat.format(order.getCreated_at()) %>
                                     </p>
                                 </div>
-                                <span class="status-badge status-${order.statusClass}"><c:out value="${order.statusText}" /></span>
+                                <span class="status-badge status-<%= statusClass %>"><%= statusText %></span>
                             </div>
 
                             <div class="order-footer">
                                 <div class="order-total">
                                     <span class="total-label">Tổng tiền:</span>
-                                    <span class="total-amount"><fmt:formatNumber value="${order.total_amount}" type="currency" /></span>
+                                    <span class="total-amount"><%= currencyFormat.format(order.getTotal_amount()) %></span>
                                 </div>
                                 <div class="order-actions">
-                                    <a href="${reviewUrl}" class="btn-action btn-detail">
+                                    <a href="order-review?id=<%= order.getId() %>" class="btn-action btn-detail">
                                         Đánh giá
                                     </a>
-                                    <a href="${orderDetailUrl}" class="btn-action btn-detail">
+                                    <a href="order-detail.jsp?id=<%= order.getId() %>" class="btn-action btn-detail">
                                         <i class="fa-solid fa-eye"></i>
                                         Xem chi tiết
                                     </a>
-                                    <c:if test="${order.statusClass == 'pending'}">
-                                        <button onclick="confirmCancel(${order.id})" class="btn-action btn-cancel">
+                                    <% if ("Pending".equalsIgnoreCase(order.getOrder_status())) { %>
+                                        <button onclick="confirmCancel(<%= order.getId() %>)" class="btn-action btn-cancel">
                                             <i class="fa-solid fa-times"></i>
                                             Hủy đơn
                                         </button>
-                                    </c:if>
-                                    <c:if test="${order.statusClass == 'completed'}">
+                                    <% } else if ("Completed".equalsIgnoreCase(order.getOrder_status())) { %>
                                         <a href="${pageContext.request.contextPath}/shopping-cart.jsp" class="btn-action btn-rebuy">
                                             <i class="fa-solid fa-refresh"></i>
                                             Mua lại
                                         </a>
-                                    </c:if>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>
-                    </c:forEach>
+                        <% } %>
+                    <% } %>
                 </div>
             </div>
         </div>

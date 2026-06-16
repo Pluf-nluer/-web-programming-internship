@@ -1,14 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-
-<c:if test="${empty sessionScope.user}">
-    <c:redirect url="${pageContext.request.contextPath}/login" />
-</c:if>
-<jsp:useBean id="orderDao" class="com.example.backend.dao.OrderDao" scope="request" />
-<c:set var="orders" value="${orderDao.getOrdersByUserId(sessionScope.user.id)}" />
-<fmt:setLocale value="vi_VN" />
+<%@ page import="com.example.backend.model.User" %>
+<%@ page import="com.example.backend.model.Order" %>
+<%@ page import="com.example.backend.dao.OrderDao" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.text.NumberFormat" %>
+<%@ page import="java.util.Locale" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -24,16 +21,32 @@
 
 <jsp:include page="/compenents/header.jsp" />
 
+<%
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+
+    OrderDao orderDao = new OrderDao();
+    List<Order> orders = orderDao.getOrdersByUserId(user.getId());
+    int totalOrders = orders.size();
+
+    List<Order> recentOrders = orders.size() > 3 ? orders.subList(0, 3) : orders;
+
+    NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+%>
 <main class="dashboard-main">
     <div class="dashboard-container">
 
         <jsp:include page="/compenents/sidebar.jsp" />
 
         <div class="dashboard-content">
-
+            
             <div class="welcome-section">
                 <div class="welcome-text">
-                    <h1>Xin chào, <c:out value="${sessionScope.user.fullName}" />!</h1>
+                    <h1>Xin chào, ${sessionScope.user.fullName}!</h1>
                     <p>Chào mừng bạn trở lại với cửa hàng đồ thủ công mỹ nghệ</p>
                 </div>
                 <div class="welcome-image">
@@ -41,14 +54,14 @@
                 </div>
             </div>
 
-
+            
             <div class="stats-grid">
                 <div class="stat-card card-orders">
                     <div class="stat-icon">
                         <i class="fa-solid fa-shopping-bag"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>${fn:length(orders)}</h3>
+                        <h3><%= totalOrders %></h3>
                         <p>Đơn hàng</p>
                     </div>
                     <div class="stat-decoration">
@@ -57,7 +70,7 @@
                 </div>
             </div>
 
-
+            
             <div class="section-container">
                 <div class="section-header">
                     <h2>
@@ -67,7 +80,7 @@
                     <a href="${pageContext.request.contextPath}/account/order.jsp" class="view-all">Xem tất cả <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
                 <div class="orders-list">
-                    <c:if test="${empty orders}">
+                    <% if (recentOrders == null || recentOrders.isEmpty()) { %>
                         <div class="empty-state">
                             <i class="fa-solid fa-box-open"></i>
                             <p>Bạn chưa có đơn hàng nào</p>
