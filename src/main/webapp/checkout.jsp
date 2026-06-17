@@ -200,7 +200,7 @@
                         </span>
                     </div>
                     <div class="order-price-bottom">
-                        <a href="${pageContext.request.contextPath}/shopping-cart.jsp" class="back-to-cart">
+                        <a href="${pageContext.request.contextPath}/cart" class="back-to-cart">
                             <span><i class="fa-solid fa-chevron-left"></i> Quay về giỏ hàng</span>
                         </a>
 

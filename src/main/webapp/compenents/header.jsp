@@ -137,7 +137,7 @@
         </a>
       </c:if>
 
-      <a href="${pageContext.request.contextPath}/shopping-cart.jsp" class="icon badge">
+      <a href="${pageContext.request.contextPath}/cart" class="icon badge">
         <i class="fa-solid fa-cart-shopping"></i>
         <span id="header-cart-count">${sessionScope.cart != null ? sessionScope.cart.totalQuantity : 0}</span>
       </a>

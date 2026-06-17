@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -28,7 +29,6 @@
         <div class="container">
             <div class="product-gallery">
                 <div class="product-img" style="position: relative; overflow: hidden; border-radius: 10px;">
-
                     <c:if test="${product.discountPercent > 0}">
                         <div class="sale-badge">
                             -<fmt:formatNumber value="${product.discountPercent * 100}" maxFractionDigits="0"/>%
@@ -50,33 +50,32 @@
                     <div class="prices">
                         <c:choose>
                             <c:when test="${product.discountPercent > 0}">
-                <span class="price" style="color: red; font-weight: bold;">
-                    <fmt:formatNumber value="${product.price * (1 - product.discountPercent)}" type="currency"
-                                      currencySymbol="đ" maxFractionDigits="0"/>
-                </span>
+                                <span class="price" style="color: red; font-weight: bold;">
+                                    <fmt:formatNumber value="${product.price * (1 - product.discountPercent)}" type="currency"
+                                                      currencySymbol="đ" maxFractionDigits="0"/>
+                                </span>
                                 <span class="old-price"
                                       style="text-decoration: line-through; color: #888; margin-left: 10px; font-size: 0.9em;">
-                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="đ"
-                                      maxFractionDigits="0"/>
-                </span>
+                                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="đ"
+                                                      maxFractionDigits="0"/>
+                                </span>
                                 <span class="badge-sale"
                                       style="background: #ff4d4d; color: white; padding: 2px 5px; border-radius: 3px; margin-left: 5px;">
-                    -<fmt:formatNumber value="${product.discountPercent * 100}"/>%
-                </span>
+                                    -<fmt:formatNumber value="${product.discountPercent * 100}"/>%
+                                </span>
                             </c:when>
                             <c:otherwise>
-                <span class="price">
-                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="đ"
-                                      maxFractionDigits="0"/>
-                </span>
+                                <span class="price">
+                                    <fmt:formatNumber value="${product.price}" type="currency" currencySymbol="đ"
+                                                      maxFractionDigits="0"/>
+                                </span>
                             </c:otherwise>
                         </c:choose>
                     </div>
 
                     <c:if test="${product.discountPercent > 0 && not empty product.endSale}">
                         <div class="countdown-container detail-countdown" data-endtime="${product.endSale}">
-                            <span class="countdown-text"><i
-                                    class="fa-regular fa-clock"></i> Khuyến mãi kết thúc sau: </span>
+                            <span class="countdown-text"><i class="fa-regular fa-clock"></i> Khuyến mãi kết thúc sau: </span>
                             <span class="countdown-timer">00:00:00</span>
                         </div>
                     </c:if>
@@ -99,21 +98,11 @@
                 <div class="product-attributes-short">
                     <h3>Thông tin chi tiết</h3>
                     <ul>
-                        <li><strong>Xuất
-                            xứ:</strong> ${not empty product.attribute.origin ? product.attribute.origin : 'Đang cập nhật'}
-                        </li>
-                        <li><strong>Chất
-                            liệu:</strong> ${not empty product.attribute.material ? product.attribute.material : 'Đang cập nhật'}
-                        </li>
-                        <li><strong>Kích
-                            thước:</strong> ${not empty product.attribute.size ? product.attribute.size : 'Đang cập nhật'}
-                        </li>
-                        <li><strong>Trọng
-                            lượng:</strong> ${not empty product.attribute.weight ? product.attribute.weight : 'Đang cập nhật'}
-                        </li>
-                        <li><strong>Màu
-                            sắc:</strong> ${not empty product.attribute.color ? product.attribute.color : 'Đang cập nhật'}
-                        </li>
+                        <li><strong>Xuất xứ:</strong> ${not empty product.attribute.origin ? product.attribute.origin : 'Đang cập nhật'}</li>
+                        <li><strong>Chất liệu:</strong> ${not empty product.attribute.material ? product.attribute.material : 'Đang cập nhật'}</li>
+                        <li><strong>Kích thước:</strong> ${not empty product.attribute.size ? product.attribute.size : 'Đang cập nhật'}</li>
+                        <li><strong>Trọng lượng:</strong> ${not empty product.attribute.weight ? product.attribute.weight : 'Đang cập nhật'}</li>
+                        <li><strong>Màu sắc:</strong> ${not empty product.attribute.color ? product.attribute.color : 'Đang cập nhật'}</li>
                     </ul>
                 </div>
             </div>
@@ -308,94 +297,25 @@
     </div>
 </div>
 
-<div id="cart-modal-overlay">
-    <div class="cart-modal-container">
-        <div class="cart-modal-header">
-            <span><i class="fa-solid fa-cart-shopping"></i> Mua hàng thành công</span>
-            <button id="modal-close-x" class="modal-close-btn">&times;</button>
-        </div>
-
-        <div class="cart-modal-body">
-            <div class="modal-product-info">
-                <img src="https://mia.vn/media/uploads/blog-du-lich/Hang-thu-cong-my-nghe-net-dep-truyen-thong-tai-vung-tau-06-1635702336.jpg"
-                     alt="product-image" id="modal-product-img">
-                <div>
-                    <p id="modal-product-name">Ca trà 0.30 L - Mẫu Đơn - Trắng</p>
-                    <strong id="modal-product-price">108.000đ</strong>
-                </div>
-            </div>
-
-            <p class="modal-cart-status">Giỏ hàng của bạn hiện có ${sessionScope.cart.totalQuantity} sản phẩm</p>
-
-            <div class="modal-actions">
-                <button id="modal-continue-shopping" class="btn-continue">Tiếp tục mua hàng</button>
-                <button id="modal-checkout" class="btn-checkout"><a
-                        href="${pageContext.request.contextPath}/shopping-cart.jsp">Đến giỏ hàng</a></button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script src="${pageContext.request.contextPath}/js/hero-section.js"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-        const openButton = document.querySelector('.product-detail-info .cart button');
-        const modal = document.getElementById('cart-modal-overlay');
-        const closeXBtn = document.getElementById('modal-close-x');
-        const continueShoppingBtn = document.getElementById('modal-continue-shopping');
-
-        function openModal() {
-            if (modal) {
-                modal.classList.add('show');
-            }
-        }
-
-        function closeModal() {
-            if (modal) {
-                modal.classList.remove('show');
-            }
-        }
-
-
-        if (closeXBtn) {
-            closeXBtn.addEventListener('click', closeModal);
-        }
-
-        if (continueShoppingBtn) {
-            continueShoppingBtn.addEventListener('click', closeModal);
-        }
-
-        if (modal) {
-            modal.addEventListener('click', function (e) {
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
-        }
-    });
-</script>
 <script>
     function openTab(evt, tabName) {
-
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("tab-content-item");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].style.display = "none";
         }
 
-
         tablinks = document.getElementsByClassName("tab-link");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
 
-
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
     }
 </script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         function startDetailCountdown() {
@@ -405,7 +325,6 @@
             const endTimeStr = countdownEl.getAttribute("data-endtime");
             if (!endTimeStr) return;
 
-            // Định dạng thời gian từ hệ thống DB sang JS chuẩn
             const endTime = new Date(endTimeStr.replace(/-/g, "/")).getTime();
 
             const timerInterval = setInterval(function() {
