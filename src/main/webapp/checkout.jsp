@@ -57,33 +57,50 @@
                             </small>
                         </div>
 
-                        <div class="form-group">
-                            <label for="address">Địa chỉ</label>
+                        <div class="form-group address-option-group" >
+                            <label>
+                                <input type="radio" name="addressOption" value="saved" id="optionSaved" checked>
+                                Địa chỉ đã lưu
+                            </label>
+                            <label>
+                                <input type="radio" name="addressOption" value="new" id="optionNew">
+                                Nhập địa chỉ mới
+                            </label>
+                        </div>
+                        <div class="form-group" id="savedAddressDiv">
+                            <label for="savedAddressSelect">Chọn địa chỉ đã lưu</label>
+                            <select id="savedAddressSelect">
+                                <option value="">Chưa có địa chỉ lưu sẵn</option>
+                            </select>
+                        </div>
+                        <input type="hidden" id="fullAddressInput" name="address">
+                        <div class="form-group" id="newAddressFields">
+                            <label for="address">Địa chỉ (Số nhà, đường...)</label>
                             <input type="text"  id="address" placeholder="Địa chỉ (Số nhà, đường...)" required
                                    value="${not empty sessionScope.checkoutForm.address ? sessionScope.checkoutForm.address : ''}">
                         </div>
 
-                        <input type="hidden" id="fullAddressInput" name="address">
+
                         <div class="form-group">
                             <label for="province">Tỉnh / Thành phố</label>
-                            <select id="province" name="province" required>
-                                <option value="" disabled  selected }>Chọn Tỉnh / Thành phố</option>
+                            <select id="province" name="province" >
+                                <option value="" disabled  selected >Chọn Tỉnh / Thành phố</option>
 
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="district">Quận / Huyện</label>
-                            <select id="district" name="district"required>
-                                <option value="" disabled   selected }>Chọn Quận / Huyện</option>
+                            <select id="district" name="district">
+                                <option value="" disabled   selected >Chọn Quận / Huyện</option>
 
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label for="ward">Phường / Xã</label>
-                            <select id="ward" name="ward" required>
-                                <option value="" disabled  selected }>Chọn Phường / Xã</option>
+                            <select id="ward" name="ward" >
+                                <option value="" disabled  selected >Chọn Phường / Xã</option>
 
                             </select>
                         </div>
@@ -104,7 +121,7 @@
                             <span>Giao hàng tận nơi</span>
                         </label>
                         <div class="shipping-price">
-                            <span>30.000 đ</span>
+                            <span id="shippingFeeDisplay1">30.000 đ</span>
                         </div>
                     </div>
                 </div>
@@ -188,14 +205,14 @@
                     </div>
                     <div class="order-total-bottom">
                         <span>Phí vận chuyển</span>
-                        <span class="price">30.000 đ</span>
+                        <span class="price" id="shippingFeeDisplay2">30.000 đ</span>
                     </div>
                 </div>
 
                 <div class="order-price">
                     <div class="order-price-top">
                         <span>Tổng cộng</span>
-                        <span class="price">
+                        <span class="price" id="finalTotalDisplay">
                             <fmt:formatNumber value="${totalCheckout + 30000}" pattern="#,### đ"/>
                         </span>
                     </div>
@@ -223,16 +240,93 @@
         const phoneInput = document.getElementById("phone");
         const checkoutForm = document.getElementById("checkoutForm");
         const phoneErr = document.getElementById("phoneError");
-        fetch('https://provinces.open-api.vn/api/p/') //danh sách tỉnh tp từ việc gọi api
+        const optionSaved = document.getElementById("optionSaved");
+        const optionNew = document.getElementById("optionNew");
+        const saveAddDiv = document.getElementById("savedAddressDiv");
+        const newAddField = document.getElementById("newAddressFields");
+        const saveAddSel = document.getElementById("savedAddressSelect");
+        const feeDisplay1 = document.getElementById("shippingFeeDisplay1");
+        const feeDisplay2 = document.getElementById("shippingFeeDisplay2");
+        const finalTotal = document.getElementById("finalTotalDisplay");
+        const totalItems = ${totalCheckout !=null?totalCheckout:0};
+        const GHN_TOKEN = "c3091652-699b-11f1-a973-aee5264794df";
+        const GHN_SHOP_ID = "200742";
+        function updateShippingFee(fee){
+            const formattedFee = new Intl.NumberFormat('vi-VN').format(fee)+' đ';
+            const total = parseInt(totalItems) +fee;
+            const formattedTotal = new Intl.NumberFormat('vi-VN').format(total) +' đ';
+            if(feeDisplay1) feeDisplay1.innerText = formattedFee;
+            if(feeDisplay2) feeDisplay2.innerText = formattedFee;
+            if(finalTotal) finalTotal.innerText = formattedTotal;
+            let feeInput = document.getElementById('shippingFeeInput');
+            if(feeInput) feeInput.value = fee;
+        }
+        function calculateShippingFee(districtId, wardCode){
+            const payload = {
+                "service_type_id": 2,
+                "to_district_id": parseInt(districtId),
+                "to_ward_code": wardCode,
+                "weight": 500,
+                "insurance_value": parseInt(totalItems)
+            };
+            fetch('https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', {
+                method: 'POST',
+                headers: {
+                    'Token': GHN_TOKEN,
+                    'ShopId': GHN_SHOP_ID,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }).then(response => response.json()).then(data => {
+                    if(data.code === 200 && data.data) {
+                        updateShippingFee(data.data.total);
+                    }
+                })
+                .catch(err => console.error("Lỗi tính phí ship GHN:", err));
+        }
+
+        function addressMode(){
+            if(optionSaved.checked){
+                saveAddDiv.style.display = "block";
+                newAddField.style.display = "none";
+                address.removeAttribute("required");
+                provinceSelect.removeAttribute("required");
+                districtSelect.removeAttribute("required");
+                wardSelect.removeAttribute("required");
+                fullAddress.value = saveAddSel.value;
+                updateShippingFee(30000);
+            }else{
+                saveAddDiv.style.display = "none";
+                newAddField.style.display = "block";
+                address.setAttribute("required","required");
+                provinceSelect.setAttribute("required","required");
+                districtSelect.setAttribute("required","required");
+                wardSelect.setAttribute("required","required");
+                updateFullAddress();
+            }
+        }
+        optionSaved.addEventListener("change",addressMode);
+        optionNew.addEventListener("change",addressMode);
+        saveAddSel.addEventListener("change",function () {
+            if(optionSaved.checked){
+                fullAddress.value = this.value;
+            }
+        });
+        addressMode();
+        fetch('https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province',{
+            method:'GET',headers:{'Token':GHN_TOKEN}
+        }) //danh sách tỉnh tp từ việc gọi api
             .then(response=>response.json()).then(data=>{
-                data.forEach(province=>{
+                if(data.code === 200){
+                data.data.forEach(province=>{
                     let option = document.createElement("option");
-                    option.value = province.code;
-                    option.text = province.name;
-                    option.setAttribute("data-name",province.name);
+                    option.value = province.ProvinceID;
+                    option.text = province.ProvinceName;
+                    option.setAttribute("data-name",province.ProvinceName);
                     provinceSelect.add(option);
                 });
-        });
+                }
+        }).catch(err=>console.error("Lỗi lấy Tỉnh:",err));
         provinceSelect.addEventListener("change",function (){
             // khi bấm chọn tỉnh thì load huyện
             const provinceCode = this.value;
@@ -240,17 +334,21 @@
             wardSelect.innerHTML = '<option value="" disabled selected> Chọn Phường / Xã</option>';
             wardSelect.disabled = true;
             if(provinceCode){
-                fetch('https://provinces.open-api.vn/api/p/'+provinceCode+'?depth=2')
+                fetch('https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id='+provinceCode,{
+                    method:'GET', headers:{'Token':GHN_TOKEN}
+                })
                     .then(response=>response.json())
                     .then(data =>{
-                        data.districts.forEach(district =>{
+                        if(data.code ===200){
+                        data.data.forEach(district =>{
                             let option = document.createElement("option");
-                            option.value = district.code;
-                            option.text = district.name;
-                            option.setAttribute("data-name",district.name);
+                            option.value = district.DistrictID;
+                            option.text = district.DistrictName;
+                            option.setAttribute("data-name",district.DistrictName);
                             districtSelect.add(option);
                         });
                         districtSelect.disabled = false;
+                        }
                     }).catch(err=> console.error("Lỗi danh sách huyện:", err));
             }
             updateFullAddress();
@@ -261,25 +359,36 @@
             wardSelect.innerHTML = '<option value="" disabled selected>Chọn Phường / Xã</option>';
             wardSelect.disabled = true;
             if(districtCode){
-                fetch('https://provinces.open-api.vn/api/d/'+districtCode+'?depth=2')
+                fetch('https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id='+districtCode,{
+                    method:'GET', headers:{'Token':GHN_TOKEN}
+                })
                     .then(response=>response.json()).then(data=>{
-                        data.wards.forEach(ward=>{
+                        if(data.code===200){
+                        data.data.forEach(ward=>{
                             let option = document.createElement("option");
-                            option.value = ward.code;
-                            option.text = ward.name;
-                            option.setAttribute("data-name",ward.name);
+                            option.value = ward.WardCode;
+                            option.text = ward.WardName;
+                            option.setAttribute("data-name",ward.WardName);
                             wardSelect.add(option)
                         });
                         wardSelect.disabled = false;
+                        }
                 }).catch(err=> console.error("Lỗi danh sách xã:",err));
+                calculateShippingFee(districtCode,"");
             }
             updateFullAddress();
 
         });
-        wardSelect.addEventListener("change",updateFullAddress);
+        wardSelect.addEventListener("change",function () {
+            const districtId = districtSelect.value;
+            const wardCode = this.value;
+            calculateShippingFee(districtId,wardCode);
+            updateFullAddress();
+        });
         address.addEventListener("input",updateFullAddress);// ở xã và input nhận vào có thay đổi gì không
 
         function updateFullAddress() {
+            if(optionNew.checked){
             let pName = provinceSelect.options[provinceSelect.selectedIndex]?.getAttribute("data-name")||"";
             let dName = districtSelect.options[districtSelect.selectedIndex]?.getAttribute("data-name")||"";
             let wName = wardSelect.options[wardSelect.selectedIndex]?.getAttribute("data-name")||"";
@@ -290,7 +399,8 @@
             if(dName) finaladd.push(dName);
             if(pName) finaladd.push(pName);
             fullAddress.value = finaladd.join(", "); // gộp chuỗi về servlet qua name=address
-        }
+            }
+            }
         const phoneRegex = /^(03|05|07|08|09)\d{8}$/;
         phoneInput.addEventListener("keypress",function (event){
             const str = event.key;

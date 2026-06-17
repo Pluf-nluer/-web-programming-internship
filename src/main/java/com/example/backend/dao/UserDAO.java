@@ -6,6 +6,7 @@ import com.example.backend.util.PasswordUtil;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class UserDAO {
     
@@ -495,7 +496,7 @@ public class UserDAO {
         List<User> users = new ArrayList<>();
         String trimmedKeyword = keyword == null ? "" : keyword.trim();
         String trimmedStatus = status == null ? "" : status.trim();
-        String trimmedRole = role == null ? "" : role.trim();
+        String trimmedRole = role == null ? "" : role.trim().toLowerCase(Locale.ROOT);
         String trimmedCreatedFrom = createdFrom == null ? "" : createdFrom.trim();
         String trimmedCreatedTo = createdTo == null ? "" : createdTo.trim();
         boolean hasKeyword = !trimmedKeyword.isEmpty();
@@ -509,7 +510,7 @@ public class UserDAO {
         StringBuilder sql = new StringBuilder("SELECT u.*, r.name AS role ");
         sql.append("FROM users u ");
         sql.append("LEFT JOIN role r ON u.role_id = r.id ");
-        sql.append("WHERE (r.name IS NULL OR r.name <> 'admin') ");
+        sql.append("WHERE 1 = 1 ");
         if (hasKeyword) {
             sql.append("AND (u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?) ");
         }
@@ -517,7 +518,7 @@ public class UserDAO {
             sql.append("AND u.status = ? ");
         }
         if (hasRole) {
-            sql.append("AND r.name = ? ");
+            sql.append("AND LOWER(r.name) = ? ");
         }
         if (hasCreatedFrom) {
             sql.append("AND DATE(u.created_at) >= ? ");
@@ -578,7 +579,7 @@ public class UserDAO {
     public int countUsers(String keyword, String status, String role, String createdFrom, String createdTo) {
         String trimmedKeyword = keyword == null ? "" : keyword.trim();
         String trimmedStatus = status == null ? "" : status.trim();
-        String trimmedRole = role == null ? "" : role.trim();
+        String trimmedRole = role == null ? "" : role.trim().toLowerCase(Locale.ROOT);
         String trimmedCreatedFrom = createdFrom == null ? "" : createdFrom.trim();
         String trimmedCreatedTo = createdTo == null ? "" : createdTo.trim();
         boolean hasKeyword = !trimmedKeyword.isEmpty();
@@ -589,7 +590,7 @@ public class UserDAO {
 
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM users u ");
         sql.append("LEFT JOIN role r ON u.role_id = r.id ");
-        sql.append("WHERE (r.name IS NULL OR r.name <> 'admin') ");
+        sql.append("WHERE 1 = 1 ");
         if (hasKeyword) {
             sql.append("AND (u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?) ");
         }
@@ -597,7 +598,7 @@ public class UserDAO {
             sql.append("AND u.status = ? ");
         }
         if (hasRole) {
-            sql.append("AND r.name = ? ");
+            sql.append("AND LOWER(r.name) = ? ");
         }
         if (hasCreatedFrom) {
             sql.append("AND DATE(u.created_at) >= ? ");
@@ -652,7 +653,7 @@ public class UserDAO {
         String sql = "UPDATE users u " +
                 "LEFT JOIN role r ON u.role_id = r.id " +
                 "SET u.status = ? " +
-                "WHERE u.id = ? AND (r.name IS NULL OR r.name <> 'admin')";
+                "WHERE u.id = ? AND (r.name IS NULL OR LOWER(r.name) <> 'admin')";
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -667,6 +668,71 @@ public class UserDAO {
             return rowsAffected > 0;
         } catch (SQLException e) {
             System.err.println("Lỗi khi cập nhật trạng thái user: " + e.getMessage());
+            return false;
+        } finally {
+            closeResources(conn, pstmt, null);
+        }
+    }
+
+    public List<String> getAssignableRoles() {
+        return getRoleNames(true);
+    }
+
+    public List<String> getFilterableRoles() {
+        return getRoleNames(true);
+    }
+
+    private List<String> getRoleNames(boolean includeAdmin) {
+        List<String> roles = new ArrayList<>();
+        String sql = includeAdmin
+                ? "SELECT name FROM role ORDER BY id"
+                : "SELECT name FROM role WHERE LOWER(name) <> 'admin' ORDER BY id";
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                roles.add(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi lấy danh sách quyền: " + e.getMessage());
+        } finally {
+            closeResources(conn, pstmt, rs);
+        }
+        return roles;
+    }
+
+    public boolean updateUserRole(int userId, String roleName) {
+        if (roleName == null || roleName.trim().isEmpty()) {
+            return false;
+        }
+
+        String normalizedRole = roleName.trim().toLowerCase(Locale.ROOT);
+        String sql = "UPDATE users u " +
+                "LEFT JOIN role current_role ON u.role_id = current_role.id " +
+                "JOIN role new_role ON LOWER(new_role.name) = ? " +
+                "SET u.role_id = new_role.id " +
+                "WHERE u.id = ? " +
+                "AND (current_role.name IS NULL OR LOWER(current_role.name) <> 'admin')";
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, normalizedRole);
+            pstmt.setInt(2, userId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi cập nhật quyền user: " + e.getMessage());
             return false;
         } finally {
             closeResources(conn, pstmt, null);

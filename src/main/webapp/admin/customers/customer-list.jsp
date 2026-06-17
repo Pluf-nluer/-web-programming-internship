@@ -52,7 +52,15 @@
                             </label>
                             <select id="role" name="role">
                                 <option value="">Tất cả vai trò</option>
-                                <option value="user" ${roleFilter == 'user' ? 'selected' : ''}>Người dùng</option>
+                                <c:forEach items="${filterRoles}" var="roleOption">
+                                    <option value="${roleOption}" ${roleFilter == roleOption ? 'selected' : ''}>
+                                        <c:choose>
+                                            <c:when test="${roleOption == 'user'}">Người dùng</c:when>
+                                            <c:when test="${roleOption == 'admin'}">Quản trị viên</c:when>
+                                            <c:otherwise>${roleOption}</c:otherwise>
+                                        </c:choose>
+                                    </option>
+                                </c:forEach>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -139,9 +147,48 @@
                                 </a>
                             </td>
                             <td class="col-customer-type">
-                                <span class="customer-badge regular">
-                                    <i class="fa-solid fa-user"></i> ${c.role == 'user' ? 'Người dùng' : c.role}
-                                </span>
+                                <c:choose>
+                                    <c:when test="${c.role == 'admin'}">
+                                        <span class="customer-badge admin">
+                                            <i class="fa-solid fa-user-shield"></i> Quản trị viên
+                                        </span>
+                                    </c:when>
+                                    <c:when test="${not empty assignableRoles}">
+                                        <form class="role-update-form" method="post"
+                                              action="${pageContext.request.contextPath}/admin/customers"
+                                              onsubmit="return confirm('Cập nhật quyền cho tài khoản này?');">
+                                            <input type="hidden" name="userId" value="${c.id}">
+                                            <input type="hidden" name="action" value="setRole">
+                                            <input type="hidden" name="page" value="${currentPage}">
+                                            <c:if test="${not empty keyword}">
+                                                <input type="hidden" name="q" value="${keyword}">
+                                            </c:if>
+                                            <input type="hidden" name="status" value="${statusFilter}">
+                                            <input type="hidden" name="role" value="${roleFilter}">
+                                            <input type="hidden" name="createdFrom" value="${createdFrom}">
+                                            <input type="hidden" name="createdTo" value="${createdTo}">
+                                            <select class="role-select" name="newRole" aria-label="Chọn quyền">
+                                                <c:forEach items="${assignableRoles}" var="roleOption">
+                                                    <option value="${roleOption}" ${c.role == roleOption ? 'selected' : ''}>
+                                                        <c:choose>
+                                                            <c:when test="${roleOption == 'user'}">Người dùng</c:when>
+                                                            <c:when test="${roleOption == 'admin'}">Quản trị viên</c:when>
+                                                            <c:otherwise>${roleOption}</c:otherwise>
+                                                        </c:choose>
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                            <button type="submit" class="btn-action btn-role-save" title="Lưu quyền">
+                                                <i class="fa-solid fa-floppy-disk"></i>
+                                            </button>
+                                        </form>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="customer-badge regular">
+                                            <i class="fa-solid fa-user"></i> ${c.role == 'user' ? 'Người dùng' : c.role}
+                                        </span>
+                                    </c:otherwise>
+                                </c:choose>
                             </td>
                             <td class="col-status">
                                 <c:choose>
@@ -172,6 +219,11 @@
                                         <i class="fa-solid fa-eye"></i>
                                     </a>
                                     <c:choose>
+                                        <c:when test="${c.role == 'admin'}">
+                                            <span class="btn-action btn-disabled" title="Không khóa tài khoản admin">
+                                                <i class="fa-solid fa-shield-halved"></i>
+                                            </span>
+                                        </c:when>
                                         <c:when test="${c.active}">
                                             <form method="post" action="${pageContext.request.contextPath}/admin/customers"
                                                   onsubmit="return confirm('Khóa tài khoản này?');">

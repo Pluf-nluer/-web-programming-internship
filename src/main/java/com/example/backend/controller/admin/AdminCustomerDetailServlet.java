@@ -34,7 +34,7 @@ public class AdminCustomerDetailServlet extends HttpServlet {
         }
 
         User customer = userDAO.getUserById(userId);
-        if (customer == null || customer.isAdmin()) {
+        if (customer == null) {
             setFlashMessage(request.getSession(true), "Không tìm thấy khách hàng.", "error");
             response.sendRedirect(request.getContextPath() + "/admin/customers");
             return;

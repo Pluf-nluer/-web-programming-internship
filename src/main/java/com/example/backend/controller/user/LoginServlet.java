@@ -103,7 +103,6 @@ public class LoginServlet extends HttpServlet {
         }
 
         try {
-            // SỬA TẠI ĐÂY: Sử dụng temporaryCart đã bốc từ trước thay vì gọi session.getAttribute
             if (temporaryCart != null && temporaryCart.getItems() != null && !temporaryCart.getItems().isEmpty()) {
                 CartDAO cartDAO = new CartDAO();
 
@@ -112,16 +111,11 @@ public class LoginServlet extends HttpServlet {
                         cartDAO.saveOrUpdateCartItem(user.getId(), item);
                     }
                 }
-                System.out.println("=> [DEBUG SUCCESS] Đã gộp thành công giỏ tạm từ biến bảo toàn xuống DB!");
-            } else {
-                System.out.println("=> [DEBUG WARNING] Không gộp được vì temporaryCart bị rỗng hoặc null!");
             }
         } catch (Exception e) {
-            System.err.println("Lỗi nghiêm trọng trong quá trình gộp giỏ hàng (Merge Cart): " + e.getMessage());
             e.printStackTrace();
         }
 
-        // Đồng bộ lại con số vòng tròn đỏ trên Header sau khi gộp xong
         try {
             CartDAO cartDAO = new CartDAO();
             List<CartItem> dbCartItems = cartDAO.getCartItemsByUserId(user.getId());

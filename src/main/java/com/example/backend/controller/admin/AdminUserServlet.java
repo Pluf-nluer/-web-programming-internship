@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Locale;
 
 @WebServlet("/admin/customers")
 public class AdminUserServlet extends HttpServlet {
@@ -71,6 +72,8 @@ public class AdminUserServlet extends HttpServlet {
         request.setAttribute("roleFilter", role);
         request.setAttribute("createdFrom", createdFrom);
         request.setAttribute("createdTo", createdTo);
+        request.setAttribute("filterRoles", userDAO.getFilterableRoles());
+        request.setAttribute("assignableRoles", userDAO.getAssignableRoles());
 
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -97,7 +100,7 @@ public class AdminUserServlet extends HttpServlet {
         int userId = parseIntOrDefault(request.getParameter("userId"), -1);
         HttpSession session = request.getSession(true);
 
-        if (userId <= 0 || (!"lock".equals(action) && !"unlock".equals(action))) {
+        if (userId <= 0 || (!"lock".equals(action) && !"unlock".equals(action) && !"setRole".equals(action))) {
             setFlashMessage(session, "Dữ liệu không hợp lệ.", "error");
             response.sendRedirect(buildRedirectUrl(request));
             return;
@@ -111,8 +114,13 @@ public class AdminUserServlet extends HttpServlet {
         }
 
         if (user.isAdmin()) {
-            setFlashMessage(session, "Không thể khóa tài khoản admin.", "error");
+            setFlashMessage(session, "Không thể cập nhật tài khoản admin.", "error");
             response.sendRedirect(buildRedirectUrl(request));
+            return;
+        }
+
+        if ("setRole".equals(action)) {
+            updateUserRole(request, response, session, user);
             return;
         }
 
@@ -160,11 +168,18 @@ public class AdminUserServlet extends HttpServlet {
         if (value == null) {
             return "";
         }
-        String role = value.trim().toLowerCase();
-        if (role.isEmpty() || "admin".equals(role)) {
+        String role = value.trim().toLowerCase(Locale.ROOT);
+        if (role.isEmpty()) {
             return "";
         }
         return role;
+    }
+
+    private String normalizeAssignableRole(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.trim().toLowerCase(Locale.ROOT);
     }
 
     private String normalizeDate(String value) {
@@ -212,5 +227,30 @@ public class AdminUserServlet extends HttpServlet {
                 .append("=")
                 .append(URLEncoder.encode(value.trim(), StandardCharsets.UTF_8));
         return "&";
+    }
+
+    private void updateUserRole(HttpServletRequest request, HttpServletResponse response, HttpSession session, User user)
+            throws IOException {
+        String newRole = normalizeAssignableRole(request.getParameter("newRole"));
+        if (newRole.isEmpty()) {
+            setFlashMessage(session, "Quyền người dùng không hợp lệ.", "error");
+            response.sendRedirect(buildRedirectUrl(request));
+            return;
+        }
+
+        if (newRole.equalsIgnoreCase(user.getRole())) {
+            setFlashMessage(session, "Quyền người dùng không thay đổi.", "info");
+            response.sendRedirect(buildRedirectUrl(request));
+            return;
+        }
+
+        boolean updated = userDAO.updateUserRole(user.getId(), newRole);
+        if (updated) {
+            setFlashMessage(session, "Cập nhật quyền người dùng thành công.", "success");
+        } else {
+            setFlashMessage(session, "Không thể cập nhật quyền người dùng.", "error");
+        }
+
+        response.sendRedirect(buildRedirectUrl(request));
     }
 }
