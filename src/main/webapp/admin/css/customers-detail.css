@@ -401,6 +401,11 @@
     color: var(--admin-info);
 }
 
+.customer-badge.admin {
+    background: var(--admin-accent-soft);
+    color: var(--admin-accent);
+}
+
 .customer-badge.new {
     background: var(--admin-success-soft);
     color: var(--admin-success);
