@@ -1,9 +1,11 @@
 package com.example.backend.controller.user;
 
+import com.example.backend.dao.CartDAO;
 import com.example.backend.dao.OrderDao;
 import com.example.backend.model.*;
 import com.example.backend.util.MomoConfig;
 import com.example.backend.util.VnPayConfig;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import jakarta.servlet.*;
@@ -26,6 +28,9 @@ import java.util.*;
 public class CheckoutServlet extends HttpServlet {
     private static final String POST_LOGIN_REDIRECT_KEY = "postLoginRedirect";
     private static final String CHECKOUT_FORM_SESSION_KEY = "checkoutForm";
+    private static final String GHN_TOKEN = "c3091652-699b-11f1-a973-aee5264794df";
+    private static final String GHN_SHOP_ID = "200742";
+    private static final String GHN_API_CREATE_URL = "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create";
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
@@ -38,8 +43,15 @@ public class CheckoutServlet extends HttpServlet {
             return;
         }
 
-        Cart cart = (Cart) session.getAttribute("cart");
-        if (cart == null || cart.getTotalQuantity() == 0) {
+        CartDAO cartDAO = new CartDAO();
+        List<CartItem> items = cartDAO.getCartItemsByUserId(user.getId());
+        Cart cart = new Cart();
+        if(items !=null){
+            cart.setItems(items);
+        }else{
+            cart.setItems(new ArrayList<>());
+        }
+        if (cart == null || cart.getItems().isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/shopping-cart.jsp");
             return;
         }
@@ -71,7 +83,15 @@ public class CheckoutServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession();
-        Cart cart = (Cart) session.getAttribute("cart");
+        User user = (User) session.getAttribute("user");
+        CartDAO cartDAO = new CartDAO();
+        List<CartItem> items = cartDAO.getCartItemsByUserId(user.getId());
+        Cart cart = new Cart();
+        if(items !=null){
+            cart.setItems(items);
+        }else{
+            cart.setItems(new ArrayList<>());
+        }
         List<CartItem> checkoutItems = (List<CartItem>) session.getAttribute("checkoutItems");
         Double totalCheckout = (Double) session.getAttribute("totalCheckout");
         if(cart == null || cart.getTotalQuantity() == 0) {
@@ -89,6 +109,15 @@ public class CheckoutServlet extends HttpServlet {
         String ward = request.getParameter("ward");
         String note = request.getParameter("note");
         String paymentMethod = request.getParameter("paymentMethod");
+        String shippingFeeStr = request.getParameter("shippingFee");
+        double shippingFee = 30000;
+        if(shippingFeeStr!=null&& shippingFeeStr.isEmpty()){
+            try {
+                shippingFee =Double.parseDouble(shippingFeeStr);
+            }catch (NumberFormatException e){
+                System.out.println("Lỗi tiền ship: "+e.getMessage());
+            }
+        }
 
         if(email == null || fullName == null || phone == null || address == null || paymentMethod == null){
             request.setAttribute("errorMessage","Vui lòng nhập đầy đủ thông tin và chọn phương thức thanh toán.");
@@ -99,7 +128,7 @@ public class CheckoutServlet extends HttpServlet {
         int paymentMethodId = Integer.parseInt(paymentMethod);
         cacheCheckoutForm(session, email, fullName, phone, address, province, district, ward, note);
 
-        User user = (User) session.getAttribute("user");
+
         if(user ==null){
             session.setAttribute(POST_LOGIN_REDIRECT_KEY, request.getContextPath() + "/checkout");
             response.sendRedirect(request.getContextPath() + "/login");
@@ -114,9 +143,9 @@ public class CheckoutServlet extends HttpServlet {
         order.setShipping_name(fullName);
         order.setShipping_phone(phone);
         order.setShipping_address(fullAddress);
-        order.setShipping_fee(30000);
+        order.setShipping_fee(shippingFee);
         order.setNote(note);
-        order.setTotal_amount(totalCheckout + 30000);
+        order.setTotal_amount(totalCheckout + shippingFee);
 
         order.setPayment_method_id(paymentMethodId);
 
@@ -132,7 +161,8 @@ public class CheckoutServlet extends HttpServlet {
 
             if (orderId > 0) {
                 if (paymentMethodId == 3) {
-                    long amount = (long)((totalCheckout + 30000)*100);
+                    createGHNOrder(fullName,phone,fullAddress,district,ward,0,checkoutItems);
+                    long amount = (long)((totalCheckout + shippingFee)*100);
                     String vnp_TxnRef = String.valueOf(orderId);
                     Map<String,String> vnp_Params = new HashMap<>();
                     vnp_Params.put("vnp_Version", "2.1.0");
@@ -186,7 +216,8 @@ public class CheckoutServlet extends HttpServlet {
 //                    request.setAttribute("Error", "VnPay");
 //                    request.getRequestDispatcher("/checkout.jsp").forward(request, response);
                 }else if(paymentMethodId == 2){
-                    long amount = (long) (totalCheckout + 30000);
+                    createGHNOrder(fullName, phone, fullAddress, district, ward, 0, checkoutItems);
+                    long amount = (long) (totalCheckout + shippingFee);
                     String amountStr = String.valueOf(amount);
                     String orderIdStr = orderId +"_"+System.currentTimeMillis();
                     String requestId = String.valueOf(System.currentTimeMillis());
@@ -266,6 +297,8 @@ public class CheckoutServlet extends HttpServlet {
                     }
                 }
                 else if (paymentMethodId == 1) {
+                    double totalCod = totalCheckout +shippingFee;
+                    createGHNOrder(fullName, phone, fullAddress, district, ward, totalCod, checkoutItems);
 
                     List<OrderItem> orderItems = orderDao.getOrderItems(orderId);
 //                    cart.getItems().removeAll(checkoutItems);
@@ -305,6 +338,69 @@ public class CheckoutServlet extends HttpServlet {
                 request.getRequestDispatcher("/checkout.jsp").forward(request,response);
 
             }
+    }
+    private void createGHNOrder(String toName, String toPhone, String toAddress, String districtIdStr, String wardCode, double codAmount,List<CartItem> items){
+        try{
+            int districtId = 0;
+            if(districtIdStr!=null&&!districtIdStr.isEmpty()){
+                districtId = Integer.parseInt(districtIdStr);
+            }
+            JsonObject jsonRequest = new JsonObject();
+            jsonRequest.addProperty("payment_type_id",1);
+            jsonRequest.addProperty("service_type_id", 2);
+            jsonRequest.addProperty("note", "Giao hàng vào giờ hành chính");
+            jsonRequest.addProperty("required_note", "CHOXEMHANGKHONGTHU");
+            jsonRequest.addProperty("to_name", toName);
+            jsonRequest.addProperty("to_phone", toPhone);
+            jsonRequest.addProperty("to_address", toAddress);
+            jsonRequest.addProperty("to_ward_code", wardCode);
+            jsonRequest.addProperty("to_district_id", districtId);
+            jsonRequest.addProperty("cod_amount", (int) codAmount);
+            jsonRequest.addProperty("weight", 500);
+            jsonRequest.addProperty("length", 15);
+            jsonRequest.addProperty("width", 15);
+            jsonRequest.addProperty("height", 15);
+
+            JsonArray itemsArr = new JsonArray();
+            for (CartItem item: items){
+                JsonObject itemJson = new JsonObject();
+                itemJson.addProperty("name",item.getProduct().getName());
+                itemJson.addProperty("quantity",item.getQuantity());
+                itemJson.addProperty("price",(int)item.getProduct().getPrice());
+                itemJson.addProperty("weight",200);
+                itemsArr.add(itemJson);
+            }
+            jsonRequest.add("items", itemsArr);
+            URL url = new URL(GHN_API_CREATE_URL);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setDoOutput(true);
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type","application/json");
+            con.setRequestProperty("Token",GHN_TOKEN);
+            con.setRequestProperty("ShopId",GHN_SHOP_ID);
+
+            OutputStream os = con.getOutputStream();
+            BufferedReader br;
+            StringBuilder builder = new StringBuilder();
+            String input;
+            os.write(jsonRequest.toString().getBytes(StandardCharsets.UTF_8));
+            os.flush();
+            int responseCode= con.getResponseCode();
+            if(responseCode>=400){
+                br = new BufferedReader(new InputStreamReader(con.getErrorStream(),StandardCharsets.UTF_8));
+            }else{
+                br = new BufferedReader(new InputStreamReader(con.getInputStream(),StandardCharsets.UTF_8));
+            }
+            while((input = br.readLine())!=null){
+                builder.append(input);
+            }
+            br.close();
+            System.out.println("GHN order res: "+builder.toString());
+
+        }catch (Exception e){
+            System.out.println("Lỗi tạo đơn GHN: "+e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void cacheCheckoutForm(HttpSession session, String email, String fullName, String phone,
