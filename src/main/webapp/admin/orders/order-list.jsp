@@ -33,9 +33,17 @@
                 <a href="#" class="tab-item active" data-status="all"><span class="tab-label">Tất cả</span></a>
                 <a href="#" class="tab-item pending" data-status="pending"><span class="tab-label">Chờ xác nhận</span></a>
                 <a href="#" class="tab-item completed" data-status="completed"><span class="tab-label">Hoàn thành</span></a>
+                <div class="header-right">
+                    <form action="orders" method="GET" class="search-form">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" name="search" value="${searchQuery}" placeholder="Tìm kiếm" class="search-input">
+                    </form>
+                </div>
             </div>
 
             <div class="orders-table-container" style="margin-top: 20px;">
+                <c:choose>
+                <c:when test="${not empty orders}">
                 <table class="orders-table" id="adminOrderTable">
                     <thead>
                     <tr>
@@ -97,6 +105,18 @@
                     </c:forEach>
                     </tbody>
                 </table>
+                </c:when>
+                    <c:otherwise>
+                        <div class="empty-state">
+                            <i class="fa-solid fa-file-invoice empty-icon"></i>
+                            <h3>Không tìm thấy đơn hàng nào!</h3>
+                            <p>Rất tiếc, không có đơn hàng nào khớp với tìm kiếm của bạn.</p>
+                            <a href="orders" class="btn-clear-search">
+                                <i class="fa-solid fa-rotate-left"></i> Xóa tìm kiếm và Tải lại
+                            </a>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </div>
@@ -122,7 +142,9 @@
                 }
             });
 
+            if($('.order-row').length>0){
             $('#order-count-label').text(visibleCount + " đơn hàng");
+            }
         });
     });
 </script>
