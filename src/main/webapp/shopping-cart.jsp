@@ -52,7 +52,7 @@
                                 <input type = "checkbox" value = "${item.product.id}" class = "item-checkbox single-check" data-price = "${item.price}" data-qty = "${item.quantity}">
                                 <div class="cart-items">
                                     <a href="productdetail?id=${item.product.id}" class="cart-item">
-                                        <img src="${pageContext.request.contextPath}/${item.product.imageUrl}" alt="image" width="80">
+                                        <img src="${item.product.imageUrl}" alt="image" width="80">
                                     </a>
                                     <div class="cart-info">
                                         <strong class="cart-item-name">${item.product.name}</strong>

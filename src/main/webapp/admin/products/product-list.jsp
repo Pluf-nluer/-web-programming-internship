@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -36,6 +37,25 @@
                 </div>
             </div>
 
+            <c:if test="${not empty outOfStockProducts}">
+                <div style="background: #fff5f5; border-left: 5px solid #e53e3e; padding: 15px; margin-bottom: 20px; border-radius: 6px;">
+                    <h3 style="color: #c53030; margin: 0 0 8px 0; font-size: 15px;"><i class="fa-solid fa-triangle-exclamation"></i> Phát hiện (${fn:length(outOfStockProducts)}) mặt hàng đã hết kho:</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <c:forEach var="outItem" items="${outOfStockProducts}">
+                            <span style="background: #fed7d7; color: #9b2c2c; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                                ID: ${outItem.id} - ${outItem.name}
+                            </span>
+                        </c:forEach>
+                    </div>
+                </div>
+            </c:if>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button type="button" class="stock-tab-btn active" data-filter="all" style="padding: 8px 16px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; background: #8b572a; color: white;">Tất cả</button>
+                <button type="button" class="stock-tab-btn" data-filter="empty" style="padding: 8px 16px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; background: #e2e8f0; color: #4a5568;"><i class="fa-solid fa-circle-xmark" style="color: #e53e3e;"></i> Đã hết hàng</button>
+                <button type="button" class="stock-tab-btn" data-filter="warning" style="padding: 8px 16px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; background: #e2e8f0; color: #4a5568;"><i class="fa-solid fa-circle-exclamation" style="color: #dd6b20;"></i> Sắp hết (&lt; 10)</button>
+            </div>
+
             <c:if test="${not empty param.message}">
                 <div style="padding: 10px; margin-bottom: 15px; background: #d4edda; color: #155724; border-radius: 5px;">
                     <c:choose>
@@ -62,20 +82,21 @@
                     </tr>
                     </thead>
                     <tbody>
-
-                    
                     <c:forEach items="${listProducts}" var="p">
-                        <tr class="product-row">
+                        <tr class="product-row" data-stock="${p.stock}">
                             <td class="col-checkbox">
                                 <input type="checkbox" name="product_ids[]" value="${p.id}">
                             </td>
                             <td class="col-image">
                                 <div class="product-thumbnail">
-                                        
-                                    <img src="${p.imageUrl}" alt="${p.name}"
-                                         >
-
-                                        
+                                    <c:choose>
+                                        <c:when test="${fn:startsWith(p.imageUrl, 'http')}">
+                                            <img src="${p.imageUrl}" alt="${p.name}">
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="${pageContext.request.contextPath}/${p.imageUrl}" alt="${p.name}">
+                                        </c:otherwise>
+                                    </c:choose>
                                     <c:if test="${p.featured}">
                                         <span class="featured-badge"><i class="fa-solid fa-star"></i></span>
                                     </c:if>
@@ -98,7 +119,7 @@
                                             <span class="price-old" style="text-decoration: line-through; color: #999; font-size: 0.8em;">
                                                 <fmt:formatNumber value="${p.price}" type="currency" currencySymbol="đ"/>
                                             </span><br>
-                                                                        <span class="price-sale" style="color: #e74c3c; font-weight: bold;">
+                                            <span class="price-sale" style="color: #e74c3c; font-weight: bold;">
                                                 <fmt:formatNumber value="${p.getSalePrice()}" type="currency" currencySymbol="đ"/>
                                             </span>
                                         </c:when>
@@ -110,8 +131,6 @@
                                     </c:choose>
                                 </div>
                             </td>
-
-                                
                             <td class="col-sale">
                                 <c:choose>
                                     <c:when test="${p.discountPercent > 0}">
@@ -126,14 +145,19 @@
                             </td>
                             <td class="col-stock">
                                 <div class="stock-wrapper">
-                                        
-                                    <span class="stock-number ${p.stock < 10 ? 'stock-critical' : 'stock-normal'}">
-                                            ${p.stock}
-                                    </span>
+                                    <c:choose>
+                                        <c:when test="${p.stock == 0}">
+                                            <span style="background: #fed7d7; color: #9b2c2c; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 13px;">Hết hàng</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="stock-number ${p.stock < 10 ? 'stock-critical' : 'stock-normal'}">
+                                                    ${p.stock}
+                                            </span>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </td>
                             <td class="col-status">
-                                    
                                 <c:choose>
                                     <c:when test="${p.status == 'active'}">
                                         <span class="status-badge status-active">Đang bán</span>
@@ -145,55 +169,51 @@
                             </td>
                             <td class="col-actions">
                                 <div class="action-buttons">
-                                    <a href="${pageContext.request.contextPath}/admin/products?action=edit&id=${p.id}"
-                                       class="btn-action btn-edit" title="Chỉnh sửa">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </a>
-                                    <a href="${pageContext.request.contextPath}/admin/products?action=delete&id=${p.id}"
-                                       class="btn-action btn-delete"
-                                       title="Xóa"
-                                       onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm ID: ${p.id} không?');">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </a>
+                                    <a href="${pageContext.request.contextPath}/admin/products?action=edit&id=${p.id}" class="btn-action btn-edit" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></a>
+                                    <a href="${pageContext.request.contextPath}/admin/products?action=delete&id=${p.id}" class="btn-action btn-delete" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm ID: ${p.id} không?');"><i class="fa-solid fa-trash"></i></a>
                                 </div>
                             </td>
                         </tr>
                     </c:forEach>
-                    
-
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
 </main>
 <script>
     $(document).ready(function() {
-        
         const vietnameseLanguage = {
-            "sProcessing":   "Đang xử lý...",
-            "sLengthMenu":   "Xem _MENU_ mục",
-            "sZeroRecords":  "Không tìm thấy dòng nào phù hợp",
-            "sInfo":         "Đang xem _START_ đến _END_ trong tổng số _TOTAL_ mục",
-            "sInfoEmpty":    "Đang xem 0 đến 0 trong tổng số 0 mục",
-            "sInfoFiltered": "(được lọc từ _MAX_ mục)",
-            "sSearch":       "Tìm kiếm:",
-            "oPaginate": {
-                "sFirst":    "Đầu",
-                "sPrevious": "Trước",
-                "sNext":     "Tiếp",
-                "sLast":     "Cuối"
-            }
+            "sProcessing": "Đang xử lý...", "sLengthMenu": "Xem _MENU_ mục", "sZeroRecords": "Không tìm thấy dòng nào phù hợp",
+            "sInfo": "Đang xem _START_ đến _END_ trong tổng số _TOTAL_ mục", "sInfoEmpty": "Đang xem 0 đến 0 trong tổng số 0 mục",
+            "sSearch": "Tìm kiếm:",
+            "oPaginate": { "sFirst": "Đầu", "sPrevious": "Trước", "sNext": "Tiếp", "sLast": "Cuối" }
         };
 
-        $('#productTable').DataTable({
-            "language": vietnameseLanguage, 
-            "columnDefs": [
-                { "orderable": false, "targets": [0, 1, 7] }
-            ],
-            "pageLength": 10,
-            "order": [[2, 'asc']]
+        const table = $('#productTable').DataTable({
+            "language": vietnameseLanguage,
+            "columnDefs": [{ "orderable": false, "targets": [0, 1, 7] }],
+            "pageLength": 10, "order": [[2, 'asc']]
+        });
+
+        $('.stock-tab-btn').on('click', function() {
+            $('.stock-tab-btn').css({'background': '#e2e8f0', 'color': '#4a5568'}).removeClass('active');
+            $(this).css({'background': '#8b572a', 'color': 'white'}).addClass('active');
+
+            const filterType = $(this).data('filter');
+            $.fn.dataTable.ext.search.pop();
+
+            if (filterType === 'empty') {
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    return parseInt($(table.row(dataIndex).node()).data('stock')) === 0;
+                });
+            } else if (filterType === 'warning') {
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    const s = parseInt($(table.row(dataIndex).node()).data('stock'));
+                    return s > 0 && s < 10;
+                });
+            }
+            table.draw();
         });
     });
 </script>

@@ -26,7 +26,7 @@ public class ProductService {
 
         productDAO.updateProductAttribute(product.getId(), attribute);
 
-        if (image.getImageUrl() != null && !image.getImageUrl().isEmpty()) {
+        if (image != null && image.getImageUrl() != null && !image.getImageUrl().isEmpty()) {
             productDAO.updateProductImage(product.getId(), image);
         }
     }
@@ -80,18 +80,17 @@ public class ProductService {
         return productDAO.getRelatedProducts(categoryId, currentProductId, 4);
     }
 
-    public void insertFullProduct(Product p, ProductAttribute pa) {
-        
+    public void insertFullProduct(Product p, ProductAttribute pa, ProductImage pi) {
         int productId = productDAO.insertProduct(p);
 
         if (productId > 0) {
-            
-            if (p.getImage() != null && p.getImage().getImageUrl() != null) {
-                productDAO.insertProductImage(productId, p.getImage().getImageUrl());
+            if (pi != null && pi.getImageUrl() != null && !pi.getImageUrl().isEmpty()) {
+                productDAO.insertProductImage(productId, pi.getImageUrl());
             }
 
-            
-            productDAO.insertProductAttributes(productId, pa);
+            if (pa != null) {
+                productDAO.insertProductAttributes(productId, pa);
+            }
         }
     }
 
