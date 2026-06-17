@@ -1,11 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.example.backend.model.User" %>
 <%@ page import="com.example.backend.model.Order" %>
-<%@ page import="com.example.backend.dao.OrderDao" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.text.NumberFormat" %>
 <%@ page import="java.util.Locale" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.ArrayList" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -117,8 +117,7 @@
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
     if (orders == null) {
-        response.sendRedirect(request.getContextPath() + "/user-orders");
-        return;
+        orders = new ArrayList<Order>();
     }
     String message = (String) session.getAttribute("message");
     String messageType = (String) session.getAttribute("messageType");
@@ -206,16 +205,16 @@
                         <% for (Order order : orders) {
                             String statusClass = "";
                             String statusText = order.getOrder_status();
-                            if ("Pending".equalsIgnoreCase(statusText)) {
+                            if ("pending".equalsIgnoreCase(statusText) || "Chờ xác nhận".equalsIgnoreCase(statusText)) {
                                 statusClass = "pending";
                                 statusText = "Chờ xác nhận";
-                            } else if ("Shipping".equalsIgnoreCase(statusText)) {
+                            } else if ("shipping".equalsIgnoreCase(statusText) || "Đang giao".equalsIgnoreCase(statusText)) {
                                 statusClass = "shipping";
                                 statusText = "Đang giao";
-                            } else if ("Completed".equalsIgnoreCase(statusText)) {
+                            } else if ("completed".equalsIgnoreCase(statusText) || "Hoàn thành".equalsIgnoreCase(statusText)) {
                                 statusClass = "completed";
                                 statusText = "Hoàn thành";
-                            } else if ("Cancelled".equalsIgnoreCase(statusText)) {
+                            } else if ("cancelled".equalsIgnoreCase(statusText) || "Đã hủy".equalsIgnoreCase(statusText)) {
                                 statusClass = "cancelled";
                                 statusText = "Đã hủy";
                             }
@@ -252,7 +251,7 @@
                                             Hủy đơn
                                         </button>
                                     <% } else if ("Completed".equalsIgnoreCase(order.getOrder_status())) { %>
-                                        <a href="${pageContext.request.contextPath}/shopping-cart.jsp" class="btn-action btn-rebuy">
+                                        <a href="${pageContext.request.contextPath}/cart" class="btn-action btn-rebuy">
                                             <i class="fa-solid fa-refresh"></i>
                                             Mua lại
                                         </a>
@@ -308,6 +307,26 @@
             document.getElementById('cancelOrderForm').submit();
         }
     }
+    document.addEventListener("DOMContentLoaded", function () {
+        const radios = document.querySelectorAll(".filter-radio");
+        const orderCards = document.querySelectorAll(".order-card");
+
+        radios.forEach(radio => {
+            radio.addEventListener("change", function () {
+                const targetStatus = this.getAttribute("data-target");
+
+                orderCards.forEach(card => {
+                    const cardStatus = card.getAttribute("data-status");
+
+                    if (targetStatus === "all" || cardStatus === targetStatus) {
+                        card.style.display = "block";
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+            });
+        });
+    });
 </script>
 <jsp:include page="/compenents/footer.jsp" />
 </body>

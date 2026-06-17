@@ -1,6 +1,9 @@
 package com.example.backend.controller.user;
 
+import com.example.backend.dao.CartDAO;
 import com.example.backend.dao.UserDAO;
+import com.example.backend.model.Cart;
+import com.example.backend.model.CartItem;
 import com.example.backend.model.User;
 import com.example.backend.util.PasswordUtil;
 import com.example.backend.util.RememberMeUtil;
@@ -12,6 +15,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -68,6 +73,14 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
+        Cart temporaryCart = null;
+        HttpSession oldSession = request.getSession(false);
+        if (oldSession != null) {
+            java.util.Enumeration<String> attributeNames = oldSession.getAttributeNames();
+
+            temporaryCart = (Cart) oldSession.getAttribute("cart");
+        }
+
         HttpSession session = request.getSession(true);
         session.setAttribute("user", user);
         session.setAttribute("userId", user.getId());
@@ -89,6 +102,38 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
+        try {
+            // SỬA TẠI ĐÂY: Sử dụng temporaryCart đã bốc từ trước thay vì gọi session.getAttribute
+            if (temporaryCart != null && temporaryCart.getItems() != null && !temporaryCart.getItems().isEmpty()) {
+                CartDAO cartDAO = new CartDAO();
+
+                for (CartItem item : temporaryCart.getItems()) {
+                    if (item.getProduct() != null) {
+                        cartDAO.saveOrUpdateCartItem(user.getId(), item);
+                    }
+                }
+                System.out.println("=> [DEBUG SUCCESS] Đã gộp thành công giỏ tạm từ biến bảo toàn xuống DB!");
+            } else {
+                System.out.println("=> [DEBUG WARNING] Không gộp được vì temporaryCart bị rỗng hoặc null!");
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi nghiêm trọng trong quá trình gộp giỏ hàng (Merge Cart): " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // Đồng bộ lại con số vòng tròn đỏ trên Header sau khi gộp xong
+        try {
+            CartDAO cartDAO = new CartDAO();
+            List<CartItem> dbCartItems = cartDAO.getCartItemsByUserId(user.getId());
+            int totalQty = 0;
+            for (CartItem item : dbCartItems) {
+                totalQty += item.getQuantity();
+            }
+            session.setAttribute("cartTotalQuantity", totalQty);
+        } catch (Exception e) {
+            session.setAttribute("cartTotalQuantity", 0);
+        }
+
         String redirectUrl = (String) session.getAttribute("postLoginRedirect");
         if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
             session.removeAttribute("postLoginRedirect");
@@ -96,7 +141,7 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        response.sendRedirect(request.getContextPath() + "/");
+        response.sendRedirect(request.getContextPath() + "/cart");
     }
 
     private void showLoginError(HttpServletRequest request, HttpServletResponse response, String message,

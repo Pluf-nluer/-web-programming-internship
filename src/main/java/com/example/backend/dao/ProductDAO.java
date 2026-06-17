@@ -245,7 +245,6 @@ public class ProductDAO {
     }
     public boolean updateProductImage(int productId, ProductImage pi) {
         String updateSql = "UPDATE product_images SET image_url = ? WHERE product_id = ?";
-        String insertSql = "INSERT INTO product_images (product_id, image_url) VALUES (?, ?)";
 
         try (Connection conn = DBConnection.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
@@ -310,7 +309,7 @@ public class ProductDAO {
 
     public int insertProduct(Product p) {
         String sql = "INSERT INTO products (name, price, stock, category_id, full_description, status, created_at) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
+                "VALUES (?, ?, ?, ?, ?, ?, NOW())";
 
         int generatedId = -1;
         try (Connection conn = DBConnection.getConnection();
