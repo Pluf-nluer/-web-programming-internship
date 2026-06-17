@@ -57,16 +57,33 @@
                             </small>
                         </div>
 
-                        <div class="form-group">
-                            <label for="address">Địa chỉ</label>
+                        <div class="form-group address-option-group" >
+                            <label>
+                                <input type="radio" name="addressOption" value="saved" id="optionSaved" checked>
+                                Địa chỉ đã lưu
+                            </label>
+                            <label>
+                                <input type="radio" name="addressOption" value="new" id="optionNew">
+                                Nhập địa chỉ mới
+                            </label>
+                        </div>
+                        <div class="form-group" id="savedAddressDiv">
+                            <label for="savedAddressSelect">Chọn địa chỉ đã lưu</label>
+                            <select id="savedAddressSelect">
+                                <option value="">Chưa có địa chỉ lưu sẵn</option>
+                            </select>
+                        </div>
+                        <input type="hidden" id="fullAddressInput" name="address">
+                        <div class="form-group" id="newAddressFields">
+                            <label for="address">Địa chỉ (Số nhà, đường...)</label>
                             <input type="text"  id="address" placeholder="Địa chỉ (Số nhà, đường...)" required
                                    value="${not empty sessionScope.checkoutForm.address ? sessionScope.checkoutForm.address : ''}">
                         </div>
 
-                        <input type="hidden" id="fullAddressInput" name="address">
+
                         <div class="form-group">
                             <label for="province">Tỉnh / Thành phố</label>
-                            <select id="province" name="province" required>
+                            <select id="province" name="province" >
                                 <option value="" disabled  selected }>Chọn Tỉnh / Thành phố</option>
 
                             </select>
@@ -74,7 +91,7 @@
 
                         <div class="form-group">
                             <label for="district">Quận / Huyện</label>
-                            <select id="district" name="district"required>
+                            <select id="district" name="district">
                                 <option value="" disabled   selected }>Chọn Quận / Huyện</option>
 
                             </select>
@@ -82,7 +99,7 @@
 
                         <div class="form-group">
                             <label for="ward">Phường / Xã</label>
-                            <select id="ward" name="ward" required>
+                            <select id="ward" name="ward" >
                                 <option value="" disabled  selected }>Chọn Phường / Xã</option>
 
                             </select>
@@ -223,6 +240,39 @@
         const phoneInput = document.getElementById("phone");
         const checkoutForm = document.getElementById("checkoutForm");
         const phoneErr = document.getElementById("phoneError");
+        const optionSaved = document.getElementById("optionSaved");
+        const optionNew = document.getElementById("optionNew");
+        const saveAddDiv = document.getElementById("savedAddressDiv");
+        const newAddField = document.getElementById("newAddressFields");
+        const saveAddSel = document.getElementById("savedAddressSelect");
+
+        function addressMode(){
+            if(optionSaved.checked){
+                saveAddDiv.style.display = "block";
+                newAddField.style.display = "none";
+                address.removeAttribute("required");
+                provinceSelect.removeAttribute("required");
+                districtSelect.removeAttribute("required");
+                wardSelect.removeAttribute("required");
+                fullAddress.value = saveAddSel.value;
+            }else{
+                saveAddDiv.style.display = "none";
+                newAddField.style.display = "block";
+                address.setAttribute("required","required");
+                provinceSelect.setAttribute("required","required");
+                districtSelect.setAttribute("required","required");
+                wardSelect.setAttribute("required","required");
+                updateFullAddress();
+            }
+        }
+        optionSaved.addEventListener("change",addressMode);
+        optionNew.addEventListener("change",addressMode);
+        saveAddSel.addEventListener("change",function () {
+            if(optionSaved.checked){
+                fullAddress.value = this.value;
+            }
+        });
+        addressMode();
         fetch('https://provinces.open-api.vn/api/p/') //danh sách tỉnh tp từ việc gọi api
             .then(response=>response.json()).then(data=>{
                 data.forEach(province=>{
@@ -280,6 +330,7 @@
         address.addEventListener("input",updateFullAddress);// ở xã và input nhận vào có thay đổi gì không
 
         function updateFullAddress() {
+            if(optionNew.checked){
             let pName = provinceSelect.options[provinceSelect.selectedIndex]?.getAttribute("data-name")||"";
             let dName = districtSelect.options[districtSelect.selectedIndex]?.getAttribute("data-name")||"";
             let wName = wardSelect.options[wardSelect.selectedIndex]?.getAttribute("data-name")||"";
@@ -290,7 +341,8 @@
             if(dName) finaladd.push(dName);
             if(pName) finaladd.push(pName);
             fullAddress.value = finaladd.join(", "); // gộp chuỗi về servlet qua name=address
-        }
+            }
+            }
         const phoneRegex = /^(03|05|07|08|09)\d{8}$/;
         phoneInput.addEventListener("keypress",function (event){
             const str = event.key;
