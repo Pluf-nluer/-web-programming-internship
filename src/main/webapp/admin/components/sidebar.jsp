@@ -20,6 +20,10 @@
       <i class="fa-solid fa-box"></i> <span>Quản lý sản phẩm</span>
     </a>
 
+    <a href="${pageContext.request.contextPath}/admin/inventory"
+       class="admin-menu-item ${param.active == 'inventory' ? 'active' : ''}">
+      <i class="fa-solid fa-box"></i> <span>Quản lý tồn kho</span>
+    </a>
     
     <a href="${pageContext.request.contextPath}/admin/orders"
        class="admin-menu-item ${param.active == 'orders' ? 'active' : ''}">

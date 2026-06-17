@@ -1,5 +1,6 @@
 package com.example.backend.controller.admin;
 
+import com.example.backend.dao.DashboardStatisticsDAO;
 import com.example.backend.model.Product;
 import com.example.backend.model.ProductAttribute;
 import com.example.backend.model.ProductImage;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.Part;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @WebServlet(name = "AdminProductServlet", value = "/admin/products")
@@ -25,6 +27,7 @@ import java.util.List;
 public class AdminProductServlet extends HttpServlet {
 
     private ProductService productService = new ProductService();
+    private DashboardStatisticsDAO statsDAO = new DashboardStatisticsDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -94,8 +97,10 @@ public class AdminProductServlet extends HttpServlet {
         int limit = (lengthParam != null) ? Integer.parseInt(lengthParam) : 1000;
 
         List<Product> listProducts = productService.getAllProductsForAdmin(offset, limit);
-
         request.setAttribute("listProducts", listProducts);
+
+        List<Product> outOfStockList = listProducts.stream().filter(p -> p.getStock() == 0).toList();
+        request.setAttribute("outOfStockProducts", outOfStockList);
         request.getRequestDispatcher("/admin/products/product-list.jsp").forward(request, response);
     }
 
@@ -131,7 +136,7 @@ public class AdminProductServlet extends HttpServlet {
         pImg.setImageUrl(imageUrl);
         newProduct.setImage(pImg);
 
-        productService.insertFullProduct(newProduct, pa);
+        productService.insertFullProduct(newProduct, pa, pImg);
 
         response.sendRedirect(request.getContextPath() + "/admin/products?message=inserted");
     }

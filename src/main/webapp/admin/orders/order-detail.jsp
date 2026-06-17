@@ -17,56 +17,10 @@
 <body>
 <main class="admin-dashboard-main">
     <div class="admin-dashboard-container">
-        
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <div class="admin-logo">
-                    <i class="fa-solid fa-user-shield"></i>
-                </div>
-                <h2>Bảng quản lý Website</h2>
-                <p>Quản trị viên</p>
-            </div>
 
-            <nav class="admin-menu">
-                <a href="${pageContext.request.contextPath}/admin/dashboard" class="admin-menu-item">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Bảng điều khiển</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/products" class="admin-menu-item">
-                    <i class="fa-solid fa-box"></i>
-                    <span>Quản lý sản phẩm</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/order-list.jsp" class="admin-menu-item active">
-                    <i class="fa-solid fa-shopping-cart"></i>
-                    <span>Quản lý đơn hàng</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/customers" class="admin-menu-item">
-                    <i class="fa-solid fa-users"></i>
-                    <span>Quản lý khách hàng</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/reviews" class="admin-menu-item">
-                    <i class="fa-solid fa-star"></i>
-                    <span>Quản lý đánh giá</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/categories" class="admin-menu-item">
-                    <i class="fa-solid fa-folder-tree"></i>
-                    <span>Quản lý danh mục</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/contact" class="admin-menu-item">
-                    <i class="fa-solid fa-envelope"></i>
-                    <span>Quản lý liên hệ</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/blog" class="admin-menu-item">
-                    <i class="fa-solid fa-blog"></i>
-                    <span>Blog</span>
-                </a>
-                <a href="${pageContext.request.contextPath}/admin/banner" class="admin-menu-item">
-                    <i class="fa-solid fa-images"></i>
-                    <span>Banner & Slider</span>
-                </a>
-            </nav>
-        </aside>
-
+        <jsp:include page="/admin/components/sidebar.jsp">
+            <jsp:param name="active" value="orders" />
+        </jsp:include>
         
         <div class="admin-content">
             
