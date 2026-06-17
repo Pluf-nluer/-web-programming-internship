@@ -745,3 +745,105 @@
     outline: 2px solid var(--admin-accent);
     outline-offset: 2px;
 }
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Tránh vỡ layout trên màn hình nhỏ */
+    gap: 15px;
+}
+
+.search-form {
+    display: flex;
+    position: relative;
+    width: 300px;
+    max-width: 100%;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-text-soft, #888);
+    font-size: 14px;
+    pointer-events: none; /* Tránh click nhầm vào icon thay vì input */
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border: 1px solid var(--admin-border-subtle, #ddd);
+    border-radius: var(--admin-radius-sm, 8px);
+    font-size: 14px;
+    color: var(--admin-text-main, #333);
+    background-color: var(--admin-surface, #fff);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--admin-accent, #e67e22);
+    box-shadow: 0 0 0 3px var(--admin-accent-soft, rgba(230, 126, 34, 0.15));
+}
+
+.search-input::placeholder {
+    color: var(--admin-text-muted, #999);
+}
+
+/* --- 2. Empty State (Khi không có đơn hàng) --- */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--admin-surface, #fff);
+    border-radius: var(--admin-radius-md, 8px);
+    border: 2px dashed var(--admin-border-subtle, #eee);
+    margin-top: 20px;
+}
+
+.empty-icon {
+    font-size: 64px;
+    color: var(--admin-border-strong, #ccc);
+    margin-bottom: 24px;
+}
+
+.empty-state h3 {
+    color: var(--admin-text-main, #333);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    color: var(--admin-text-muted, #777);
+    font-size: 14px;
+    margin-bottom: 24px;
+    max-width: 400px;
+}
+
+.btn-clear-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background-color: var(--admin-surface-alt, #f9f9f9);
+    color: var(--admin-text-main, #333);
+    text-decoration: none;
+    border-radius: var(--admin-radius-sm, 6px);
+    font-weight: 500;
+    font-size: 14px;
+    border: 1px solid var(--admin-border-subtle, #ddd);
+    transition: all 0.2s ease;
+}
+
+.btn-clear-search:hover {
+    background-color: var(--admin-border-subtle, #eee);
+    color: var(--admin-accent, #e67e22);
+    border-color: var(--admin-border-strong, #ccc);
+}

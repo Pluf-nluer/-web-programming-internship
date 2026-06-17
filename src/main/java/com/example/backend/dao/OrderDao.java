@@ -314,5 +314,39 @@ public class OrderDao {
         }
         return list;
     }
+    public List<Order> searchOrdersByName(String keyword){
+        List<Order> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT o.* FROM orders o " +
+                "LEFT JOIN order_items oi ON o.id = oi.order_id " +
+                "LEFT JOIN products p ON oi.product_id = p.id " +
+                "WHERE o.shipping_name LIKE ? OR p.name LIKE ? " +
+                "ORDER BY o.id DESC";
+        try(Connection con = DBConnection.getConnection();
+        PreparedStatement pre = con.prepareStatement(sql)){
+            String searchPattern = "%" + keyword.trim() + "%";
+            pre.setString(1,searchPattern);
+            pre.setString(2,searchPattern);
+            ResultSet rs = pre.executeQuery();
+            while (rs.next()) {
+                Order o = new Order();
+                o.setId(rs.getInt("id"));
+                o.setUser_id(rs.getInt("user_id"));
+                o.setShipping_name(rs.getString("shipping_name"));
+                o.setShipping_phone(rs.getString("shipping_phone"));
+                o.setShipping_address(rs.getString("shipping_address"));
+                o.setNote(rs.getString("note"));
+                o.setShipping_fee(rs.getDouble("shipping_fee"));
+                o.setTotal_amount(rs.getDouble("total_amount"));
+                o.setOrder_status(rs.getString("order_status"));
+                o.setEstimated_delivery_date(rs.getDate("estimated_delivery_date"));
+                o.setCreated_at(rs.getTimestamp("created_at"));
+                o.setUpdated_at(rs.getTimestamp("updated_at"));
+                list.add(o);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
 }

@@ -3,6 +3,7 @@ package com.example.backend.controller.admin;
 import com.example.backend.dao.OrderDao;
 import com.example.backend.model.Order;
 import com.example.backend.model.OrderItem;
+import com.example.backend.model.User;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -19,6 +20,12 @@ public class AdminOrderServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        if(user == null || user.getRoleId()!=1){
+            response.sendRedirect(request.getContextPath()+"/login");
+            return;
+        }
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
@@ -40,7 +47,14 @@ public class AdminOrderServlet extends HttpServlet {
         int page = 1;
         int pageSize = 1000;
 
-        List<Order> orders = orderDao.getAllOrders();
+        List<Order> orders;
+        String search = request.getParameter("search");
+        if(search!=null && !search.trim().isEmpty()){
+            orders = orderDao.searchOrdersByName(search);
+            request.setAttribute("searchQuery",search.trim());
+        }else{
+            orders = orderDao.getAllOrders();
+        }
         int totalOrders = orders.size();
 
         request.setAttribute("orders", orders);
@@ -75,6 +89,12 @@ public class AdminOrderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        if (user == null || user.getRoleId() != 1) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
         String action = request.getParameter("action");
 
         if ("updateStatus".equals(action)) {
